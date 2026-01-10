@@ -1,34 +1,33 @@
 "use client";
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Text,
-  Spacer,
-  HStack,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, HStack, Spacer, Container } from "@chakra-ui/react";
+import { LuCoffee } from "react-icons/lu";
 import * as React from "react";
+import Image from "next/image";
 
 export interface INavbarProps {}
 
-export function Navbar(props: INavbarProps) {
+export default function Navbar(props: INavbarProps) {
   return (
-    <Flex as="nav" p="20px" alignItems="center" bg="yellow.fg">
-      <Heading as="h1" color="yellow.focusRing" size="3xl">
-        Roastly
-      </Heading>
-      <Spacer />
-
-      <HStack gap="20px">
-        <Box bg="gray.200" p="10px" borderRadius="6px">
-          M
+    <Flex
+      as="nav"
+      p="20px"
+      justifyContent="center"
+      bg="primary"
+      borderBottomColor="white"
+      borderBottomWidth="2px"
+    >
+      <Flex w="70%">
+        <Box>
+          <Image src="/logo.svg" alt="Roastly logo" width={200} height={100} />
         </Box>
-        <Text color="yellow.focusRing">useremail@email.com</Text>
-        <Button variant="surface" bg="white">
-          log out
-        </Button>
-      </HStack>
+        <Spacer />
+        <HStack gap="16px">
+          <Button variant="ghost" colorScheme="gray">
+            <LuCoffee /> Sign In
+          </Button>
+          <Button variant="solid">Get Started</Button>
+        </HStack>
+      </Flex>
     </Flex>
   );
 }
