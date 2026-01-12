@@ -18,10 +18,17 @@ import * as React from "react";
 import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
+import { useState } from "react";
 
 export interface INavbarProps {}
 
+function handleClick(): void {
+  alert("Button Clicked");
+}
+
 export default function Navbar(props: INavbarProps) {
+  const [inputValue, setInputValue] = useState("");
+  const handleInputChange = (e) => {};
   return (
     <Flex
       as="nav"
@@ -81,7 +88,9 @@ export default function Navbar(props: INavbarProps) {
                     </Field.Root>
                   </VStack>
                   <HStack pt="4" w="100%" justifyContent="center">
-                    <Button variant="solid">Sign In</Button>
+                    <Button variant="solid" onClick={handleClick}>
+                      Sign In
+                    </Button>
                     <Button variant="outline">Sign Up</Button>
                   </HStack>
                 </Dialog.Body>
