@@ -18,9 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ChakraProvider value={roastlySystem}>
-          <LandingPage />
-        </ChakraProvider>
+        <ChakraProvider value={roastlySystem}>{children}</ChakraProvider>
       </body>
     </html>
   );
