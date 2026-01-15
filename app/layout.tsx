@@ -1,14 +1,11 @@
 "use client";
-import type { Metadata } from "next";
-import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
-import { Martian_Mono } from "next/font/google";
-import LandingPage from "./page";
+import { ChakraProvider } from "@chakra-ui/react";
 import { roastlySystem } from "@/ui/theme";
+import "dotenv/config";
+import { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
 
-const martianMono = Martian_Mono({
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700"],
-});
+
 
 export default function RootLayout({
   children,
