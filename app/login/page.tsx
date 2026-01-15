@@ -1,5 +1,4 @@
 "use client";
-import * as React from "react";
 import {
   Image,
   Heading,
@@ -29,7 +28,10 @@ export default function Login() {
     });
 
     if (error) alert(error.message);
-    else alert("confirmation email donkeymonkey");
+    else
+      alert(
+        "Confirmation email sent! I am going to build a modal to tell you this later.",
+      );
   };
 
   const signIn = async () => {
@@ -59,7 +61,13 @@ export default function Login() {
         justifyContent="center"
         w="100%"
       >
-        <Image src="/logo.svg" alt="Roastly logo" width={200} />
+        <Image
+          src="/logo.svg"
+          alt="Roastly logo"
+          width={145.891}
+          height={49.594}
+        />
+
         <Heading mx="auto" p="2">
           Sign In
         </Heading>
