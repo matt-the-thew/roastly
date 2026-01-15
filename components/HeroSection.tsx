@@ -44,6 +44,8 @@ export default function HeroSection() {
           <Image
             src="/heromap.png"
             alt="A map of a city with several locations marked."
+            height={587}
+            width={587}
           />
         </Box>
       </Flex>

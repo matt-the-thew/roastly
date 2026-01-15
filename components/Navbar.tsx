@@ -21,7 +21,12 @@ export default function Navbar() {
     >
       <Flex w="70%">
         <Box>
-          <Image src="/logo.svg" alt="Roastly logo" width={200} height={100} />
+          <Image
+            src="/logo.svg"
+            alt="Roastly logo"
+            width={145.891}
+            height={49.594}
+          />
         </Box>
         <Spacer />
         <HStack gap="16px">

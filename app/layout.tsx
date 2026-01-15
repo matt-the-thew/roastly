@@ -2,10 +2,6 @@
 import { ChakraProvider } from "@chakra-ui/react";
 import { roastlySystem } from "@/ui/theme";
 import "dotenv/config";
-import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-
 
 export default function RootLayout({
   children,
