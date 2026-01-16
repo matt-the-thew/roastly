@@ -14,48 +14,27 @@ import {
 import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { redirect, RedirectType } from "next/navigation";
 import { log } from "@/lib/logger";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const supabase = createClient();
 
-  const signUp = async () => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: "https://roastly-pi.vercel.app/auth/confirm",
-      },
+  async function signUp() {
+    await fetch("/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
     });
+  }
 
-    if (error) alert(error.message);
-    else
-      alert(
-        "Confirmation email sent! I am going to build a modal to tell you this later.",
-      );
-    log.debug(`sign up recieved for ${email} : ${password}`);
-    log.debug(`sending confirmation email.`);
-    log.debug(`signup origin: ${window.location.origin}`);
-
-    if (error) log.warn(error.message);
-    else log.debug("Confirmation email sent!");
-  };
-
-  const signIn = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+  async function signIn() {
+    await fetch("auth/signin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
     });
-
-    log.debug(`attempting sign in with ${email} : ${password}`);
-
-    if (error) log.warn(error.message);
-    else redirect("/logged_in", RedirectType.replace);
-  };
+  }
 
   function handleAppleClick(): void {
     log.debug("you're trying to sign in with apple.");

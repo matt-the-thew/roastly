@@ -3,13 +3,8 @@ import { Box, Button, Flex, HStack, Spacer } from "@chakra-ui/react";
 import { LuCoffee } from "react-icons/lu";
 import Image from "next/image";
 import Link from "next/link";
-import { createKong } from "@/lib/kong";
 
 export default function Navbar() {
-  function getStartedKongInit(): void {
-    createKong();
-  }
-
   return (
     <Flex
       as="nav"
@@ -34,9 +29,7 @@ export default function Navbar() {
             <LuCoffee />
             <Link href="/login">Sign In</Link>
           </Button>
-          <Button variant="solid" onClick={getStartedKongInit}>
-            Get Started
-          </Button>
+          <Button variant="solid">Get Started</Button>
         </HStack>
       </Flex>
     </Flex>

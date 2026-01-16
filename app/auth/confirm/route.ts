@@ -3,6 +3,7 @@ import { type NextRequest } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { log } from "@/lib/logger";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -10,6 +11,9 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get("type") as EmailOtpType | null;
   const nextPath = searchParams.get("next") ?? "/";
   const safeNext = nextPath.startsWith("/") ? nextPath : "/";
+
+  log.debug(`[AUTH CONFIRM]: Full REQ URL: ${request.url}`);
+  log.debug(`[AUTH CONFIRM]: Next param: ${searchParams.get("next")}`);
 
   if (token_hash && type) {
     const supabase = await createClient();
