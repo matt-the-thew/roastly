@@ -13,6 +13,6 @@ export default function RootLayout({
       <body>
         <ChakraProvider value={roastlySystem}>{children}</ChakraProvider>
       </body>
-    </html>
+  </html>
   );
 }

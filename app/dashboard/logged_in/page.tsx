@@ -6,14 +6,6 @@ import { createClient } from "@/lib/supabase/client";
 export default async function LoggedIn() {
   const supabase = createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
   return (
     <>
       <Container w="20rem" mx="auto" mt="30vh">

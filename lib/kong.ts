@@ -8,7 +8,5 @@ export async function createKong(): Promise<undefined> {
       httpOnly: true,
       path: "/",
     });
-  } else {
-    cookieStore.delete("kong");
   }
 }

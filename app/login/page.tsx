@@ -1,5 +1,4 @@
 "use client";
-import * as React from "react";
 import {
   Image,
   Heading,
@@ -16,6 +15,8 @@ import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { redirect, RedirectType } from "next/navigation";
+import { log } from "@/lib/logger";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -28,8 +29,11 @@ export default function Login() {
       password,
     });
 
-    if (error) alert(error.message);
-    else alert("confirmation email donkeymonkey");
+    log.debug(`sign up recieved for ${email} : ${password}`);
+    log.debug(`sending confirmation email.`);
+
+    if (error) log.warn(error.message);
+    else log.debug("Confirmation email sent!");
   };
 
   const signIn = async () => {
@@ -38,16 +42,18 @@ export default function Login() {
       password,
     });
 
-    if (error) alert(error.message);
-    else window.location.href = "/logged_in";
+    log.debug(`attempting sign in with ${email} : ${password}`);
+
+    if (error) log.warn(error.message);
+    else redirect("/logged_in", RedirectType.replace);
   };
 
   function handleAppleClick(): void {
-    console.log("you're trying to sign in with apple.");
+    log.debug("you're trying to sign in with apple.");
   }
 
   function handleGoogleClick(): void {
-    console.log("you're trying to sign in with google.");
+    log.debug("you're trying to sign in with google.");
   }
 
   return (
@@ -59,7 +65,12 @@ export default function Login() {
         justifyContent="center"
         w="100%"
       >
-        <Image src="/logo.svg" alt="Roastly logo" width={200} />
+        <Image
+          src="/logo.svg"
+          alt="Roastly logo"
+          width={145.891}
+          height={49.594}
+        />
         <Heading mx="auto" p="2">
           Sign In
         </Heading>
