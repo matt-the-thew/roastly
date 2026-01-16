@@ -36,12 +36,15 @@ export async function updateSession(
 
   const { data, error } = await supabase.auth.getClaims();
 
-  console.log("[PROXY]: auth check:", {
-    path: request.nextUrl.pathname,
-    hasClaims: Boolean(data?.claims),
-    userId: data?.claims?.sub ?? null,
-    error: error?.message ?? null,
-  });
+  log.debug(
+    "[PROXY]: auth check:" +
+      {
+        path: request.nextUrl.pathname,
+        hasClaims: Boolean(data?.claims),
+        userId: data?.claims?.sub ?? null,
+        error: error?.message ?? null,
+      },
+  );
 
   const user = data?.claims;
 

@@ -3,6 +3,10 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import Footer from "@/components/Footer";
 import { Grid } from "@chakra-ui/react";
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 import { log } from "@/lib/logger";
 
 log.info("Welcome to Roastly.");
