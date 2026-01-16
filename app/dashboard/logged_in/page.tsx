@@ -1,11 +1,7 @@
 import * as React from "react";
 import { Heading, Container, Image } from "@chakra-ui/react";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 
 export default async function LoggedIn() {
-  const supabase = createClient();
-
   return (
     <>
       <Container w="20rem" mx="auto" mt="30vh">
