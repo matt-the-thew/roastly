@@ -7,6 +7,7 @@ import { Grid } from "@chakra-ui/react";
 import { log } from "@/lib/logger";
 
 log.info("Welcome to Roastly.");
+log.debug(`SITE URL: ${process.env.NEXT_PUBLIC_SITE_URL}`);
 
 export default function HomePage() {
   return (

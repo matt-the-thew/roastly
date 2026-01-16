@@ -32,7 +32,7 @@ export default function Login() {
       },
     });
 
-    log.debug(`sending confirmation email.`);
+    log.debug(`sending confirmation email to ${email}`);
 
     if (error) {
       log.warn(error.message);
@@ -42,14 +42,12 @@ export default function Login() {
   }
 
   async function signIn() {
-    const supabase = createClient();
-
-    const { error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    log.debug(`sign in recieved for ${email} : ${password}`);
+    log.debug(`sign in recieved for ${email} `);
 
     if (error) {
       log.warn(error.message);
