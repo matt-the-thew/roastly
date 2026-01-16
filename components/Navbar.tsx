@@ -17,7 +17,7 @@ export default function Navbar() {
       <Flex w="70%">
         <Box>
           <Image
-            src="/logo.svg"
+            src={"/logo.svg"}
             alt="Roastly logo"
             width={145.891}
             height={49.594}
@@ -27,7 +27,7 @@ export default function Navbar() {
         <HStack gap="16px">
           <Button variant="ghost" colorScheme="gray">
             <LuCoffee />
-            <Link href="/login">Sign In</Link>
+            <Link href={"/auth/login"}>Sign In</Link>
           </Button>
           <Button variant="solid">Get Started</Button>
         </HStack>

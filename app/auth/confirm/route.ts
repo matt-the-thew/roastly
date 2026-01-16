@@ -12,8 +12,8 @@ export async function GET(request: NextRequest) {
   const nextPath = searchParams.get("next") ?? "/";
   const safeNext = nextPath.startsWith("/") ? nextPath : "/";
 
-  log.debug(`[AUTH CONFIRM]: Full REQ URL: ${request.url}`);
-  log.debug(`[AUTH CONFIRM]: Next param: ${searchParams.get("next")}`);
+  log.debug(`[/auth/confirm]: Full REQ URL: ${request.url}`);
+  log.debug(`[/auth/confirm]: Next param: ${searchParams.get("next")}`);
 
   if (token_hash && type) {
     const supabase = await createClient();

@@ -15,25 +15,46 @@ import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useState } from "react";
 import { log } from "@/lib/logger";
+import { createClient } from "@/lib/supabase/client";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const supabase = createClient();
+
   async function signUp() {
-    await fetch("/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
+      },
     });
+
+    log.debug(`sending confirmation email.`);
+
+    if (error) {
+      log.warn(error.message);
+    } else {
+      log.debug("Confirmation email sent!");
+    }
   }
 
   async function signIn() {
-    await fetch("auth/signin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+    const supabase = createClient();
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
     });
+
+    log.debug(`sign in recieved for ${email} : ${password}`);
+
+    if (error) {
+      log.warn(error.message);
+    } else {
+    }
   }
 
   function handleAppleClick(): void {
@@ -54,7 +75,7 @@ export default function Login() {
         w="100%"
       >
         <Image
-          src="/logo.svg"
+          src={"/logo.svg"}
           alt="Roastly logo"
           width={145.891}
           height={49.594}

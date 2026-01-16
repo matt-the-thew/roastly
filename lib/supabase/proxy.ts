@@ -37,7 +37,7 @@ export async function updateSession(
   const { data, error } = await supabase.auth.getClaims();
 
   log.debug(
-    "[PROXY]: auth check:" +
+    "[supabase proxy.ts]: auth check:" +
       {
         path: request.nextUrl.pathname,
         hasClaims: Boolean(data?.claims),
@@ -48,7 +48,7 @@ export async function updateSession(
 
   const user = data?.claims;
 
-  if (user && request.nextUrl.pathname == "/login") {
+  if (user && request.nextUrl.pathname == "/auth/login") {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard/logged_in";
     return NextResponse.redirect(url);
