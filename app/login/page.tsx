@@ -27,21 +27,22 @@ export default function Login() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: "https://roastly-pi.vercel.app/auth/confirm",
+      },
     });
 
-<<<<<<< HEAD
     if (error) alert(error.message);
     else
       alert(
         "Confirmation email sent! I am going to build a modal to tell you this later.",
       );
-=======
     log.debug(`sign up recieved for ${email} : ${password}`);
     log.debug(`sending confirmation email.`);
+    log.debug(`signup origin: ${window.location.origin}`);
 
     if (error) log.warn(error.message);
     else log.debug("Confirmation email sent!");
->>>>>>> dev
   };
 
   const signIn = async () => {
@@ -79,10 +80,7 @@ export default function Login() {
           width={145.891}
           height={49.594}
         />
-<<<<<<< HEAD
 
-=======
->>>>>>> dev
         <Heading mx="auto" p="2">
           Sign In
         </Heading>
