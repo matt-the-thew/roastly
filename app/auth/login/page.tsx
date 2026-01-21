@@ -24,7 +24,7 @@ export default function Login() {
   const supabase = createClient();
 
   async function signUp() {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -32,12 +32,10 @@ export default function Login() {
       },
     });
 
-    log.debug(`sending confirmation email to ${email}`);
+    log.debug(`SIGNUP DATA: ${JSON.stringify(data)}`);
 
     if (error) {
-      log.warn(error.message);
-    } else {
-      log.debug("Confirmation email sent!");
+      log.warn(`SIGNUP ERROR: ${error.message}`);
     }
   }
 
