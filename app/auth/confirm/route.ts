@@ -5,27 +5,50 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { log } from "@/lib/logger";
 
-export async function GET(request: NextRequest) {
+async function verifyToken(request: NextRequest) {
   const { searchParams } = new URL(request.url);
+  const code = searchParams.get("code");
   const token_hash = searchParams.get("token_hash");
-  const type = searchParams.get("type") as EmailOtpType | null;
-  const nextPath = searchParams.get("next") ?? "/";
-  const safeNext = nextPath.startsWith("/") ? nextPath : "/";
+  const type = searchParams.get("type") as EmailOtpType;
+  const supabase = await createClient();
 
-  log.debug(`[/auth/confirm]: Full REQ URL: ${request.url}`);
-  log.debug(`[/auth/confirm]: Next param: ${searchParams.get("next")}`);
-
-  if (token_hash && type) {
-    const supabase = await createClient();
-
+  if (code) {
+    log.debug("[AUTH/CONFIRM]: using legacy token");
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) return;
+    throw new Error(
+      `[AUTH/CONFIRM]: error exchanging code for session: ${error.message}`,
+    );
+  } else if (token_hash && type) {
+    log.debug("[AUTH/CONFIRM]: using Auth v2");
     const { error } = await supabase.auth.verifyOtp({
-      type,
-      token_hash,
+      token_hash: token_hash,
+      type: type,
     });
-    if (!error) {
-      redirect(safeNext);
-    }
+    if (!error) return;
+    throw new Error(`[AUTH/CONFIRM]: error verifying otp: ${error.message}`);
+  } else {
+    throw new Error("[AUTH/CONFIRM]: No token or token_hash found");
   }
+}
 
-  redirect("/auth/auth-code-error");
+function getSanitizedNextPath(request: NextRequest): string {
+  const { searchParams } = new URL(request.url);
+  const nextPath = searchParams.get("next") ?? "/";
+  return nextPath.startsWith("/") ? nextPath : "/";
+}
+
+export async function GET(request: NextRequest) {
+  log.debug(JSON.stringify(request));
+  const nextPath = getSanitizedNextPath(request);
+
+  try {
+    await verifyToken(request);
+    redirect(nextPath);
+  } catch (err) {
+    if (err instanceof Error) {
+      log.error(err.message);
+    }
+    redirect("/auth/auth-code-error");
+  }
 }
