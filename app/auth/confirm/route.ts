@@ -32,22 +32,23 @@ async function verifyToken(request: NextRequest) {
   }
 }
 
-function getSanitizedNextPath(request: NextRequest): string {
-  const { searchParams } = new URL(request.url);
-  const nextPath = searchParams.get("next") ?? "/";
-  return nextPath.startsWith("/") ? nextPath : "/";
-}
+// function getSanitizedNextPath(request: NextRequest): string {
+//   const { searchParams } = new URL(request.url);
+//   const nextPath = searchParams.get("next") ?? "/";
+//   return nextPath.startsWith("/") ? nextPath : "/";
+// }
 
 export async function GET(request: NextRequest) {
   log.debug(JSON.stringify(request));
-  const nextPath = getSanitizedNextPath(request);
+  const successfulAuthRedirectPath = "/dashboard/logged_in";
 
   try {
     await verifyToken(request);
-    redirect(nextPath);
+    log.debug("[AUTH/CONFIRM]: Token verified");
+    redirect(successfulAuthRedirectPath);
   } catch (err) {
     if (err instanceof Error) {
-      log.error(err.message);
+      log.debug(err.message);
     }
     redirect("/auth/auth-code-error");
   }

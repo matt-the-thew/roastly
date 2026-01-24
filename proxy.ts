@@ -2,8 +2,8 @@ import { type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
 import { log } from "./lib/logger";
 
-export default async function middleware(request: NextRequest) {
-  log.debug("[MIDDLEWARE]: awaiting updateSession");
+export default async function proxy(request: NextRequest) {
+  log.debug("[PROXY]: awaiting updateSession");
   return await updateSession(request);
 }
 

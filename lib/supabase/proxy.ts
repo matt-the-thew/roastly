@@ -38,12 +38,12 @@ export async function updateSession(
 
   log.debug(
     "[supabase proxy.ts]: auth check:" +
-      {
+      JSON.stringify({
         path: request.nextUrl.pathname,
         hasClaims: Boolean(data?.claims),
         userId: data?.claims?.sub ?? null,
         error: error?.message ?? null,
-      },
+      }),
   );
 
   const user = data?.claims;
