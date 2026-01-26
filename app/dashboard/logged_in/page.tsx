@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Heading, Container, Image } from "@chakra-ui/react";
 
 export default async function LoggedIn() {

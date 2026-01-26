@@ -50,7 +50,6 @@ export default function Login() {
     if (error) {
       log.warn(error.message);
       alert(error.message);
-    } else {
     }
   }
 

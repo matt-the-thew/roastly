@@ -1,10 +1,15 @@
 import { type NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/proxy";
+import SessionHandler from "./lib/supabase/sessionhandler";
 import { log } from "./lib/logger";
+
+const sessionHandlerInstance = new SessionHandler(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+);
 
 export default async function proxy(request: NextRequest) {
   log.debug("[PROXY]: awaiting updateSession");
-  return await updateSession(request);
+  await sessionHandlerInstance.updateSession(request);
 }
 
 export const config = {

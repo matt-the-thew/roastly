@@ -40,16 +40,15 @@ async function verifyToken(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   log.debug(JSON.stringify(request));
-  const successfulAuthRedirectPath = "/dashboard/logged_in";
 
   try {
     await verifyToken(request);
-    log.debug("[AUTH/CONFIRM]: Token verified");
-    redirect(successfulAuthRedirectPath);
-  } catch (err) {
+  } catch (err: unknown) {
     if (err instanceof Error) {
-      log.debug(err.message);
+      log.debug(`[AUTH/CONFIRM]: Error verifying token: ${err.message}`);
+      redirect("/auth/auth-code-error");
     }
-    redirect("/auth/auth-code-error");
   }
+  log.debug("[AUTH/CONFIRM]: Token verified");
+  redirect("/dashboard/logged_in");
 }
