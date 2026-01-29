@@ -7,6 +7,7 @@ import { log } from "@/lib/logger";
 
 log.info("Welcome to Roastly.");
 log.debug(`STORED SITE URL: ${process.env.NEXT_PUBLIC_SITE_URL}`);
+log.debug(`SUPABASE URL: ${process.env.NEXT_PUBLIC_SUPABASE_URL}`);
 
 export default function HomePage() {
   return (
