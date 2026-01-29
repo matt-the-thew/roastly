@@ -4,14 +4,13 @@ import HeroSection from "@/components/HeroSection";
 import Footer from "@/components/Footer";
 import { Grid } from "@chakra-ui/react";
 import { log } from "@/lib/logger";
-import { ENVIRONMENT } from "@/proxy";
 
 log.info("Welcome to Roastly.");
-if (ENVIRONMENT === "STAGING") {
+if (process.env.DEPLOY_ENVIRONMENT === "STAGING") {
   log.debug(`STORED SITE URL: ${process.env.NEXT_PUBLIC_ROASTLY_DEV_SITE_URL}`);
-} else if (ENVIRONMENT === "PRODUCTION") {
+} else if (process.env.DEPLOY_ENVIRONMENT === "PRODUCTION") {
   log.debug(`STORED SITE URL: ${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}`);
-} else if (ENVIRONMENT === "LOCAL") {
+} else if (process.env.DEPLOY_ENVIRONMENT === "LOCAL") {
   log.debug(`STORED SITE URL: ${process.env.NEXT_PUBLIC_LOCAL_SITE_URL}`);
 }
 

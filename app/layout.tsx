@@ -10,6 +10,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/icon.png" sizes="any" />
+      </head>
       <body>
         <ChakraProvider value={roastlySystem}>{children}</ChakraProvider>
       </body>

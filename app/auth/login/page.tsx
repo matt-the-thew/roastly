@@ -16,7 +16,6 @@ import { FcGoogle } from "react-icons/fc";
 import { useState } from "react";
 import { log } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/client";
-import { ENVIRONMENT } from "@/proxy";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -25,11 +24,11 @@ export default function Login() {
   const supabase = createClient();
   let redirectLink: string;
 
-  if (ENVIRONMENT === "STAGING") {
+  if (process.env.DEPLOY_ENVIRONMENT === "STAGING") {
     redirectLink = `${process.env.NEXT_PUBLIC_LOCAL_SITE_URL}`;
-  } else if (ENVIRONMENT === "PRODUCTION") {
+  } else if (process.env.DEPLOY_ENVIRONMENT === "PRODUCTION") {
     redirectLink = `${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}`;
-  } else if (ENVIRONMENT === "LOCAL") {
+  } else if (process.env.DEPLOY_ENVIRONMENT === "LOCAL") {
     redirectLink = `${process.env.NEXT_PUBLIC_ROASTLY_DEV_SITE_URL}`;
   }
 

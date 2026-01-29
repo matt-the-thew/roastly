@@ -2,22 +2,21 @@ import { type NextRequest } from "next/server";
 import SessionHandler from "./lib/supabase/sessionhandler";
 import { log } from "./lib/logger";
 
-export const ENVIRONMENT = process.env.DEPLOY_ENVIRONMENT;
-log.debug(`Roastly running in ${ENVIRONMENT}`);
+log.debug(`Roastly running in ${process.env.DEPLOY_ENVIRONMENT}`);
 
 let sessionHandlerInstance: SessionHandler;
 
-if (ENVIRONMENT === "LOCAL") {
+if (process.env.DEPLOY_ENVIRONMENT === "LOCAL") {
   sessionHandlerInstance = new SessionHandler(
     `${process.env.NEXT_PUBLIC_LOCAL_SUPABASE_URL}`,
     `${process.env.NEXT_PUBLIC_LOCAL_SUPABASE_PUBLISHABLE_KEY}`,
   );
-} else if (ENVIRONMENT === "STAGING") {
+} else if (process.env.DEPLOY_ENVIRONMENT === "STAGING") {
   sessionHandlerInstance = new SessionHandler(
     `${process.env.NEXT_PUBLIC_ROASTLY_DEV_SUPABASE_URL}`,
     `${process.env.NEXT_PUBLIC_ROASTLY_DEV_SUPABASE_PUBLISHABLE_KEY}`,
   );
-} else if (ENVIRONMENT === "PRODUCTION") {
+} else if (process.env.DEPLOY_ENVIRONMENT === "PRODUCTION") {
   sessionHandlerInstance = new SessionHandler(
     `${process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_URL}`,
     `${process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_PUBLISHABLE_KEY}`,

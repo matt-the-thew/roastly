@@ -1,11 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { ENVIRONMENT } from "@/proxy";
 
 export async function createClient() {
   const cookieStore = await cookies();
 
-  if (ENVIRONMENT === "LOCAL") {
+  if (process.env.DEPLOY_ENVIRONMENT === "LOCAL") {
     return createServerClient(
       `${process.env.NEXT_PUBLIC_LOCAL_SUPABASE_URL}`,
       `${process.env.NEXT_PUBLIC_LOCAL_SUPABASE_PUBLISHABLE_KEY}`,
@@ -28,7 +27,7 @@ export async function createClient() {
         },
       },
     );
-  } else if (ENVIRONMENT === "STAGING") {
+  } else if (process.env.DEPLOY_ENVIRONMENT === "STAGING") {
     return createServerClient(
       `${process.env.NEXT_PUBLIC_ROASTLY_DEV_SUPABASE_URL}`,
       `${process.env.NEXT_PUBLIC_ROASTLY_DEV_SUPABASE_PUBLISHABLE_KEY}`,
@@ -51,7 +50,7 @@ export async function createClient() {
         },
       },
     );
-  } else if (ENVIRONMENT === "PRODUCTION") {
+  } else if (process.env.DEPLOY_ENVIRONMENT === "PRODUCTION") {
     return createServerClient(
       `${process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_URL}`,
       `${process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_PUBLISHABLE_KEY}`,
