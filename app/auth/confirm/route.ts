@@ -14,14 +14,14 @@ async function verifyToken(request: NextRequest) {
 
   if (code) {
     log.debug("[AUTH/CONFIRM]: using legacy token");
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase!.auth.exchangeCodeForSession(code);
     if (!error) return;
     throw new Error(
       `[AUTH/CONFIRM]: error exchanging code for session: ${error.message}`,
     );
   } else if (token_hash && type) {
     log.debug("[AUTH/CONFIRM]: using Auth v2");
-    const { error } = await supabase.auth.verifyOtp({
+    const { error } = await supabase!.auth.verifyOtp({
       token_hash: token_hash,
       type: type,
     });
