@@ -16,40 +16,62 @@ import { FcGoogle } from "react-icons/fc";
 import { useState } from "react";
 import { log } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/client";
+import { ENVIRONMENT } from "@/proxy";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const supabase = createClient();
+  let redirectLink: string;
+
+  if (ENVIRONMENT === "STAGING") {
+    redirectLink = `${process.env.NEXT_PUBLIC_LOCAL_SITE_URL}`;
+  } else if (ENVIRONMENT === "PRODUCTION") {
+    redirectLink = `${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}`;
+  } else if (ENVIRONMENT === "LOCAL") {
+    redirectLink = `${process.env.NEXT_PUBLIC_ROASTLY_DEV_SITE_URL}`;
+  }
 
   async function signUp() {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
-      },
-    });
+    try {
+      const { data, error } = await supabase!.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${redirectLink}/auth/confirm`,
+        },
+      });
 
-    log.debug(`SIGNUP DATA: ${JSON.stringify(data)}`);
+      log.debug(`SIGNUP DATA: ${JSON.stringify(data)}`);
 
-    if (error) {
-      log.warn(`SIGNUP ERROR: ${error.message}`);
+      if (error) {
+        log.warn(`SIGNUP ERROR: ${error.message}`);
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        log.error(`SIGNUP: An unknown error occurred ${err.message}`);
+      }
     }
   }
 
   async function signIn() {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { error } = await supabase!.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    log.debug(`sign in recieved for ${email} `);
+      log.debug(`sign in recieved for ${email} `);
 
-    if (error) {
-      log.warn(error.message);
-      alert(error.message);
+      if (error) {
+        log.warn(error.message);
+        alert(error.message);
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        log.error(`SIGN IN: An unknown error occurred ${err.message}`);
+      }
     }
   }
 

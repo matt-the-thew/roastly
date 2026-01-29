@@ -8,11 +8,5 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
-        <ChakraProvider value={roastlySystem}>{children}</ChakraProvider>
-      </body>
-    </html>
-  );
+  return <ChakraProvider value={roastlySystem}>{children}</ChakraProvider>;
 }
