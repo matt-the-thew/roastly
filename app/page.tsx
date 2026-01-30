@@ -6,13 +6,7 @@ import { Grid } from "@chakra-ui/react";
 import { log } from "@/lib/logger";
 
 log.info("Welcome to Roastly.");
-if (process.env.DEPLOY_ENVIRONMENT === "STAGING") {
-  log.debug(`STORED SITE URL: ${process.env.NEXT_PUBLIC_ROASTLY_DEV_SITE_URL}`);
-} else if (process.env.DEPLOY_ENVIRONMENT === "PRODUCTION") {
-  log.debug(`STORED SITE URL: ${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}`);
-} else if (process.env.DEPLOY_ENVIRONMENT === "LOCAL") {
-  log.debug(`STORED SITE URL: ${process.env.NEXT_PUBLIC_LOCAL_SITE_URL}`);
-}
+log.debug(`STORED SITE URL: ${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}`);
 
 export default function HomePage() {
   return (

@@ -22,15 +22,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
 
   const supabase = createClient();
-  let redirectLink: string;
-
-  if (process.env.DEPLOY_ENVIRONMENT === "STAGING") {
-    redirectLink = `${process.env.NEXT_PUBLIC_LOCAL_SITE_URL}`;
-  } else if (process.env.DEPLOY_ENVIRONMENT === "PRODUCTION") {
-    redirectLink = `${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}`;
-  } else if (process.env.DEPLOY_ENVIRONMENT === "LOCAL") {
-    redirectLink = `${process.env.NEXT_PUBLIC_ROASTLY_DEV_SITE_URL}`;
-  }
+  const redirectLink = `${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}`;
 
   async function signUp() {
     try {
