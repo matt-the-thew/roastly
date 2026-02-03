@@ -1,10 +1,5 @@
 import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react";
 import { buttonRecipe } from "./recipes/button";
-import { Martian_Mono } from "next/font/google";
-
-const martianMono = Martian_Mono({
-  variable: "--font-martian",
-});
 
 const config = defineConfig({
   theme: {

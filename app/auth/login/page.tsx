@@ -40,16 +40,17 @@ export default function Login() {
   }
 
   async function signIn() {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    log.debug(`sign in recieved for ${email} `);
-
-    if (error) {
-      log.warn(error.message);
-      alert(error.message);
+    try {
+      await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      log.debug(`sign in recieved for ${email} `);
+    } catch (err) {
+      if (err instanceof Error) {
+        log.warn(err.message);
+        alert(err.message);
+      }
     }
   }
 

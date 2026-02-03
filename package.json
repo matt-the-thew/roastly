@@ -180,6 +180,7 @@
     "loose-envify": "^1.4.0",
     "lru-cache": "^5.1.1",
     "magic-string": "^0.30.21",
+    "maplibre-gl": "^5.17.0",
     "math-intrinsics": "^1.1.0",
     "merge2": "^1.4.1",
     "micromatch": "^4.0.8",
@@ -302,6 +303,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "vitest",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:db:pull": "supabase db pull",
@@ -315,8 +317,16 @@
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@svgr/webpack": "^8.1.0",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/jsdom": "^27.0.0",
     "@types/node": "25.0.3",
     "@types/react": "19.2.7",
-    "react-lorem-ipsum": "^1.4.10"
+    "@vitejs/plugin-react": "^5.1.3",
+    "jsdom": "^28.0.0",
+    "react-lorem-ipsum": "^1.4.10",
+    "vite-tsconfig-paths": "^6.0.5",
+    "vitest": "^4.0.18"
   }
 }
