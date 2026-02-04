@@ -1,10 +1,11 @@
 "use client";
-import MapView from "@/components/Map";
+import MapView from "@/components/MapView";
+import { VStack } from "@chakra-ui/react";
 
 export default function HomePage() {
   return (
-    <div className="h-screen w-screen">
+    <VStack h="100vh" w="100%">
       <MapView></MapView>
-    </div>
+    </VStack>
   );
 }
