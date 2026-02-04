@@ -11,6 +11,7 @@ import {
   Container,
   Box,
 } from "@chakra-ui/react";
+import { redirect } from "next/navigation";
 import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useState } from "react";
@@ -28,7 +29,7 @@ export default function Login() {
       email,
       password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}/auth/confirm`,
       },
     });
 
@@ -46,6 +47,7 @@ export default function Login() {
         password,
       });
       log.debug(`sign in recieved for ${email} `);
+      redirect("/dashboard/homepage");
     } catch (err) {
       if (err instanceof Error) {
         log.warn(err.message);

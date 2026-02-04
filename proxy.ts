@@ -17,7 +17,7 @@ export default async function proxy(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/dashboard")
   ) {
     log.debug("[PROXY]: user not authorized, redirecting to login...");
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
   //if authorized user tries to login, send to dashboard
