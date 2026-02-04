@@ -47,12 +47,14 @@ export default function Login() {
         password,
       });
       log.debug(`sign in recieved for ${email} `);
-      redirect("/dashboard/homepage");
     } catch (err) {
       if (err instanceof Error) {
-        log.warn(err.message);
-        alert(err.message);
+        alert("There was a problem signing in.");
+        return log.error(
+          `[SIGNUP]: There was a problem signing in ${err.message}`,
+        );
       }
+      redirect("/dashboard/homepage");
     }
   }
 
