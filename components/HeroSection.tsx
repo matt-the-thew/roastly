@@ -1,8 +1,7 @@
 "use client";
-import * as React from "react";
+import Link from "next/link";
 import {
   Heading,
-  HStack,
   VStack,
   Flex,
   Text,
@@ -12,8 +11,6 @@ import {
 } from "@chakra-ui/react";
 
 export default function HeroSection() {
-  const [isOpen, setOpen] = React.useState(false);
-
   return (
     <>
       <Flex
@@ -35,9 +32,11 @@ export default function HeroSection() {
             favorite roast.
           </Heading>
           <Box w="100%">
-            <Button variant="solid" borderRadius="20px" p="6" mt="8" ml="20">
-              browse local cafes
-            </Button>
+            <Link href="/dashboard/homepage">
+              <Button variant="solid" borderRadius="20px" p="6" mt="8" ml="20">
+                browse local cafes
+              </Button>
+            </Link>
           </Box>
         </VStack>
         <Box>
