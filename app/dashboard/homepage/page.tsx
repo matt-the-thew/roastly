@@ -1,11 +1,9 @@
 "use client";
 
-import Map from "react-map-gl/mapbox";
-import { log } from "@/lib/logger";
+import Map, { GeolocateControl, Marker } from "react-map-gl/mapbox";
+import { Location, locationData } from "@/components/location";
 
 function HomePage() {
-  log.debug(`using api key ${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`);
-
   return (
     <Map
       mapboxAccessToken={`${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`}
@@ -14,9 +12,22 @@ function HomePage() {
         latitude: 34.1533,
         zoom: 10,
       }}
-      style={{ width: 500, height: 500 }}
+      style={{ width: "100vw", height: "100vh" }}
       mapStyle={"mapbox://styles/mapbox/standard"}
-    />
+    >
+      <GeolocateControl
+        positionOptions={{ enableHighAccuracy: true }}
+        trackUserLocation={true}
+        showUserLocation={true}
+      />
+      {locationData.map((index: Location) => (
+        <Marker
+          key={index.name}
+          longitude={index.longitude}
+          latitude={index.latitude}
+        ></Marker>
+      ))}
+    </Map>
   );
 }
 
