@@ -18,4 +18,10 @@ export const locationData: Array<Location> = [
     longitude: -118.953329,
     latitude: 34.179434,
   },
+  {
+    id: 3,
+    name: "Five07 on the Boulevard",
+    longitude: -118.837267,
+    latitude: 34.170472,
+  },
 ];

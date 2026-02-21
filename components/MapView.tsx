@@ -1,47 +1,47 @@
 "use client";
-import React, { useRef, useEffect } from "react";
-import maplibregl from "maplibre-gl";
-import { log } from "@/lib/logger";
+import Map, { GeolocateControl, Marker, Layer } from "react-map-gl/mapbox";
+import { Location, locationData } from "@/components/location";
+import MarkerInterior from "./MarkerInterior";
+import { useState } from "react";
 
-export default function MapView() {
-  const mapContainer = useRef<HTMLDivElement | null>(null);
-  const map = useRef<maplibregl.Map | null>(null);
-  const lng = -118.7891915;
-  const lat = 34.1574793;
-  const zoom = 14;
-  const API_KEY: string | undefined = process.env.NEXT_PUBLIC_MAPLIBRE_API_KEY;
-  if (!API_KEY) {
-    log.error(`[MapView Component]: Missing API key`);
-  }
-
-  useEffect(() => {
-    //stops map from initializing more than once
-    if (!mapContainer.current || map.current) return;
-    map.current = new maplibregl.Map({
-      container: mapContainer.current,
-      style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${API_KEY}`,
-      center: [lng, lat],
-      zoom: zoom,
-    });
-
-    return () => {
-      if (map.current) {
-        map.current.remove();
-      }
-    };
-  }, []);
-
+function MapView() {
   return (
-    <div
-      ref={mapContainer}
-      style={{
-        width: "100%",
-        height: "100vh",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        zIndex: 0,
+    <Map
+      mapboxAccessToken={`${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`}
+      initialViewState={{
+        longitude: -118.7617,
+        latitude: 34.1533,
+        zoom: 12,
       }}
-    />
+      style={{ width: "100%", height: "100%", zIndex: 1 }}
+      mapStyle={"mapbox://styles/mapbox/standard"}
+      onLoad={(e) => {
+        const map = e.target;
+
+        map.getStyle().layers?.forEach((layer) => {
+          if (layer.type === "symbol" && layer.layout?.["text-field"]) {
+            map.setLayoutProperty(layer.id, "visibility", "none");
+          }
+        });
+      }}
+    >
+      <GeolocateControl
+        positionOptions={{ enableHighAccuracy: true }}
+        trackUserLocation={true}
+        showUserLocation={true}
+      />
+      {locationData.map((index: Location) => (
+        <Marker
+          key={index.name}
+          longitude={index.longitude}
+          latitude={index.latitude}
+          offset={[0, 0]}
+        >
+          <MarkerInterior name={index.name} />
+        </Marker>
+      ))}
+    </Map>
   );
 }
+
+export default MapView;

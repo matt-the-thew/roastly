@@ -15,7 +15,7 @@ import { redirect } from "next/navigation";
 import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useState } from "react";
-import { log } from "@/lib/logger";
+import { log } from "@/utils/logger";
 import { createClient } from "@/lib/supabase/client";
 
 export default function Login() {

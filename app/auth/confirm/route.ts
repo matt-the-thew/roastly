@@ -3,7 +3,7 @@ import { type NextRequest } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { log } from "@/lib/logger";
+import { log } from "@/utils/logger";
 
 async function verifyToken(request: NextRequest) {
   const { searchParams } = new URL(request.url);

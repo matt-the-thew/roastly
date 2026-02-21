@@ -14,6 +14,9 @@ importers:
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@19.2.7)(react@19.2.3)(supports-color@7.2.0)
+      '@mapbox/mapbox-gl-style-spec':
+        specifier: ^14.18.1
+        version: 14.18.1
       '@supabase/ssr':
         specifier: ^0.8.0
         version: 0.8.0(@supabase/supabase-js@2.90.1)
@@ -2107,6 +2110,10 @@ packages:
   '@mapbox/jsonlint-lines-primitives@2.0.2':
     resolution: {integrity: sha512-rY0o9A5ECsTQRVhv7tL/OyDpGAoUB4tTvLiW1DSzQGq4bvTPhNw1VpSNjDJc5GFZ2XuyOtSWSVN05qOtcD71qQ==}
     engines: {node: '>= 0.6'}
+
+  '@mapbox/mapbox-gl-style-spec@14.18.1':
+    resolution: {integrity: sha512-iuslZape6WpDWM0dVey/KhBmbOcOmU4KFJJqeIpjYlymtU6yLaTP1varWz/NePkwHNp5p4XYzDC8I2pKy/rDcA==}
+    hasBin: true
 
   '@mapbox/mapbox-gl-supported@3.0.0':
     resolution: {integrity: sha512-2XghOwu16ZwPJLOFVuIOaLbN0iKMn867evzXFyf0P22dqugezfJwLmdanAgU25ITvz1TvOfVP4jsDImlDJzcWg==}
@@ -7253,6 +7260,19 @@ snapshots:
       minimist: 1.2.8
 
   '@mapbox/jsonlint-lines-primitives@2.0.2': {}
+
+  '@mapbox/mapbox-gl-style-spec@14.18.1':
+    dependencies:
+      '@mapbox/jsonlint-lines-primitives': 2.0.2
+      '@mapbox/point-geometry': 1.1.0
+      '@mapbox/unitbezier': 0.0.1
+      cheap-ruler: 4.0.0
+      csscolorparser: 1.0.3
+      json-stringify-pretty-compact: 4.0.0
+      minimist: 1.2.8
+      quickselect: 3.0.0
+      rw: 1.3.3
+      tinyqueue: 3.0.0
 
   '@mapbox/mapbox-gl-supported@3.0.0': {}
 

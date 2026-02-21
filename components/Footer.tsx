@@ -1,5 +1,6 @@
 import { Flex, Button, HStack } from "@chakra-ui/react";
 import * as React from "react";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -16,7 +17,9 @@ export default function Footer() {
         <HStack justifyContent="center" gap="12">
           <Button variant="ghost">Store</Button>
           <Button variant="ghost">Status</Button>
-          <Button variant="ghost">About</Button>
+          <Link href="/about">
+            <Button variant="ghost">About</Button>
+          </Link>
           <Button variant="ghost">Terms</Button>
           <Button variant="ghost">Rules</Button>
           <Button variant="ghost">Help</Button>

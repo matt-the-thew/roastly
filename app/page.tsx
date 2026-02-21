@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import Footer from "@/components/Footer";
 import { Grid } from "@chakra-ui/react";
-import { log } from "@/lib/logger";
+import { log } from "@/utils/logger";
 
 log.info("Welcome to Roastly.");
 log.debug(`STORED SITE URL: ${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}`);

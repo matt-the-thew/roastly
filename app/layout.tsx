@@ -1,4 +1,5 @@
 "use client";
+import "./globals.css";
 import { ChakraProvider } from "@chakra-ui/react";
 import { roastlySystem } from "@/ui/theme";
 import "dotenv/config";

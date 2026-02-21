@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import SessionHandler from "./lib/supabase/sessionhandler";
-import { log } from "./lib/logger";
+import { log } from "./utils/logger";
 
 const sessionHandlerInstance = new SessionHandler(
   process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_URL!,

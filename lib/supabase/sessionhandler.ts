@@ -1,7 +1,7 @@
 import { AuthApiError } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { log } from "@/lib/logger";
+import { log } from "@/utils/logger";
 import { JwtPayload } from "@supabase/supabase-js";
 
 export default class SessionHandler {
