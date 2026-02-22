@@ -1,19 +1,18 @@
 "use client";
 import Navbar from "@/components/Navbar";
-import HeroSection from "@/components/HeroSection";
+import LandingHeroSection from "@/components/LandingHeroSection";
 import Footer from "@/components/Footer";
-import { Grid } from "@chakra-ui/react";
 import { log } from "@/utils/logger";
 
 log.info("Welcome to Roastly.");
 log.debug(`STORED SITE URL: ${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}`);
 
-export default function HomePage() {
+export default function LandingPage() {
   return (
-    <Grid minH="100dvh" templateRows="auto 1fr auto">
+    <div className="min-h-screen flex flex-col grow">
       <Navbar />
-      <HeroSection />
+      <LandingHeroSection />
       <Footer />
-    </Grid>
+    </div>
   );
 }

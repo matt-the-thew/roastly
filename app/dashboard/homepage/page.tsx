@@ -1,14 +1,12 @@
 "use client";
-import MapView from "@/components/MapView";
-import HomepageHeader from "@/components/HomepageHeader";
-import InfoSidebar from "@/components/InfoSidebar";
+import MapComponent from "@/components/MapComponent";
+import Navbar from "@/components/Navbar";
 
 function HomePage() {
   return (
     <div className="flex flex-col h-full w-full">
-      <HomepageHeader></HomepageHeader>
-      <InfoSidebar></InfoSidebar>
-      <MapView></MapView>
+      <Navbar></Navbar>
+      <MapComponent></MapComponent>
     </div>
   );
 }

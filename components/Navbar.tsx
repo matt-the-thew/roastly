@@ -1,37 +1,28 @@
-"use client";
-import { Box, Button, Flex, HStack, Spacer } from "@chakra-ui/react";
-import { LuCoffee } from "react-icons/lu";
 import Image from "next/image";
-import Link from "next/link";
+import Button from "./Button";
 
 export default function Navbar() {
   return (
-    <Flex
-      as="nav"
-      p="20px"
-      justifyContent="center"
-      bg="primary"
-      borderBottomColor="white"
-      borderBottomWidth="2px"
-    >
-      <Flex w="70%">
-        <Box>
+    <nav className="font-display bg-cream h-30 flex justify-center border-b-4 border-b-amber-50">
+      <div className="w-[80vw] flex justify-between items-center">
+        <div className="flex flex-row items-end">
           <Image
             src={"/logo.svg"}
             alt="Roastly logo"
             width={145.891}
             height={49.594}
           />
-        </Box>
-        <Spacer />
-        <HStack gap="16px">
-          <Button variant="ghost" colorScheme="gray">
-            <LuCoffee />
-            <Link href={"/auth/login"}>Sign In</Link>
-          </Button>
-          <Button variant="solid">Get Started</Button>
-        </HStack>
-      </Flex>
-    </Flex>
+          <p className="text-[10px]">EARLY_ALPHA</p>
+        </div>
+        <div className="flex gap-4">
+          <Button
+            variant="ghost"
+            content="Sign Up"
+            linkTo="/auth/login"
+          ></Button>
+          <Button content="Sign In" linkTo="/auth/login"></Button>
+        </div>
+      </div>
+    </nav>
   );
 }
