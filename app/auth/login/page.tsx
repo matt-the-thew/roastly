@@ -1,17 +1,6 @@
 "use client";
-import {
-  Image,
-  Heading,
-  HStack,
-  Button,
-  Separator,
-  VStack,
-  Field,
-  Input,
-  Container,
-  Box,
-} from "@chakra-ui/react";
 import { redirect } from "next/navigation";
+import Image from "next/image";
 import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useState } from "react";
@@ -67,61 +56,14 @@ export default function Login() {
   }
 
   return (
-    <Container w="25rem" pt="20vh">
-      <Box
-        display="flex"
-        flexDir="column"
-        alignItems="center"
-        justifyContent="center"
-        w="100%"
-      >
-        <Image
-          src={"/logo.svg"}
-          alt="Roastly logo"
-          width={145.891}
-          height={49.594}
-        />
-
-        <Heading mx="auto" p="2">
-          Sign In
-        </Heading>
-      </Box>
-      <HStack justifyContent="center">
-        <Button variant="outline" size="sm" px="14" onClick={handleAppleClick}>
-          <FaApple />
-          Apple
-        </Button>
-        <Button variant="outline" size="sm" px="14" onClick={handleGoogleClick}>
-          <FcGoogle />
-          Google
-        </Button>
-      </HStack>
-      <Separator my="4" />
-      <VStack>
-        <Field.Root>
-          <Input
-            placeholder="me@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </Field.Root>
-        <Field.Root>
-          <Input
-            placeholder="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </Field.Root>
-      </VStack>
-      <HStack pt="4" w="100%" justifyContent="center">
-        <Button variant="solid" onClick={signIn}>
-          Sign In
-        </Button>
-        <Button variant="outline" onClick={signUp}>
-          Sign Up
-        </Button>
-      </HStack>
-    </Container>
+    <div className="w-120 h-150 rounded-2xl border border-gray-200 m-auto mt-[20vh] flex flex-col items-center">
+      <Image
+        src={"/logo.svg"}
+        alt="Roastly logo"
+        width={145.891}
+        height={49.594}
+        className="w-50 mt-10"
+      />
+    </div>
   );
 }

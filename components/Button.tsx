@@ -32,7 +32,7 @@ export default function Button({
 
   return (
     <div
-      className={`${backgroundStyle} min-w-40 min-h-10 rounded-lg ${hoverColor} ${activeColor} transition duration-150 p-3`}
+      className={`${backgroundStyle} min-w-fit text-nowrap min-h-10 rounded-lg ${hoverColor} ${activeColor} transition duration-150 p-3`}
     >
       <Link
         href={linkDestination}

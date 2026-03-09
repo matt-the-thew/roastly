@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
   "dependencies": {
-    "@chakra-ui/react": "^3.31.0",
     "@emotion/react": "^11.14.0",
     "@mapbox/mapbox-gl-style-spec": "^14.18.1",
     "@supabase/ssr": "^0.8.0",
