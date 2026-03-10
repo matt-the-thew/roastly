@@ -1,46 +1,31 @@
 "use client";
-import { redirect } from "next/navigation";
 import Form from "next/form";
 import Image from "next/image";
-import { FaApple } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
 import { useState } from "react";
 import { log } from "@/utils/logger";
 import { createClient } from "@/lib/supabase/client";
 import Button from "@/ui/components/Button";
 
-export default function Login() {
+export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const supabase = createClient();
 
-  async function signIn() {
-    try {
-      console.log(email);
-      console.log(password);
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      log.debug(`sign in recieved for ${email} `);
-    } catch (err) {
-      if (err instanceof Error) {
-        alert("There was a problem signing in.");
-        return log.error(
-          `[SIGNUP]: There was a problem signing in ${err.message}`,
-        );
-      }
-      redirect("/dashboard/homepage");
+  async function signUp() {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}/auth/confirm`,
+      },
+    });
+
+    log.debug(`SIGNUP DATA: ${JSON.stringify(data)}`);
+
+    if (error) {
+      log.warn(`SIGNUP ERROR: ${error.message}`);
     }
-  }
-
-  function handleAppleClick(): void {
-    log.debug("you're trying to sign in with apple.");
-  }
-
-  function handleGoogleClick(): void {
-    log.debug("you're trying to sign in with google.");
   }
 
   return (
@@ -78,8 +63,7 @@ export default function Login() {
           }}
         />
         <div className="flex flex-col gap-4 justify-around">
-          <Button variant="ghost" content="Sign In" clickEvent={signIn} />
-          <Button content="Sign Up" linkTo="sign-up" />
+          <Button content="Sign Up" clickEvent={signUp} />
         </div>
       </div>
     </div>
