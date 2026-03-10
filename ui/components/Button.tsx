@@ -1,15 +1,18 @@
 import Link from "next/link";
+import { MouseEventHandler } from "react";
 
 interface ButtonProps {
   linkTo?: string;
   content: string;
   variant?: string;
+  clickEvent?: MouseEventHandler;
 }
 
 export default function Button({
   linkTo,
   content,
   variant = "standard",
+  clickEvent,
 }: ButtonProps) {
   const linkDestination = !linkTo ? "#" : linkTo;
   let backgroundStyle;
@@ -31,8 +34,9 @@ export default function Button({
   }
 
   return (
-    <div
+    <button
       className={`${backgroundStyle} min-w-fit text-nowrap min-h-10 rounded-lg ${hoverColor} ${activeColor} transition duration-150 p-3`}
+      onClick={clickEvent}
     >
       <Link
         href={linkDestination}
@@ -40,6 +44,6 @@ export default function Button({
       >
         <p className={`${textColor}`}>{content}</p>
       </Link>
-    </div>
+    </button>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
-import MapComponent from "@/components/MapComponent";
-import Navbar from "@/components/Navbar";
+import MapComponent from "@/ui/components/MapComponent";
+import Navbar from "@/ui/components/Navbar";
 
 function HomePage() {
   return (

@@ -1,5 +1,5 @@
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
+import Footer from "@/ui/components/Footer";
+import Navbar from "@/ui/components/Navbar";
 import Image from "next/image";
 
 export default function About() {

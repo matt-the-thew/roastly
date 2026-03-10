@@ -4,6 +4,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { log } from "@/utils/logger";
 import { JwtPayload } from "@supabase/supabase-js";
 
+/*
+Handles user sessions and session refreshes.
+Creates Supabase client and touches local browser
+storage to handle cookies.
+*/
 export default class SessionHandler {
   user: JwtPayload | undefined;
   request: NextRequest | undefined;

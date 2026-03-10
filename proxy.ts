@@ -11,7 +11,7 @@ export default async function proxy(request: NextRequest) {
   log.debug("[PROXY]: awaiting updateSession");
   await sessionHandlerInstance.updateSession(request);
 
-  //if unauthorized user req to dashboard, send to login
+  //if unauthorized user requests access to dashboard, redirect to login
   if (
     !sessionHandlerInstance.user &&
     request.nextUrl.pathname.startsWith("/dashboard")
@@ -20,7 +20,7 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
-  //if authorized user tries to login, send to dashboard
+  //if already authorized user tries to login, send to dashboard
   if (
     sessionHandlerInstance.user &&
     request.nextUrl.pathname.startsWith("/auth/login")
@@ -30,6 +30,7 @@ export default async function proxy(request: NextRequest) {
   }
 }
 
+//ignore authentication of any kind for the following file types
 export const config = {
   matcher: [
     "/((?!_next/static|_next/image|icon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",

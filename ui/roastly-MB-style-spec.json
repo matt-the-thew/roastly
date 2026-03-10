@@ -1,9 +1,0 @@
-{
-  "name": "Roastly-Mapbox-Style",
-  "version": "0.0.1",
-
-  "center": [lng, lat],
-  "zoom": 12,
-  "bearing": number,
-  "pitch": number,
-}

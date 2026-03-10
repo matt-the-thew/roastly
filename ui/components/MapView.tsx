@@ -1,6 +1,6 @@
 "use client";
 import Map, { GeolocateControl, Marker, Layer } from "react-map-gl/mapbox";
-import { Location, locationData } from "@/components/location";
+import { Location, locationData } from "@/ui/components/location";
 import MarkerInterior from "./MarkerInterior";
 import { useState } from "react";
 
