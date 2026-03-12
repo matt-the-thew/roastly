@@ -35,14 +35,14 @@ export default function Button({
 
   return (
     <button
-      className={`${backgroundStyle} min-w-fit text-nowrap min-h-10 rounded-lg ${hoverColor} ${activeColor} transition duration-150 p-3`}
+      className={`${backgroundStyle} min-w-fit text-nowrap rounded-lg ${hoverColor} ${activeColor} transition duration-150`}
       onClick={clickEvent}
     >
       <Link
         href={linkDestination}
-        className="w-full h-full flex justify-center items-center"
+        className="flex justify-center items-center min-w-10 p-3"
       >
-        <p className={`${textColor}`}>{content}</p>
+        <p className={`${textColor} w-full h-full`}>{content}</p>
       </Link>
     </button>
   );

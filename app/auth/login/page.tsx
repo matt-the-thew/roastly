@@ -8,6 +8,7 @@ import { useState } from "react";
 import { log } from "@/utils/logger";
 import { createClient } from "@/lib/supabase/client";
 import Button from "@/ui/components/Button";
+import { sign } from "crypto";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -33,6 +34,15 @@ export default function Login() {
       }
       redirect("/dashboard/homepage");
     }
+  }
+
+  async function signInWithGoogle() {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: "http://127.0.0.1:3000/auth/confirm",
+      },
+    });
   }
 
   function handleAppleClick(): void {
@@ -80,6 +90,7 @@ export default function Login() {
         <div className="flex flex-col gap-4 justify-around">
           <Button variant="ghost" content="Sign In" clickEvent={signIn} />
           <Button content="Sign Up" linkTo="sign-up" />
+          <Button content="Google OAuth" clickEvent={signInWithGoogle} />
         </div>
       </div>
     </div>

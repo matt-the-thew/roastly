@@ -50,6 +50,7 @@ export default class SessionHandler {
       const supabaseResponse = NextResponse.next(this.request);
 
       const { data, error } = await supabase.auth.getClaims();
+      this.user = data?.claims;
 
       log.debug(
         "[SessionHandler]: auth check:" +
@@ -57,11 +58,8 @@ export default class SessionHandler {
             path: request.nextUrl.pathname,
             hasClaims: Boolean(data?.claims),
             userId: data?.claims?.sub ?? null,
-            error: error?.message ?? null,
           }),
       );
-
-      this.user = data?.claims;
 
       return supabaseResponse;
     } catch (err) {

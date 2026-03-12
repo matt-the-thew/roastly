@@ -1,4 +1,4 @@
-import mapboxgl, { LngLatLike } from "mapbox-gl";
+import mapboxgl, { LngLatLike, Map } from "mapbox-gl";
 import { useRef, useEffect, useState } from "react";
 
 interface intialMapView {
@@ -12,8 +12,8 @@ const initialMapView: intialMapView = {
 };
 
 export default function MapComponent() {
-  const mapRef = useRef();
-  const mapContainerRef = useRef();
+  const mapRef = useRef<Map | null>(null);
+  const mapContainerRef = useRef<Map | null>(null);
   const [center, setCenter] = useState(initialMapView.coordinates);
   const [zoom, setZoom] = useState(initialMapView.zoom);
 
@@ -26,29 +26,27 @@ export default function MapComponent() {
     });
 
     mapRef.current.on("move", () => {
-      const mapCenter = mapRef.current.getCenter();
-      const mapZoom = mapRef.current.getZoom();
+      const mapCenter = mapRef.current?.getCenter();
+      const mapZoom = mapRef.current?.getZoom();
 
-      setCenter([mapCenter.lng, mapCenter.lat]);
+      setCenter([mapCenter!.lng, mapCenter!.lat]);
       setZoom(mapZoom);
 
       console.log(`fetched data: ${mapCenter} ${mapZoom}`);
     });
 
     return () => {
-      mapRef.current.remove();
+      mapRef.current?.remove();
     };
   }, []);
 
-  useEffect(() => {
-    console.log("stateful data", center[0], center[1], zoom);
-  });
-
   const straightToBrazil = () => {
-    mapRef.current.flyTo({
-      center: [-51.7116, -9.54277],
-      zoom: 8.11,
-    });
+    if (mapRef.current) {
+      mapRef.current.flyTo({
+        center: [-51.7116, -9.54277],
+        zoom: 8.11,
+      });
+    }
   };
 
   return (
