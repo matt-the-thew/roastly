@@ -1,6 +1,5 @@
 "use client";
-import { ChakraProvider } from "@chakra-ui/react";
-import { roastlySystem } from "@/ui/theme";
+import "./globals.css";
 import "dotenv/config";
 
 export default function RootLayout({
@@ -10,12 +9,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="icon" href="/icon.png" sizes="any" />
-      </head>
-      <body>
-        <ChakraProvider value={roastlySystem}>{children}</ChakraProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
