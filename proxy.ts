@@ -11,14 +11,18 @@ export default async function proxy(request: NextRequest) {
   log.debug("[PROXY]: awaiting updateSession");
   await sessionHandlerInstance.updateSession(request);
 
+  /* Temporarily removing this line so that loggin in is not required.
+   *  Until I have the mailgun up and running, there is no point,
+   *  as user auth will not be able to be confirmed, and thus will not work.
+   */
   //if unauthorized user requests access to dashboard, redirect to login
-  if (
-    !sessionHandlerInstance.user &&
-    request.nextUrl.pathname.startsWith("/dashboard")
-  ) {
-    log.debug("[PROXY]: user not authorized, redirecting to login...");
-    return NextResponse.redirect(new URL("/auth/login", request.url));
-  }
+  // if (
+  //   !sessionHandlerInstance.user &&
+  //   request.nextUrl.pathname.startsWith("/dashboard")
+  // ) {
+  //   log.debug("[PROXY]: user not authorized, redirecting to login...");
+  //   return NextResponse.redirect(new URL("/auth/login", request.url));
+  // }
 
   //if already authorized user tries to login, send to dashboard
   if (
