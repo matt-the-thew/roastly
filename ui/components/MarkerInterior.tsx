@@ -1,6 +1,10 @@
 import { useState } from "react";
 
-export default function MarkerInterior({ name }) {
+interface MarkerProps {
+  name: string;
+}
+
+export default function MarkerInterior({ name }: MarkerProps) {
   return (
     <div className="text-center text-[14] font-bold cursor-pointer">
       📍

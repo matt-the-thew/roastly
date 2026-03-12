@@ -31,7 +31,7 @@ const nouns = [
   "Juanita",
 ];
 
-function randomIndex(array) {
+function randomIndex(array: Array<string>) {
   const index = Math.floor(Math.random() * array.length);
   log.debug(index);
   log.debug(array[index]);

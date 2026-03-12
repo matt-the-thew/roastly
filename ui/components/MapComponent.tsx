@@ -6,19 +6,18 @@ interface intialMapView {
   zoom: number;
 }
 
-const initialMapView: intialMapView = {
-  coordinates: [-118.7617, 34.1533],
-  zoom: 12,
-};
-
 export default function MapComponent() {
   const mapRef = useRef<Map | null>(null);
-  const mapContainerRef = useRef<Map | null>(null);
-  const [center, setCenter] = useState(initialMapView.coordinates);
-  const [zoom, setZoom] = useState(initialMapView.zoom);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const [center, setCenter] = useState<[number, number]>([-118.7617, 34.1533]);
+  const [zoom, setZoom] = useState(12);
 
   useEffect(() => {
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+    //if the map doesn't exist, return
+    if (!mapContainerRef.current) {
+      return;
+    }
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       center: center,
@@ -26,8 +25,8 @@ export default function MapComponent() {
     });
 
     mapRef.current.on("move", () => {
-      const mapCenter = mapRef.current?.getCenter();
-      const mapZoom = mapRef.current?.getZoom();
+      const mapCenter = mapRef.current!.getCenter();
+      const mapZoom = mapRef.current!.getZoom();
 
       setCenter([mapCenter!.lng, mapCenter!.lat]);
       setZoom(mapZoom);
