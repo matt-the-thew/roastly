@@ -1,5 +1,0 @@
-CREATE TABLE cafes (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(30),
-  location GEOGRAPHY(POINT, 4326)
-)
