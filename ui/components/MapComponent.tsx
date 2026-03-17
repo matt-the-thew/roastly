@@ -1,14 +1,15 @@
 import mapboxgl, { LngLatLike, Map } from "mapbox-gl";
 import { useRef, useEffect, useState } from "react";
 import { locationData, Location } from "./location";
+import Popup from "./Popup";
 
 function addMarker(location: Location, map: Map) {
   const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-    `<h3>${location.name}</h3><p>${location.description}</p>`,
+    `<h1>${location.name}</h1><p>${location.description}</p>`,
   );
 
   const marker = new mapboxgl.Marker()
-    .setLngLat([location.longitude, location.latitude])
+    .setLngLat([location.location.longitude, location.location.latitude])
     .setPopup(popup)
     .addTo(map);
 }
