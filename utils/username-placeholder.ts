@@ -27,8 +27,6 @@ const nouns = [
   "Scientist",
   "Librarian",
   "Grace",
-  "Girlfriend",
-  "Juanita",
 ];
 
 function randomIndex(array: Array<string>) {

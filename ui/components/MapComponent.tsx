@@ -1,9 +1,16 @@
 import mapboxgl, { LngLatLike, Map } from "mapbox-gl";
 import { useRef, useEffect, useState } from "react";
+import { locationData, Location } from "./location";
 
-interface intialMapView {
-  coordinates: LngLatLike;
-  zoom: number;
+function addMarker(location: Location, map: Map) {
+  const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+    `<h3>${location.name}</h3><p>${location.description}</p>`,
+  );
+
+  const marker = new mapboxgl.Marker()
+    .setLngLat([location.longitude, location.latitude])
+    .setPopup(popup)
+    .addTo(map);
 }
 
 export default function MapComponent() {
@@ -11,6 +18,7 @@ export default function MapComponent() {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [center, setCenter] = useState<[number, number]>([-118.7617, 34.1533]);
   const [zoom, setZoom] = useState(12);
+  const locations: Array<Location> = locationData;
 
   useEffect(() => {
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
@@ -18,6 +26,7 @@ export default function MapComponent() {
     if (!mapContainerRef.current) {
       return;
     }
+
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       center: center,
@@ -32,6 +41,10 @@ export default function MapComponent() {
       setZoom(mapZoom);
 
       console.log(`fetched data: ${mapCenter} ${mapZoom}`);
+    });
+
+    locations.forEach((location) => {
+      addMarker(location, mapRef.current!);
     });
 
     return () => {
