@@ -1,0 +1,17 @@
+@import url("https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&family=Mrs+Sheppards&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #fdd998;
+  --color-brew: #975102;
+  --color-cacus: #ac7435;
+
+  --font-display: "Martian Mono", monospace;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
