@@ -40,7 +40,8 @@ export const locationData: Array<Location> = [
   {
     id: 3,
     name: "Five07 on the Boulevard",
-    description: "Nice joint, interesting management",
+    description:
+      "People in the area call this joint \"the 'Five\", and it attracts all kinds from around the neighborhood. Artists, musicians, businesspeople, tech bros, bible study, you name it, they're there.",
     location: {
       longitude: -118.837267,
       latitude: 34.170472,
