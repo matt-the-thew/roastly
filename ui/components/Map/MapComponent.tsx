@@ -63,6 +63,9 @@ export default function MapComponent() {
       // console.log(`fetched data: ${mapCenter} ${mapZoom}`);
     });
 
+    //Add zoom and rotation controls
+    mapRef.current.addControl(new mapboxgl.NavigationControl());
+
     //Add markers to map, for each entry in location
     locations.forEach((location) => {
       addMarker(location, mapRef.current!, setSelectedLocation);
@@ -89,7 +92,7 @@ export default function MapComponent() {
         {zoom.toFixed(5)}
       </div>
       {selectedLocation && (
-        <div className="absolute flex flex-col gap-4 top-15 right-0 h-full w-[40vw] min-w-120 bg-slate-100 shadow-lg z-20 transform transition-transform duration-300 rounded-2xl">
+        <div className="absolute flex flex-col gap-4 top-3 right-4 h-[95%] w-[40vw] min-w-120 bg-slate-100 shadow-lg z-20 rounded-2xl animate-slide-in">
           <button
             className="bg-amber-200 flex items-center text-[1rem] font-display p-2 cursor-pointer hover:bg-amber-400 active:bg-amber-100 w-fit"
             onClick={() => setSelectedLocation(null)}

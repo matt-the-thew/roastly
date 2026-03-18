@@ -9,6 +9,19 @@
   --font-display: "Martian Mono", monospace;
 }
 
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.4s ease-out forwards;
+}
+
 html,
 body {
   margin: 0;
