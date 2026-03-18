@@ -5,7 +5,7 @@ import Footer from "@/ui/components/Footer";
 import { log } from "@/utils/logger";
 
 log.info("Welcome to Roastly.");
-log.debug(`STORED SITE URL: ${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}`);
+log.info("<<Danger, Will Robinson!>>");
 
 export default function LandingPage() {
   return (

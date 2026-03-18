@@ -6,17 +6,11 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import generateUserName from "@/utils/username-placeholder";
 import Link from "next/link";
-import Modal from "./Modal";
+import Modal from "./Map/Modal";
 
 export default function Navbar() {
   const [userName, setUserName] = useState("");
   const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (!userName) {
-      setUserName(generateUserName());
-    }
-  });
 
   return (
     <>
@@ -49,7 +43,6 @@ export default function Navbar() {
               className="hover:text-white duration-100 flex items-center gap-2"
             >
               <LuCircleUserRound className="w-8 h-8 " />
-              <p>{userName}</p>
             </Link>
           </div>
         </div>
