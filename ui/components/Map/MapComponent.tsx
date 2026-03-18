@@ -64,7 +64,7 @@ export default function MapComponent() {
     });
 
     //Add zoom and rotation controls
-    mapRef.current.addControl(new mapboxgl.NavigationControl());
+    mapRef.current.addControl(new mapboxgl.NavigationControl(), "top-left");
 
     //Add markers to map, for each entry in location
     locations.forEach((location) => {
