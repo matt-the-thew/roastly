@@ -1,18 +1,25 @@
 "use client";
-import Navbar from "@/ui/components/Navbar";
-import LandingHeroSection from "@/ui/components/LandingHeroSection";
-import Footer from "@/ui/components/Footer";
+import { useRef } from "react";
+import Navbar from "@/ui/components/LandingPage/Navbar";
+import LandingHeroSection from "@/ui/components/LandingPage/LandingHeroSection";
+import Footer from "@/ui/components/LandingPage/Footer";
 import { log } from "@/utils/logger";
 
 log.info("Welcome to Roastly.");
-log.debug(`STORED SITE URL: ${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}`);
+log.info("<<Danger, Will Robinson!>>");
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col grow">
-      <Navbar />
-      <LandingHeroSection />
-      <Footer />
+    <div className="flex flex-col h-screen">
+      <div>
+        <Navbar />
+      </div>
+      <div className="grow">
+        <LandingHeroSection />
+      </div>
+      <div>
+        <Footer />
+      </div>
     </div>
   );
 }

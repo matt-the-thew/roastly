@@ -1,55 +1,44 @@
-import Footer from "@/ui/components/Footer";
-import Navbar from "@/ui/components/Navbar";
+import Footer from "@/ui/components/LandingPage/Footer";
+import Navbar from "@/ui/components/LandingPage/Navbar";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function About() {
   return (
     <>
       <Navbar />
-      <div className="w-full flex flex-row justify-evenly">
+      <div className="max-w-250 mx-auto font-display p-9">
         <section>
-          <p
-            style={{
-              fontSize: "30px",
-              fontWeight: "bold",
-              paddingTop: "20px",
-            }}
-          >
-            About the Creator
-          </p>
-          <div style={{ fontSize: "14px", width: "40vw", minWidth: "20vw" }}>
-            {" "}
-            <p style={{ paddingTop: "10px" }}>
-              This application was developed by Matt, pictured to the right, who
-              happens to be me.
-            </p>
-            <br />
-            <p>
-              I taught myself everything I know about programming, and I hope
-              you enjoy using Roastly. After many years enjoying specialty
-              coffee, followed by
-              <span style={{ fontStyle: "italic" }}>working </span>
-              in specialty coffee, I understands the value of finding a good
-              local cafe. These places are magical, and make real differences in
-              people's lives.
-            </p>
-            <p className="pt-5">
-              Another part of this whole project is lifting up small businesses,
-              especially those who practice a craft at a phenomenal level. So
-              many of these places have a fraction of the notoriety that they
-              deserve.
-            </p>
-          </div>
-        </section>
-        <div className="w-50">
           <Image
             width={200}
             height={200}
-            src="/matt.jpg"
-            alt="A picture of a young man with a long, curly mustache"
-            className="rounded-2xl w-full h-auto pt-5"
+            src="/matt.jpeg"
+            alt="A picture of a young man with a long, curly mustache and glasses"
+            className="rounded-2xl w-40 h-55 m-3 float-right"
           ></Image>
-        </div>
+          <p className="text-md font-bold mt-8 underline decoration-wavy decoration-cream">
+            About the Creator
+          </p>{" "}
+          <p style={{ paddingTop: "10px" }}>
+            This application was developed by Matt (see right).
+          </p>
+          <br />
+          <p>
+            Matt learned everything he knows about programming from strangers on
+            the internet, and hundreds of hours in front of the computer. and he
+            hopes you enjoy using Roastly. He's worked in a few cafes, and
+            really loves his local coffee spots.
+          </p>
+          <p className="pt-5">
+            This project is bootstrapped by people Matt knows, and maybe in the
+            future by people like you!
+          </p>
+        </section>
+        <Link href="/">
+          <button className="p-4 bg-brew text-white rounded-lg hover:bg-cream cursor-pointer active:border active:border-brew">
+            Go Back
+          </button>
+        </Link>
       </div>
     </>
   );

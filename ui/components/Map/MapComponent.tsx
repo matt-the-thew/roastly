@@ -1,5 +1,5 @@
 "use client";
-import mapboxgl, { LngLatLike, Map } from "mapbox-gl";
+import mapboxgl, { LngLatLike, Map, NavigationControl } from "mapbox-gl";
 import { useRef, useEffect, useState } from "react";
 import { locationData, Location } from "./location";
 import MarkerContent from "./MarkerContent";
@@ -31,13 +31,17 @@ function addMarker(
 export default function MapComponent() {
   const mapRef = useRef<Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
+
+  const locations: Array<Location> = locationData;
+
   const [center, setCenter] = useState<[number, number]>([-118.7617, 34.1533]);
   const [zoom, setZoom] = useState(12);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null,
   );
-  const locations: Array<Location> = locationData;
+  const width = typeof window !== "undefined" ? window.innerWidth : 0;
 
+  //Set up map
   useEffect(() => {
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
     //if the map doesn't exist, return
@@ -56,11 +60,8 @@ export default function MapComponent() {
     mapRef.current.on("move", () => {
       const mapCenter = mapRef.current!.getCenter();
       const mapZoom = mapRef.current!.getZoom();
-
       setCenter([mapCenter!.lng, mapCenter!.lat]);
       setZoom(mapZoom);
-
-      // console.log(`fetched data: ${mapCenter} ${mapZoom}`);
     });
 
     //Add markers to map, for each entry in location
@@ -73,23 +74,25 @@ export default function MapComponent() {
     };
   }, []);
 
-  const straightToBrazil = () => {
-    if (mapRef.current) {
-      mapRef.current.flyTo({
-        center: [-51.7116, -9.54277],
-        zoom: 8.11,
-      });
-    }
-  };
+  // const straightToBrazil = () => {
+  //   if (mapRef.current) {
+  //     mapRef.current.flyTo({
+  //       center: [-51.7116, -9.54277],
+  //       zoom: 8.11,
+  //     });
+  //   }
+  // };
 
   return (
     <div id="map-container" ref={mapContainerRef} className="w-full h-full">
-      <div className="w-auto h-8 z-10 absolute top-6 left-4 bg-slate-600 text-slate-50 text-lg">
-        Lng: {center[0].toFixed(5)} | Lat: {center[1].toFixed(5)} | 🔍:
-        {zoom.toFixed(5)}
-      </div>
+      {width > 800 && (
+        <div className="w-auto h-8 z-10 absolute top-8 left-15 bg-slate-600 text-slate-50 text-lg">
+          Lng: {center[0].toFixed(5)} | Lat: {center[1].toFixed(5)} | 🔍:
+          {zoom.toFixed(5)} | Width: {width}
+        </div>
+      )}
       {selectedLocation && (
-        <div className="absolute flex flex-col gap-4 top-15 right-0 h-full w-[40vw] min-w-120 bg-slate-100 shadow-lg z-20 transform transition-transform duration-300 rounded-2xl">
+        <div className="absolute flex flex-col gap-4 top-3 right-4 h-[95%] w-[90%] md:w-[60%] lg:w-[40%] bg-slate-100 shadow-lg z-20 rounded-2xl animate-slide-in">
           <button
             className="bg-amber-200 flex items-center text-[1rem] font-display p-2 cursor-pointer hover:bg-amber-400 active:bg-amber-100 w-fit"
             onClick={() => setSelectedLocation(null)}
