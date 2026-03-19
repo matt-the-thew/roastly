@@ -1,5 +1,5 @@
 "use client";
-import mapboxgl, { LngLatLike, Map } from "mapbox-gl";
+import mapboxgl, { LngLatLike, Map, NavigationControl } from "mapbox-gl";
 import { useRef, useEffect, useState } from "react";
 import { locationData, Location } from "./location";
 import MarkerContent from "./MarkerContent";
@@ -31,14 +31,17 @@ function addMarker(
 export default function MapComponent() {
   const mapRef = useRef<Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
+
+  const locations: Array<Location> = locationData;
+
   const [center, setCenter] = useState<[number, number]>([-118.7617, 34.1533]);
   const [zoom, setZoom] = useState(12);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null,
   );
-  const locations: Array<Location> = locationData;
-  const [width, setWidth] = useState<number>(0);
+  const width = typeof window !== "undefined" ? window.innerWidth : 0;
 
+  //Set up map
   useEffect(() => {
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
     //if the map doesn't exist, return
@@ -57,30 +60,9 @@ export default function MapComponent() {
     mapRef.current.on("move", () => {
       const mapCenter = mapRef.current!.getCenter();
       const mapZoom = mapRef.current!.getZoom();
-
       setCenter([mapCenter!.lng, mapCenter!.lat]);
       setZoom(mapZoom);
-
-      // console.log(`fetched data: ${mapCenter} ${mapZoom}`);
     });
-
-    //Determine window width
-    //FIXME: Fix window resize handler bug, where width always
-    // equals zero
-    const handleResize = () => {
-      setWidth(window.innerWidth);
-    };
-    window.addEventListener("resize", handleResize);
-    handleResize();
-
-    //Add zoom and rotation controls
-    //conditionally based on device
-    const navigationControl = new mapboxgl.NavigationControl();
-    if (!mapRef.current.hasControl(navigationControl) && width > 800) {
-      mapRef.current.addControl(navigationControl, "top-left");
-    } else if (mapRef.current.hasControl(navigationControl) && width < 800) {
-      mapRef.current.removeControl(navigationControl);
-    }
 
     //Add markers to map, for each entry in location
     locations.forEach((location) => {
@@ -89,7 +71,6 @@ export default function MapComponent() {
 
     return () => {
       mapRef.current?.remove();
-      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -107,12 +88,11 @@ export default function MapComponent() {
       {width > 800 && (
         <div className="w-auto h-8 z-10 absolute top-8 left-15 bg-slate-600 text-slate-50 text-lg">
           Lng: {center[0].toFixed(5)} | Lat: {center[1].toFixed(5)} | 🔍:
-          {zoom.toFixed(5)}
+          {zoom.toFixed(5)} | Width: {width}
         </div>
       )}
       {selectedLocation && (
-        //FIXME: Modal covers entire screen on larger devices
-        <div className="absolute flex flex-col gap-4 top-3 right-4 h-[95%] w-[90%] bg-slate-100 shadow-lg z-20 rounded-2xl animate-slide-in">
+        <div className="absolute flex flex-col gap-4 top-3 right-4 h-[95%] w-[90%] md:w-[60%] lg:w-[40%] bg-slate-100 shadow-lg z-20 rounded-2xl animate-slide-in">
           <button
             className="bg-amber-200 flex items-center text-[1rem] font-display p-2 cursor-pointer hover:bg-amber-400 active:bg-amber-100 w-fit"
             onClick={() => setSelectedLocation(null)}

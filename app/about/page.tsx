@@ -1,12 +1,13 @@
-import Footer from "@/ui/components/Footer";
-import Navbar from "@/ui/components/Navbar";
+import Footer from "@/ui/components/LandingPage/Footer";
+import Navbar from "@/ui/components/LandingPage/Navbar";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function About() {
   return (
     <>
       <Navbar />
-      <div className="w-full font-display p-9">
+      <div className="max-w-250 mx-auto font-display p-9">
         <section>
           <Image
             width={200}
@@ -33,6 +34,11 @@ export default function About() {
             future by people like you!
           </p>
         </section>
+        <Link href="/">
+          <button className="p-4 bg-brew text-white rounded-lg hover:bg-cream cursor-pointer active:border active:border-brew">
+            Go Back
+          </button>
+        </Link>
       </div>
     </>
   );
