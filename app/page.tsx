@@ -9,10 +9,16 @@ log.info("<<Danger, Will Robinson!>>");
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col grow">
-      <Navbar />
-      <LandingHeroSection />
-      <Footer />
+    <div className="flex flex-col h-screen">
+      <div>
+        <Navbar />
+      </div>
+      <div className="grow">
+        <LandingHeroSection />
+      </div>
+      <div>
+        <Footer />
+      </div>
     </div>
   );
 }

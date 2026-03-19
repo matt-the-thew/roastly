@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import generateUserName from "@/utils/username-placeholder";
 import Link from "next/link";
 import Modal from "./Map/Modal";
+import { IoCloseCircle } from "react-icons/io5";
 
 export default function Navbar() {
   const [userName, setUserName] = useState("");
@@ -27,28 +28,41 @@ export default function Navbar() {
               <p className="text-[10px]">EARLY_ALPHA</p>
             </div>
           </Link>
-          <div className="flex gap-4">
+          <div className="flex">
             <button
               onClick={() => {
                 setVisible(!visible);
               }}
             >
-              <MdOutlineInsertComment className="w-8 h-8 hover:text-white duration-100" />
+              <MdOutlineInsertComment className="w-12 h-12  hover:text-white duration-100" />
             </button>
+            {/*FIXME: Fix formatting bug on larger devices for these three buttons*/}
             <Link href="#">
-              <GrSettingsOption className="w-8 h-8 hover:text-white duration-100" />
+              <GrSettingsOption className="w-8 h-8 hover:text-white duration-100 hidden md:inline lg:inline" />
             </Link>
             <Link
               href="#"
               className="hover:text-white duration-100 flex items-center gap-2"
             >
-              <LuCircleUserRound className="w-8 h-8 " />
+              <LuCircleUserRound className="w-8 h-8 hidden md:inline lg:inline" />
             </Link>
           </div>
         </div>
       </nav>
-      <Modal title="Hello World" isOpen={visible}>
-        <p>It's morton</p>
+      <Modal title="Ask Matt to Add a Cafe" isOpen={visible}>
+        <button
+          className="w-5 h-5 cursor-pointer z-1000"
+          onClick={() => {
+            setVisible(false);
+          }}
+        >
+          <IoCloseCircle className="w-10 h-10 absolute top-3 left-3" />
+        </button>
+        <p className="text-sm">
+          Roastly's database is growing by the day! If you have a favorite cafe,
+          we would love to hear about it. Tell us why you love it, and Matt will
+          see what he can do.
+        </p>
       </Modal>
     </>
   );
