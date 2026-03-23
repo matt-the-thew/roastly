@@ -1,4 +1,4 @@
-if [[ "$VERCEL_GIT_COMMIT_REF" == "dev" ]];
+if [[ "$VERCEL_GIT_COMMIT_REF" == "dev" ]]; then
   exit 0;
 else
   exit 1;
