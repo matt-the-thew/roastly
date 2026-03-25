@@ -2,7 +2,7 @@
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
-import { log } from "@/utils/logger";
+import { log } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/client";
 import Button from "@/ui/components/Button";
 import { sign } from "crypto";

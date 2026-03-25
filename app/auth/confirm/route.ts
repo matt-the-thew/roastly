@@ -2,7 +2,7 @@ import { type EmailOtpType } from "@supabase/supabase-js";
 import { type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { log } from "@/utils/logger";
+import { log } from "@/lib/logger";
 
 /*Searches parameters for either code or token hash,
 which varies based on Supabase version. Based on what it finds, 
