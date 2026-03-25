@@ -1,30 +1,31 @@
 import { createClient } from "@/lib/supabase/client";
-
-interface Coordinates {
-  latitude: number;
-  longitude: number;
-}
+import { log } from "./logger";
 
 export interface Location {
-  name: string;
-  location: Coordinates;
-  roastLevel: string;
-  brewFocus: string;
-  vibe: string;
+  brew_focus: string;
   description: string;
-  hasWifi: boolean;
-  hasBathroom: boolean;
-  hasOutlets: boolean;
-  hasPatio: boolean;
-  isVerified: boolean;
+  has_bathroom: boolean;
+  has_outlets: boolean;
+  has_patio: boolean;
+  has_wifi: boolean;
+  is_verified: boolean;
+  latitude: number;
+  longitude: number;
+  name: string;
+  roast_level: string;
+  vibe: string;
 }
 
-async function fetchLocations(
-  locationDestinationArray: Array<Location> | null,
+export async function fetchLocations(
+  locationDestinationArray?: Array<Location> | null,
 ) {
   const supabase = createClient();
-  const { data, error } = await supabase.from("cafes").select(`
-      name,
-      
-      `);
+  const { data, error } = await supabase.from("cafes_public").select(`*`);
+
+  if (error) {
+    console.log(error.message);
+    return [];
+  } else {
+    return data as Location[];
+  }
 }
