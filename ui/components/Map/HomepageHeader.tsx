@@ -4,7 +4,6 @@ import { LuCircleUserRound } from "react-icons/lu";
 import { MdOutlineInsertComment } from "react-icons/md";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import generateUserName from "@/utils/username-placeholder";
 import Link from "next/link";
 import Modal from "./Modal";
 import { IoCloseCircle } from "react-icons/io5";

@@ -1,7 +1,7 @@
 "use client";
 import mapboxgl, { LngLatLike, Map, NavigationControl } from "mapbox-gl";
 import { useRef, useEffect, useState } from "react";
-import { locationData, Location } from "./location";
+import { Location, locationData } from "./location";
 import MarkerContent from "./MarkerContent";
 import PopupContent from "./PopupContent";
 import { createRoot } from "react-dom/client";
@@ -31,15 +31,13 @@ function addMarker(
 export default function MapComponent() {
   const mapRef = useRef<Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-
-  const locations: Array<Location> = locationData;
-
   const [center, setCenter] = useState<[number, number]>([-118.7617, 34.1533]);
   const [zoom, setZoom] = useState(12);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null,
   );
   const width = typeof window !== "undefined" ? window.innerWidth : 0;
+  const locations = locationData;
 
   //Set up map
   useEffect(() => {
@@ -73,7 +71,6 @@ export default function MapComponent() {
       mapRef.current?.remove();
     };
   }, []);
-
   // const straightToBrazil = () => {
   //   if (mapRef.current) {
   //     mapRef.current.flyTo({
