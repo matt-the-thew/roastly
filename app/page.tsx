@@ -3,7 +3,7 @@ import { useRef } from "react";
 import Navbar from "@/ui/components/LandingPage/Navbar";
 import LandingHeroSection from "@/ui/components/LandingPage/LandingHeroSection";
 import Footer from "@/ui/components/LandingPage/Footer";
-import { log } from "@/utils/logger";
+import { log } from "@/lib/logger";
 
 log.info("Welcome to Roastly.");
 log.info("<<Danger, Will Robinson!>>");
