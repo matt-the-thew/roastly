@@ -1,7 +1,7 @@
 "use client";
 import mapboxgl, { LngLatLike, Map, NavigationControl } from "mapbox-gl";
 import { useRef, useEffect, useState } from "react";
-import { locationData, Location } from "./location";
+import { Location, fetchLocations } from "@/lib/fetchLocations";
 import MarkerContent from "./MarkerContent";
 import PopupContent from "./PopupContent";
 import { createRoot } from "react-dom/client";
@@ -24,21 +24,17 @@ function addMarker(
   markerRoot.render(<MarkerContent />);
 
   const marker = new mapboxgl.Marker(markerCustomElementContainer)
-    .setLngLat([location.location.longitude, location.location.latitude])
+    .setLngLat([location.longitude, location.latitude])
     .addTo(map);
 }
 
 export default function MapComponent() {
   const mapRef = useRef<Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-
-  const locations: Array<Location> = locationData;
-
   const [center, setCenter] = useState<[number, number]>([-118.7617, 34.1533]);
   const [zoom, setZoom] = useState(12);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
-    null,
-  );
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>();
+  const [locations, setLocations] = useState<Location[]>([]);
   const width = typeof window !== "undefined" ? window.innerWidth : 0;
 
   //Set up map
@@ -64,15 +60,27 @@ export default function MapComponent() {
       setZoom(mapZoom);
     });
 
-    //Add markers to map, for each entry in location
-    locations.forEach((location) => {
-      addMarker(location, mapRef.current!, setSelectedLocation);
-    });
-
     return () => {
       mapRef.current?.remove();
     };
   }, []);
+
+  //get locations from database
+  useEffect(() => {
+    fetchLocations().then((result) => setLocations(result));
+  }, []);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+    if (locations.length == 0) return;
+
+    //Add markers to map, for each element in location
+    locations.forEach((location) => {
+      addMarker(location, mapRef.current!, (location) =>
+        setSelectedLocation(location),
+      );
+    });
+  }, [locations]);
 
   // const straightToBrazil = () => {
   //   if (mapRef.current) {

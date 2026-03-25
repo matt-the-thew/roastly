@@ -1,5 +1,6 @@
 import Navbar from "@/ui/components/LandingPage/Navbar";
 import Footer from "@/ui/components/LandingPage/Footer";
+import Link from "next/link";
 
 export default function PrivacyPolicyPage() {
   return (
@@ -1372,8 +1373,14 @@ export default function PrivacyPolicyPage() {
             data-cfasync="false"
             src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"
           ></script>
+          <Link href="/">
+            <button className="p-4 mt-4 bg-brew text-white rounded-lg hover:bg-cream cursor-pointer active:border active:border-brew">
+              Go Back
+            </button>
+          </Link>
         </div>
       </div>
+
       <Footer />
     </>
   );
