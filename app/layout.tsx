@@ -1,6 +1,27 @@
-"use client";
 import "./globals.css";
-import "dotenv/config";
+import { Roboto } from "next/font/google";
+import { Mrs_Sheppards } from "next/font/google";
+import { Martian_Mono } from "next/font/google";
+
+const martian = Martian_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-martian",
+});
+
+const sheppards = Mrs_Sheppards({
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+  variable: "--font-sheppards",
+});
+
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+  variable: "--font-roboto",
+});
 
 export default function RootLayout({
   children,
@@ -8,7 +29,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${martian.variable} ${roboto.variable} ${sheppards.variable} **:border **:border-red-600`}
+    >
+      {/* TODO: Delete the "BORDER" modifier above, put in for redesign */}
       <link
         rel="apple-touch-icon"
         sizes="57x57"

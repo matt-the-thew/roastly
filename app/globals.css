@@ -1,12 +1,15 @@
-@import url("https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&family=Mrs+Sheppards&display=swap");
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @theme {
-  --color-cream: #fdd998;
-  --color-brew: #975102;
-  --color-cacus: #ac7435;
+  --color-background: #fdfaf5;
+  --color-foreground: #1f1f1f;
+  --color-primary: #ffa972;
+  --color-accent: #975102;
 
-  --font-display: "Martian Mono", monospace;
+  --font-mono: var(--font-roboto);
+  --font-sans: var(--font-martian);
+  --font-cursive: var(--font-sheppards);
 }
 
 @keyframes slide-in {
@@ -27,4 +30,15 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-roboto);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
 }

@@ -52,14 +52,14 @@ export default class SessionHandler {
       const { data, error } = await supabase.auth.getClaims();
       this.user = data?.claims;
 
-      log.debug(
-        "[SessionHandler]: auth check:" +
-          JSON.stringify({
-            path: request.nextUrl.pathname,
-            hasClaims: Boolean(data?.claims),
-            userId: data?.claims?.sub ?? null,
-          }),
-      );
+      // log.debug(
+      //   "[SessionHandler]: auth check:" +
+      //     JSON.stringify({
+      //       path: request.nextUrl.pathname,
+      //       hasClaims: Boolean(data?.claims),
+      //       userId: data?.claims?.sub ?? null,
+      //     }),
+      // );
 
       return supabaseResponse;
     } catch (err) {
