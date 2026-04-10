@@ -1,20 +1,17 @@
 import Link from "next/link";
-import { MouseEventHandler } from "react";
+import { Children, MouseEventHandler } from "react";
 
 interface ButtonProps {
-  linkTo?: string;
-  content: string;
+  children: React.ReactNode;
   variant?: string;
   clickEvent?: MouseEventHandler;
 }
 
 export default function Button({
-  linkTo,
-  content,
+  children,
   variant = "standard",
   clickEvent,
 }: ButtonProps) {
-  const linkDestination = !linkTo ? "#" : linkTo;
   let backgroundStyle;
   let textColor;
   let hoverColor;
@@ -38,12 +35,7 @@ export default function Button({
       className={`${backgroundStyle} min-w-fit text-nowrap rounded-lg ${hoverColor} ${activeColor} transition duration-150`}
       onClick={clickEvent}
     >
-      <Link
-        href={linkDestination}
-        className="flex justify-center items-center min-w-10 p-3"
-      >
-        <p className={`${textColor} w-full h-full`}>{content}</p>
-      </Link>
+      <p className={`${textColor} w-full h-full`}>{children}</p>
     </button>
   );
 }

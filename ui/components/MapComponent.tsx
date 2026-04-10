@@ -2,8 +2,8 @@
 import mapboxgl, { LngLatLike, Map, NavigationControl } from "mapbox-gl";
 import { useRef, useEffect, useState } from "react";
 import { Location, fetchLocations } from "@/lib/fetchLocations";
-import MarkerContent from "./MarkerContent";
-import PopupContent from "./PopupContent";
+import MarkerContent from "./MapMarkerContent";
+import PopupContent from "./MapPopupContent";
 import { createRoot } from "react-dom/client";
 import { MdClose } from "react-icons/md";
 

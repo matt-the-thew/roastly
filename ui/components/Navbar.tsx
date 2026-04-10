@@ -1,0 +1,27 @@
+import Image from "next/image";
+import Button from "./Button";
+import Link from "next/link";
+
+export default function Navbar() {
+  return (
+    <>
+      <nav className="fixed top-0 font-display h-20 z-10 bg-background w-full md:px-15 lg:px-20 border-b-4 border-b-slate-300 flex justify-between md:justify-between lg:justify-between items-center">
+        <div className="w-full max-wd-400 flex">
+          <div className="w-50 h-full flex justify-center items-center">
+            <h1 className="text-5xl font-cursive text-primary">Roastly</h1>
+          </div>
+          <div className="hidden md:flex lg:flex gap-4 items-center *:hover:bg-slate-400 *:hover:text-background *:duration-150 *:p-3 *:rounded-md">
+            <Link href={"#"}>Map</Link>
+            <Link href={"#"}>About</Link>
+            <Link href={"#"}>Blog</Link>
+            <Link href={"#"}>Partners</Link>
+          </div>
+        </div>
+        <div className="flex items-center min-w-20 *:hover:bg-slate-400 *:hover:text-background *:duration-150 *:p-3 *:rounded-md">
+          <Link href={"#"}>Log In</Link>
+        </div>
+      </nav>
+      <div className="h-20"></div>
+    </>
+  );
+}

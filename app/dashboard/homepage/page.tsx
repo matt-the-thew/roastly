@@ -1,6 +1,6 @@
 "use client";
-import MapComponent from "@/ui/components/Map/MapComponent";
-import HomepageHeader from "@/ui/components/Map/HomepageHeader";
+import MapComponent from "@/ui/components/MapComponent";
+import HomepageHeader from "@/ui/components/HomepageHeader";
 
 function HomePage() {
   return (

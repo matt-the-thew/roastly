@@ -1,5 +1,5 @@
-import Footer from "@/ui/components/LandingPage/Footer";
-import Navbar from "@/ui/components/LandingPage/Navbar";
+import Footer from "@/ui/components/Footer";
+import Navbar from "@/ui/components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
 import ImageWithTextOverlay from "@/ui/components/ImageWithTextOverlay";
