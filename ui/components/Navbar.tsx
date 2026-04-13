@@ -8,7 +8,12 @@ export default function Navbar() {
       <nav className="fixed top-0 font-display h-20 z-10 bg-background w-full md:px-15 lg:px-20 border-b-4 border-b-slate-300 flex justify-between md:justify-between lg:justify-between items-center">
         <div className="w-full max-wd-400 flex">
           <div className="w-50 h-full flex justify-center items-center">
-            <h1 className="text-5xl font-cursive text-primary">Roastly</h1>
+            <Image
+              src={"/logo.svg"}
+              alt="Roastly logo"
+              width={145.891}
+              height={49.594}
+            />
           </div>
           <div className="hidden md:flex lg:flex gap-4 items-center *:hover:bg-slate-400 *:hover:text-background *:duration-150 *:p-3 *:rounded-md">
             <Link href={"#"}>Map</Link>

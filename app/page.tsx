@@ -19,7 +19,7 @@ export default function LandingPage() {
       <div className="w-full h-full flex grow items-center justify-center">
         <div className="flex flex-col h-full w-[65%] items-center mt-30">
           <Image
-            src={"/roastly.png"}
+            src={"/logo.svg"}
             alt="Roastly logo"
             height={240}
             width={680}
@@ -35,7 +35,7 @@ export default function LandingPage() {
               <p className="px-25 mt-4 text-lg leading-6.5 font-mono">
                 Everyone deserves great coffee, and great coffee deserves to be
                 shared. Celebrate the best cafes in your community, and all the
-                people who love them as much as you do.{" "}
+                people who love them just as much as you do.{" "}
               </p>
             </div>
           </section>
@@ -48,7 +48,7 @@ export default function LandingPage() {
               className="hidden md:inline lg:inline relative min-w-120 max-w-120 blur-xs"
             ></Image>
             <Link
-              href={"#"}
+              href={"/dashboard/homepage"}
               className="absolute z-10 bg-primary p-4 rounded-xl font-mono font-bold text-foreground text-2xl hover:bg-accent hover:text-background"
             >
               Browse Local Cafes
