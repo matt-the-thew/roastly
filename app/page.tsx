@@ -16,7 +16,7 @@ export default function LandingPage() {
       <div>
         <Navbar />
       </div>
-      <div className="w-full h-full flex grow items-center justify-center">
+      <div className="w-full h-fi flex grow items-center justify-center">
         <div className="flex flex-col h-full w-[65%] items-center mt-30">
           <Image
             src={"/logo.svg"}
@@ -45,18 +45,18 @@ export default function LandingPage() {
               height={600}
               width={600}
               alt="A picture of a map, with ambiguous markings"
-              className="hidden md:inline lg:inline relative min-w-120 max-w-120 blur-xs"
+              className="hidden md:inline lg:inline relative w-120 blur-xs"
             ></Image>
             <Link
               href={"/dashboard/homepage"}
-              className="absolute z-10 bg-primary p-4 rounded-xl font-mono font-bold text-foreground text-2xl hover:bg-accent hover:text-background"
+              className="absolute bg-primary p-4 rounded-xl font-mono font-bold text-foreground text-2xl hover:bg-accent hover:text-background"
             >
               Browse Local Cafes
             </Link>
           </div>
         </div>
       </div>
-      <div>
+      <div className="">
         <Footer />
       </div>
     </div>

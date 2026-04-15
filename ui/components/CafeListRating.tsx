@@ -13,6 +13,7 @@ function ratingImageGenerator(place: number, rating: number): React.ReactNode {
         alt="A full coffee cup"
         width={30}
         height={30}
+        className="w-8 h-8"
       ></Image>
     );
   } else {
@@ -22,12 +23,13 @@ function ratingImageGenerator(place: number, rating: number): React.ReactNode {
         alt="An empty coffee cup"
         width={30}
         height={30}
+        className="w-8 h-8"
       ></Image>
     );
   }
 }
 
-export default function App({ rating, reviewCount }: Props) {
+export default function CafeListRating({ rating, reviewCount }: Props) {
   if (!rating) {
     return (
       <div className="font-bold">
@@ -37,13 +39,13 @@ export default function App({ rating, reviewCount }: Props) {
     );
   } else {
     return (
-      <div className="flex">
+      <div className="flex h-8">
         {ratingImageGenerator(1, rating)}
         {ratingImageGenerator(2, rating)}
         {ratingImageGenerator(3, rating)}
         {ratingImageGenerator(4, rating)}
         {ratingImageGenerator(5, rating)}
-        <p className="text-sm self-end italic text-[#747474] ml-1.5">
+        <p className="text-sm italic self-end text-[#747474] ml-1.5">
           ({reviewCount})
         </p>
       </div>

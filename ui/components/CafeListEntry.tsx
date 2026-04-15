@@ -1,5 +1,6 @@
 import Image from "next/image";
 import CafeListRating from "@/ui/components/CafeListRating";
+import { Location } from "@/lib/fetchLocations";
 
 export interface Props {
   title: string;
@@ -8,29 +9,40 @@ export interface Props {
   reviewCount?: number;
   description?: string;
   image?: string;
+  location: Location;
+  sendCafeSelection: Function;
 }
 
-export default function App({
+export default function CafeListEntry({
   title,
   distance,
   rating,
   reviewCount = 0,
   description,
   image,
+  location,
+  sendCafeSelection,
 }: Props) {
   return (
-    <div className="flex gap-3 w-[98%] h-70 p-2 mb-0 border-b border-[#eaeaea] hover:bg-[#dadada] duration-95 cursor-pointer">
+    <div
+      className="flex gap-3 w-[98%] h-60 p-2 mb-0 border-b border-[#eaeaea] hover:bg-[#f8f8f8] duration-95 cursor-pointer"
+      onClick={() => {
+        sendCafeSelection(location);
+      }}
+    >
       <div className="w-[50%] flex flex-col">
         <div className="flex justify-between">
-          <h1 className="text-lg font-bold">{title}</h1>
-          <h1 className="text-lg text-[#747474]">
+          <h1 className="text-base font-bold">{title}</h1>
+          <h1 className="w-10 text-sm text-[#747474]">
             {distance ? distance : "?"} mi
           </h1>
         </div>
-        <CafeListRating
-          rating={rating}
-          reviewCount={reviewCount}
-        ></CafeListRating>
+        <div className="">
+          <CafeListRating
+            rating={rating}
+            reviewCount={reviewCount}
+          ></CafeListRating>
+        </div>
         {!description && (
           <p className="text-sm mt-0.5 italic">
             We're having trouble finding this cafe's description.
@@ -40,9 +52,11 @@ export default function App({
             </span>
           </p>
         )}
-        {description && <p className="text-sm mt-3">{description}</p>}
+        {description && (
+          <p className="text-sm mt-3 line-clamp-4">{description}</p>
+        )}
       </div>
-      <div className="w-[50%] h-[95%] self-center">
+      <div className="w-[50%] h-full">
         <Image
           src={!image ? "/cafe_ex.jpg" : image}
           alt="A cafe interior, from a low angle."

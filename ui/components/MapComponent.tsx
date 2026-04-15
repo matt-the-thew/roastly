@@ -29,10 +29,16 @@ function addMarker(
 }
 
 interface Props {
+  sendSelectedLocation: Function;
+  selectedCity: string;
   children: React.ReactNode;
 }
 
-export default function MapComponent({ children }: Props) {
+export default function MapComponent({
+  sendSelectedLocation,
+  selectedCity,
+  children,
+}: Props) {
   const mapRef = useRef<Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [center, setCenter] = useState<[number, number]>([-118.7617, 34.1533]);
@@ -86,6 +92,50 @@ export default function MapComponent({ children }: Props) {
     });
   }, [locations]);
 
+  useEffect(() => {
+    switch (selectedCity) {
+      case "Los Angeles":
+        mapRef.current?.flyTo({
+          center: [-118.2426, 34.0549],
+          duration: 500,
+          zoom: 10.5,
+        });
+        break;
+      case "New York":
+        mapRef.current?.flyTo({
+          center: [-73.9352, 40.7306],
+          duration: 500,
+          zoom: 10.5,
+        });
+        break;
+      case "Chicago":
+        mapRef.current?.flyTo({
+          center: [-87.65, 41.85],
+          duration: 500,
+          zoom: 10.5,
+        });
+        break;
+      case "Seattle":
+        mapRef.current?.flyTo({
+          center: [-122.2426, 47.3328],
+          duration: 500,
+          zoom: 10.5,
+        });
+        break;
+    }
+  }, [selectedCity]);
+
+  useEffect(() => {
+    if (selectedLocation) {
+      sendSelectedLocation(selectedLocation.name);
+      mapRef.current?.flyTo({
+        center: [selectedLocation.longitude, selectedLocation.latitude],
+        zoom: 11,
+        duration: 300,
+      });
+    }
+  }, [selectedLocation]);
+
   // const straightToBrazil = () => {
   //   if (mapRef.current) {
   //     mapRef.current.flyTo({
@@ -104,7 +154,7 @@ export default function MapComponent({ children }: Props) {
         </div>
       )} */}
       {children}
-      {selectedLocation && (
+      {/* {selectedLocation && (
         <div className="absolute flex flex-col gap-4 top-3 right-4 h-[95%] w-[90%] md:w-[60%] lg:w-[40%] bg-slate-100 shadow-lg z-0 rounded-2xl animate-slide-in">
           <button
             className="bg-amber-200 flex items-center text-[1rem] font-display p-2 cursor-pointer hover:bg-amber-400 active:bg-amber-100 w-fit"
@@ -118,7 +168,7 @@ export default function MapComponent({ children }: Props) {
             description={selectedLocation.description}
           />
         </div>
-      )}
+      )} */}
     </div>
   );
 }

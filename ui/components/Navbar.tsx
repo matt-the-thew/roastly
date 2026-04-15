@@ -16,14 +16,14 @@ export default function Navbar() {
             />
           </div>
           <div className="hidden md:flex lg:flex gap-4 items-center *:hover:bg-slate-400 *:hover:text-background *:duration-150 *:p-3 *:rounded-md">
-            <Link href={"#"}>Map</Link>
+            <Link href={"/dashboard/homepage"}>Map</Link>
             <Link href={"#"}>About</Link>
-            <Link href={"#"}>Blog</Link>
+            <Link href={"/blog"}>Blog</Link>
             <Link href={"#"}>Partners</Link>
           </div>
         </div>
         <div className="flex items-center min-w-20 *:hover:bg-slate-400 *:hover:text-background *:duration-150 *:p-3 *:rounded-md">
-          <Link href={"#"}>Log In</Link>
+          <Link href={"/auth/login"}>Log In</Link>
         </div>
       </nav>
       <div className="h-20"></div>

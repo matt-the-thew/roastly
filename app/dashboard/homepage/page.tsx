@@ -1,36 +1,52 @@
 "use client";
 import MapComponent from "@/ui/components/MapComponent";
 import MapUserControls from "@/ui/components/MapUserControls";
-import MapCafeList from "@/ui/components/MapCafeList";
-import MapCafeListEntry from "@/ui/components/MapCafeListEntry";
+import MapOverlay from "@/ui/components/MapOverlay";
+import { fetchLocations, Location } from "@/lib/fetchLocations";
+import { useEffect, useState } from "react";
 
 function HomePage() {
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [selectedCity, setSelectedCity] = useState("Los Angeles");
+  const [selectedLocationName, setSelectedLocationName] = useState<
+    string | null
+  >(null);
+
+  function recieveCityStateData(value: string): void {
+    setSelectedCity(value);
+  }
+
+  function recieveSelectedLocationName(value: string): void {
+    setSelectedLocationName(value);
+  }
+
+  useEffect(() => {
+    console.log(selectedLocationName);
+  }, [selectedLocationName]);
+
+  useEffect(() => {
+    fetchLocations().then(
+      (locationList) => {
+        setLocations(locationList);
+      },
+      (error) => {
+        console.error(`Error pulling locations from database: ${error}`);
+      },
+    );
+  });
+
   return (
     <div className="flex flex-col h-full w-full">
       <MapUserControls></MapUserControls>
-      <MapComponent>
-        <MapCafeList visible={true} numberOfCafes={2}>
-          <MapCafeListEntry
-            distance={2}
-            title="Hello world"
-            rating={4}
-          ></MapCafeListEntry>
-          <MapCafeListEntry distance={2} title="Cafe time"></MapCafeListEntry>
-          <MapCafeListEntry
-            distance={2}
-            title="Matt is great"
-          ></MapCafeListEntry>
-          <MapCafeListEntry distance={2} title="Uh huh"></MapCafeListEntry>
-          <MapCafeListEntry distance={2} title="Let's go"></MapCafeListEntry>
-          <MapCafeListEntry distance={2} title="Hello world"></MapCafeListEntry>
-          <MapCafeListEntry distance={2} title="Cafe time"></MapCafeListEntry>
-          <MapCafeListEntry
-            distance={2}
-            title="Matt is great"
-          ></MapCafeListEntry>
-          <MapCafeListEntry distance={2} title="Uh huh"></MapCafeListEntry>
-          <MapCafeListEntry distance={2} title="Let's go"></MapCafeListEntry>
-        </MapCafeList>
+      <MapComponent
+        sendSelectedLocation={recieveSelectedLocationName}
+        selectedCity={selectedCity}
+      >
+        <MapOverlay
+          locations={locations}
+          sendCityStateData={recieveCityStateData}
+          selectedLocationName={selectedLocationName}
+        ></MapOverlay>
       </MapComponent>
     </div>
   );

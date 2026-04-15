@@ -310,7 +310,7 @@
     "zod-validation-error": "^4.0.2"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
