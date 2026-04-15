@@ -1,5 +1,5 @@
-import Navbar from "@/ui/components/LandingPage/Navbar";
-import Footer from "@/ui/components/LandingPage/Footer";
+import Navbar from "@/ui/components/Navbar";
+import Footer from "@/ui/components/Footer";
 import Link from "next/link";
 
 export default function PrivacyPolicyPage() {

@@ -8,7 +8,7 @@ const sessionHandlerInstance = new SessionHandler(
 );
 
 export default async function proxy(request: NextRequest) {
-  log.debug("[PROXY]: awaiting updateSession");
+  // log.debug("[PROXY]: awaiting updateSession");
   await sessionHandlerInstance.updateSession(request);
 
   /* Temporarily removing this line so that loggin in is not required.
@@ -29,7 +29,7 @@ export default async function proxy(request: NextRequest) {
     sessionHandlerInstance.user &&
     request.nextUrl.pathname.startsWith("/auth/login")
   ) {
-    log.debug("[PROXY]: redirecting authorized user to dashboard...");
+    // log.debug("[PROXY]: redirecting authorized user to dashboard...");
     return NextResponse.redirect(new URL("/dashboard/homepage", request.url));
   }
 }

@@ -65,11 +65,12 @@ export default function Login() {
               alt="The google logo, with the text 'sign in with google'"
               width={756}
               height={160}
+              className="hover:shadow-lg active:border-2"
             ></Image>
           </button>
           <Link
             href={"/"}
-            className="font-display w-[50%] h-10 mt-4 flex justify-center items-center bg-cream rounded-md hover:text-white active:bg-brew"
+            className="font-display p-4 h-10 mt-4 flex justify-center items-center bg-cream rounded-md hover:shadow-lg active:border-2"
           >
             <p>Forget it</p>
           </Link>

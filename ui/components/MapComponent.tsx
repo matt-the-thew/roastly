@@ -2,8 +2,8 @@
 import mapboxgl, { LngLatLike, Map, NavigationControl } from "mapbox-gl";
 import { useRef, useEffect, useState } from "react";
 import { Location, fetchLocations } from "@/lib/fetchLocations";
-import MarkerContent from "./MarkerContent";
-import PopupContent from "./PopupContent";
+import MarkerContent from "./MapMarkerContent";
+import PopupContent from "./MapPopupContent";
 import { createRoot } from "react-dom/client";
 import { MdClose } from "react-icons/md";
 
@@ -28,7 +28,17 @@ function addMarker(
     .addTo(map);
 }
 
-export default function MapComponent() {
+interface Props {
+  sendSelectedLocation: Function;
+  selectedCity: string;
+  children: React.ReactNode;
+}
+
+export default function MapComponent({
+  sendSelectedLocation,
+  selectedCity,
+  children,
+}: Props) {
   const mapRef = useRef<Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [center, setCenter] = useState<[number, number]>([-118.7617, 34.1533]);
@@ -82,6 +92,50 @@ export default function MapComponent() {
     });
   }, [locations]);
 
+  useEffect(() => {
+    switch (selectedCity) {
+      case "Los Angeles":
+        mapRef.current?.flyTo({
+          center: [-118.2426, 34.0549],
+          duration: 500,
+          zoom: 10.5,
+        });
+        break;
+      case "New York":
+        mapRef.current?.flyTo({
+          center: [-73.9352, 40.7306],
+          duration: 500,
+          zoom: 10.5,
+        });
+        break;
+      case "Chicago":
+        mapRef.current?.flyTo({
+          center: [-87.65, 41.85],
+          duration: 500,
+          zoom: 10.5,
+        });
+        break;
+      case "Seattle":
+        mapRef.current?.flyTo({
+          center: [-122.2426, 47.3328],
+          duration: 500,
+          zoom: 10.5,
+        });
+        break;
+    }
+  }, [selectedCity]);
+
+  useEffect(() => {
+    if (selectedLocation) {
+      sendSelectedLocation(selectedLocation.name);
+      mapRef.current?.flyTo({
+        center: [selectedLocation.longitude, selectedLocation.latitude],
+        zoom: 11,
+        duration: 300,
+      });
+    }
+  }, [selectedLocation]);
+
   // const straightToBrazil = () => {
   //   if (mapRef.current) {
   //     mapRef.current.flyTo({
@@ -93,14 +147,15 @@ export default function MapComponent() {
 
   return (
     <div id="map-container" ref={mapContainerRef} className="w-full h-full">
-      {width > 800 && (
+      {/* {width > 800 && (
         <div className="w-auto h-8 z-10 absolute top-8 left-15 bg-slate-600 text-slate-50 text-lg">
           Lng: {center[0].toFixed(5)} | Lat: {center[1].toFixed(5)} | 🔍:
           {zoom.toFixed(5)} | Width: {width}
         </div>
-      )}
-      {selectedLocation && (
-        <div className="absolute flex flex-col gap-4 top-3 right-4 h-[95%] w-[90%] md:w-[60%] lg:w-[40%] bg-slate-100 shadow-lg z-20 rounded-2xl animate-slide-in">
+      )} */}
+      {children}
+      {/* {selectedLocation && (
+        <div className="absolute flex flex-col gap-4 top-3 right-4 h-[95%] w-[90%] md:w-[60%] lg:w-[40%] bg-slate-100 shadow-lg z-0 rounded-2xl animate-slide-in">
           <button
             className="bg-amber-200 flex items-center text-[1rem] font-display p-2 cursor-pointer hover:bg-amber-400 active:bg-amber-100 w-fit"
             onClick={() => setSelectedLocation(null)}
@@ -113,7 +168,7 @@ export default function MapComponent() {
             description={selectedLocation.description}
           />
         </div>
-      )}
+      )} */}
     </div>
   );
 }

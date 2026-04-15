@@ -63,7 +63,7 @@ export default function SignUp() {
           }}
         />
         <div className="flex flex-col gap-4 justify-around">
-          <Button content="Sign Up" clickEvent={signUp} />
+          <Button clickEvent={signUp}>Sign Up</Button>
         </div>
       </div>
     </div>

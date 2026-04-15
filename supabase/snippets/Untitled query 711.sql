@@ -1,4 +1,4 @@
-create or replace view cafes_public as
+alter view cafes_public as
 select
   name,
   ST_Y(location::geometry) as latitude,
@@ -12,6 +12,5 @@ select
   has_outlets,
   has_patio,
   is_verified,
-  rating,
-  id
+  rating
 from cafes;

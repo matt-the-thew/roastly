@@ -14,6 +14,8 @@ export interface Location {
   name: string;
   roast_level: string;
   vibe: string;
+  rating: number;
+  id: string;
 }
 
 export async function fetchLocations(
