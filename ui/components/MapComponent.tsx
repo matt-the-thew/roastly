@@ -1,7 +1,7 @@
 "use client";
 import mapboxgl, { LngLatLike, Map, NavigationControl } from "mapbox-gl";
 import { useRef, useEffect, useState } from "react";
-import { Location, fetchLocations } from "@/lib/fetchLocations";
+import { Location } from "@/lib/fetchLocations";
 import MarkerContent from "./MapMarkerContent";
 import PopupContent from "./MapPopupContent";
 import { createRoot } from "react-dom/client";
@@ -28,13 +28,26 @@ function addMarker(
     .addTo(map);
 }
 
+//Locate user if navigator is enabled
+//Otherwise use an IP locator to generalize their position
+function locateUser(): Array<number> | null {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      return [position.coords.longitude, position.coords.latitude];
+    });
+  }
+  return null;
+}
+
 interface Props {
+  locationList: Array<Location>;
   sendSelectedLocation: Function;
   selectedCity: string;
   children: React.ReactNode;
 }
 
 export default function MapComponent({
+  locationList,
   sendSelectedLocation,
   selectedCity,
   children,
@@ -58,6 +71,7 @@ export default function MapComponent({
     //Initialize map reference object
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
+      logoPosition: "bottom-right",
       center: center,
       zoom: zoom,
     });
@@ -70,15 +84,17 @@ export default function MapComponent({
       setZoom(mapZoom);
     });
 
+    //add location control
+    mapRef.current.addControl(new NavigationControl(), "top-right");
+
     return () => {
       mapRef.current?.remove();
     };
   }, []);
 
-  //get locations from database
   useEffect(() => {
-    fetchLocations().then((result) => setLocations(result));
-  }, []);
+    setLocations(locationList);
+  }, [locationList]);
 
   useEffect(() => {
     if (!mapRef.current) return;

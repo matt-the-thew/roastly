@@ -6,6 +6,7 @@ import Button from "@/ui/components/Button";
 import Image from "next/image";
 import Footer from "@/ui/components/Footer";
 import { log } from "@/lib/logger";
+import toast from "react-hot-toast";
 
 log.info("Welcome to Roastly.");
 log.info("<<Danger, Will Robinson!>>");

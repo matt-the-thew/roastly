@@ -4,6 +4,7 @@ import MapUserControls from "@/ui/components/MapUserControls";
 import MapOverlay from "@/ui/components/MapOverlay";
 import { fetchLocations, Location } from "@/lib/fetchLocations";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 function HomePage() {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -20,20 +21,30 @@ function HomePage() {
     setSelectedLocationName(value);
   }
 
+  //eventually this will changed based on passed-up bounding box data
+  useEffect(() => {
+    const promiseObject = fetchLocations();
+    toast
+      .promise(promiseObject, {
+        loading: "Loading cafes",
+        success: "Cafes loaded",
+        error: "Problem loading cafes",
+      })
+      .then(
+        (locationList) => {
+          setLocations(locationList);
+        },
+        (error) => {
+          console.error(`Error pulling locations from database: ${error}`);
+        },
+      );
+  }, []);
+
   useEffect(() => {
     console.log(selectedLocationName);
   }, [selectedLocationName]);
 
-  useEffect(() => {
-    fetchLocations().then(
-      (locationList) => {
-        setLocations(locationList);
-      },
-      (error) => {
-        console.error(`Error pulling locations from database: ${error}`);
-      },
-    );
-  });
+  useEffect(() => {});
 
   return (
     <div className="flex flex-col h-full w-full">
@@ -41,6 +52,7 @@ function HomePage() {
       <MapComponent
         sendSelectedLocation={recieveSelectedLocationName}
         selectedCity={selectedCity}
+        locationList={locations}
       >
         <MapOverlay
           locations={locations}

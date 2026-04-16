@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import Button from "@/ui/components/Button";
 import { sign } from "crypto";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 export default function Login() {
   // const [email, setEmail] = useState("");
@@ -36,11 +37,17 @@ export default function Login() {
   // }
 
   async function signInWithGoogle() {
-    await supabase.auth.signInWithOAuth({
+    const promiseObject = supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/confirm`,
       },
+    });
+
+    toast.promise(promiseObject, {
+      loading: "Signing in with Google",
+      success: "Success!",
+      error: "There was a problem signing in",
     });
   }
 
