@@ -42,3 +42,8 @@ body {
     color: var(--color-foreground);
   }
 }
+
+.mapboxgl-ctrl-top-right {
+  padding: 1.5rem;
+  margin-top: 4rem;
+}

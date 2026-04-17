@@ -1,7 +1,7 @@
 "use client";
-import mapboxgl, { LngLatLike, Map, NavigationControl } from "mapbox-gl";
+import mapboxgl, { LngLatLike, Map, GeolocateControl } from "mapbox-gl";
 import { useRef, useEffect, useState } from "react";
-import { Location, fetchLocations } from "@/lib/fetchLocations";
+import { Location } from "@/lib/fetchLocations";
 import MarkerContent from "./MapMarkerContent";
 import PopupContent from "./MapPopupContent";
 import { createRoot } from "react-dom/client";
@@ -28,13 +28,28 @@ function addMarker(
     .addTo(map);
 }
 
+//Locate user if navigator is enabled
+//Otherwise use an IP locator to generalize their position
+function locateUser(): Array<number> | null {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      return [position.coords.longitude, position.coords.latitude];
+    });
+  }
+  return null;
+}
+
 interface Props {
+  sidebarVisible: boolean;
+  locationList: Array<Location>;
   sendSelectedLocation: Function;
   selectedCity: string;
   children: React.ReactNode;
 }
 
 export default function MapComponent({
+  sidebarVisible,
+  locationList,
   sendSelectedLocation,
   selectedCity,
   children,
@@ -58,6 +73,7 @@ export default function MapComponent({
     //Initialize map reference object
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
+      logoPosition: "bottom-right",
       center: center,
       zoom: zoom,
     });
@@ -70,15 +86,22 @@ export default function MapComponent({
       setZoom(mapZoom);
     });
 
+    //add location control
+    const geolocate = new GeolocateControl();
+    mapRef.current.addControl(geolocate, "top-right");
+
+    mapRef.current.on("load", () => {
+      geolocate.trigger();
+    });
+
     return () => {
       mapRef.current?.remove();
     };
   }, []);
 
-  //get locations from database
   useEffect(() => {
-    fetchLocations().then((result) => setLocations(result));
-  }, []);
+    setLocations(locationList);
+  }, [locationList]);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -135,6 +158,23 @@ export default function MapComponent({
       });
     }
   }, [selectedLocation]);
+
+  useEffect(() => {
+    const sidebarSize = 484;
+    if (width > sidebarSize) {
+      if (sidebarVisible) {
+        mapRef.current?.easeTo({
+          padding: { right: sidebarSize },
+          duration: 800,
+        });
+      } else {
+        mapRef.current?.easeTo({
+          padding: { left: sidebarSize },
+          duration: 800,
+        });
+      }
+    }
+  }, [sidebarVisible]);
 
   // const straightToBrazil = () => {
   //   if (mapRef.current) {

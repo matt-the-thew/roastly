@@ -11,12 +11,14 @@ import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 
 interface Props {
+  sendSidebarVisible: Function;
   selectedLocationName: string | null;
   sendCityStateData: Function;
   locations: Array<Location>;
 }
 
 export default function MapOverlay({
+  sendSidebarVisible,
   selectedLocationName,
   sendCityStateData,
   locations,
@@ -72,6 +74,10 @@ export default function MapOverlay({
       setHidden(false);
     }
   }, [selectedLocationName]);
+
+  useEffect(() => {
+    sendSidebarVisible(hidden);
+  }, [hidden])
 
   function handleRenderState(): React.ReactNode {
     switch (renderState) {

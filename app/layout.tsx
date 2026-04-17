@@ -3,6 +3,8 @@ import { Roboto } from "next/font/google";
 import { Mrs_Sheppards } from "next/font/google";
 import { Martian_Mono } from "next/font/google";
 
+import toast, { Toaster } from "react-hot-toast";
+
 const martian = Martian_Mono({
   subsets: ["latin"],
   variable: "--font-martian",
@@ -109,7 +111,18 @@ export default function RootLayout({
         content="favicon/ms-icon-144x144.png"
       />
       <meta name="theme-color" content="#ffffff"></meta>
-      <body>{children}</body>
+      <body>
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            style: {
+              background: "#ffa972",
+              color: "#fff",
+            },
+          }}
+        />
+        {children}
+      </body>
     </html>
   );
 }
