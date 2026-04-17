@@ -1,5 +1,5 @@
 "use client";
-import mapboxgl, { LngLatLike, Map, NavigationControl } from "mapbox-gl";
+import mapboxgl, { LngLatLike, Map, GeolocateControl } from "mapbox-gl";
 import { useRef, useEffect, useState } from "react";
 import { Location } from "@/lib/fetchLocations";
 import MarkerContent from "./MapMarkerContent";
@@ -40,6 +40,7 @@ function locateUser(): Array<number> | null {
 }
 
 interface Props {
+  sidebarVisible: boolean;
   locationList: Array<Location>;
   sendSelectedLocation: Function;
   selectedCity: string;
@@ -47,6 +48,7 @@ interface Props {
 }
 
 export default function MapComponent({
+  sidebarVisible,
   locationList,
   sendSelectedLocation,
   selectedCity,
@@ -85,7 +87,12 @@ export default function MapComponent({
     });
 
     //add location control
-    mapRef.current.addControl(new NavigationControl(), "top-right");
+    const geolocate = new GeolocateControl();
+    mapRef.current.addControl(geolocate, "top-right");
+
+    mapRef.current.on("load", () => {
+      geolocate.trigger();
+    });
 
     return () => {
       mapRef.current?.remove();
@@ -151,6 +158,23 @@ export default function MapComponent({
       });
     }
   }, [selectedLocation]);
+
+  useEffect(() => {
+    const sidebarSize = 484;
+    if (width > sidebarSize) {
+      if (sidebarVisible) {
+        mapRef.current?.easeTo({
+          padding: { right: sidebarSize },
+          duration: 800,
+        });
+      } else {
+        mapRef.current?.easeTo({
+          padding: { left: sidebarSize },
+          duration: 800,
+        });
+      }
+    }
+  }, [sidebarVisible]);
 
   // const straightToBrazil = () => {
   //   if (mapRef.current) {

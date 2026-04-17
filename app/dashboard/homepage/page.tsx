@@ -12,6 +12,7 @@ function HomePage() {
   const [selectedLocationName, setSelectedLocationName] = useState<
     string | null
   >(null);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
 
   function recieveCityStateData(value: string): void {
     setSelectedCity(value);
@@ -19,6 +20,10 @@ function HomePage() {
 
   function recieveSelectedLocationName(value: string): void {
     setSelectedLocationName(value);
+  }
+
+  function recieveSidebarVisible(value: boolean): void {
+    setSidebarVisible(value);
   }
 
   //eventually this will changed based on passed-up bounding box data
@@ -53,11 +58,13 @@ function HomePage() {
         sendSelectedLocation={recieveSelectedLocationName}
         selectedCity={selectedCity}
         locationList={locations}
+        sidebarVisible={sidebarVisible}
       >
         <MapOverlay
           locations={locations}
           sendCityStateData={recieveCityStateData}
           selectedLocationName={selectedLocationName}
+          sendSidebarVisible={recieveSidebarVisible}
         ></MapOverlay>
       </MapComponent>
     </div>
