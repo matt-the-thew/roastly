@@ -1,6 +1,7 @@
 import Image from "next/image";
 import CafeListRating from "@/ui/components/CafeListRating";
 import { Location } from "@/lib/fetchLocations";
+import { useMapContext } from "@/lib/MapContext";
 
 export interface Props {
   title: string;
@@ -10,7 +11,6 @@ export interface Props {
   description?: string;
   image?: string;
   location: Location;
-  sendCafeSelection: Function;
 }
 
 export default function CafeListEntry({
@@ -21,14 +21,13 @@ export default function CafeListEntry({
   description,
   image,
   location,
-  sendCafeSelection,
 }: Props) {
+  const { setSelectedLocation } = useMapContext();
+
   return (
     <div
       className="flex gap-3 w-[98%] h-60 p-2 mb-0 border-b border-[#eaeaea] hover:bg-[#f8f8f8] duration-95 cursor-pointer"
-      onClick={() => {
-        sendCafeSelection(location);
-      }}
+      onClick={() => setSelectedLocation(location)}
     >
       <div className="w-[50%] flex flex-col">
         <div className="flex justify-between">
@@ -38,15 +37,12 @@ export default function CafeListEntry({
           </h1>
         </div>
         <div className="">
-          <CafeListRating
-            rating={rating}
-            reviewCount={reviewCount}
-          ></CafeListRating>
+          <CafeListRating rating={rating} reviewCount={reviewCount} />
         </div>
         {!description && (
           <p className="text-sm mt-0.5 italic">
             We're having trouble finding this cafe's description.
-            <br></br>
+            <br />
             <span className="text-primary hover:underline font-bold">
               Tell us about it.
             </span>
@@ -63,7 +59,7 @@ export default function CafeListEntry({
           width={612}
           height={408}
           className="h-full object-cover rounded-lg"
-        ></Image>
+        />
       </div>
     </div>
   );

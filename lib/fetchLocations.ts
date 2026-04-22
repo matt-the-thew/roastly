@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/client";
-import { log } from "./logger";
 
 export interface Location {
   brew_focus: string;
@@ -18,9 +17,7 @@ export interface Location {
   id: string;
 }
 
-export async function fetchLocations(
-  locationDestinationArray?: Array<Location> | null,
-) {
+export async function fetchLocations() {
   const supabase = createClient();
   const { data, error } = await supabase.from("cafes_public").select(`*`);
 

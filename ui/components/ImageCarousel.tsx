@@ -8,7 +8,7 @@ export interface Props {
   imageRefs?: Array<string>;
 }
 
-function paginationDisplayInjector(index: Number): React.ReactNode {
+function paginationDisplayInjector(index: number): React.ReactNode {
   return (
     <div className={`flex gap-0.5  p-2`}>
       {Array.from({ length: 6 }).map((_, i) => (
@@ -24,6 +24,7 @@ function paginationDisplayInjector(index: Number): React.ReactNode {
   );
 }
 
+//TODO: Implement logic to pull & list images based on locations from cloud storage
 export function ImageCarousel({ imageRefs }: Props) {
   const [currentImage, setCurrentImage] = useState<number>(1);
 

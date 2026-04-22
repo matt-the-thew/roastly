@@ -5,6 +5,7 @@ export interface Props {
   tags?: Array<string>;
 }
 
+//TODO: pull tags from cafes_public
 export default function CafeTagList({ tags }: Props) {
   const [extended, setExtended] = useState(false);
 
@@ -27,19 +28,27 @@ export default function CafeTagList({ tags }: Props) {
           <li>social</li>
           <li>artsy</li>
           {/* TODO: fix shadow on these arrows */}
-          {!extended && <p className="flex items-center"><IoIosArrowDown /></p>}
+          {!extended && (
+            <p className="flex items-center">
+              <IoIosArrowDown />
+            </p>
+          )}
           <li>work-friendly</li>
           <li>low key</li>
           <li>teas</li>
           <li>social</li>
           <li>artsy</li>
-             <li>work-friendly</li>
+          <li>work-friendly</li>
           <li>low key</li>
           <li>teas</li>
           <li>social</li>
           <li>artsy</li>
           {/* TODO: fix shadow on these arrows */}
-          {extended && <p className="flex items-center"><IoIosArrowUp /></p>}
+          {extended && (
+            <p className="flex items-center">
+              <IoIosArrowUp />
+            </p>
+          )}
         </ul>
       </div>
     </div>

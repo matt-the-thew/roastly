@@ -1,11 +1,6 @@
 "use client";
-import { redirect } from "next/navigation";
 import Image from "next/image";
-import { useState } from "react";
-import { log } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/client";
-import Button from "@/ui/components/Button";
-import { sign } from "crypto";
 import Link from "next/link";
 import toast from "react-hot-toast";
 

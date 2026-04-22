@@ -62,12 +62,12 @@ export default class SessionHandler {
       // );
 
       return supabaseResponse;
-    } catch (err) {
-      if (err instanceof Error) {
-        log.error(`[SessionHandler]: an unknown error occurred ${err}`);
+    } catch (error) {
+      if (error instanceof Error) {
+        log.error(`[SessionHandler]: an unknown error occurred ${error}`);
       }
-      if (err instanceof AuthApiError) {
-        log.debug(`[SessionHandler]: No user detected, ${err}`);
+      if (error) {
+        log.debug(`[SessionHandler]: No user detected, ${error}`);
       }
     }
   }
