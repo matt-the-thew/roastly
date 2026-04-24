@@ -71,7 +71,7 @@ export async function getLikersForCafe(cafeId: string): Promise<LikeWithProfile[
     .select("id, user_id, cafe_id, created_at, profiles(id, username, display_name, avatar_url, is_private)")
     .eq("cafe_id", cafeId)
     .order("created_at", { ascending: false });
-  return (data ?? []) as LikeWithProfile[];
+  return (data ?? []) as unknown as LikeWithProfile[];
 }
 
 export async function toggleLike(userId: string, cafeId: string, currentlyLiked: boolean): Promise<void> {
