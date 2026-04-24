@@ -1,12 +1,9 @@
 "use client";
-import { useRef } from "react";
 import Navbar from "@/ui/components/Navbar";
 import Link from "next/link";
-import Button from "@/ui/components/Button";
 import Image from "next/image";
 import Footer from "@/ui/components/Footer";
 import { log } from "@/lib/logger";
-import toast from "react-hot-toast";
 
 log.info("Welcome to Roastly.");
 log.info("<<Danger, Will Robinson!>>");
@@ -24,6 +21,7 @@ export default function LandingPage() {
             alt="Roastly logo"
             height={240}
             width={680}
+            loading="eager"
           ></Image>
           <section className="flex flex-col md:flex-row gap-10">
             <div className="flex flex-col w-full md:w-160 justify-center">
@@ -45,6 +43,7 @@ export default function LandingPage() {
               src={"/heromap.png"}
               height={600}
               width={600}
+              loading="eager"
               alt="A picture of a map, with ambiguous markings"
               className="hidden md:inline lg:inline relative w-120 blur-xs"
             ></Image>

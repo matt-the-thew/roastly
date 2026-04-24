@@ -1,11 +1,10 @@
-import { send } from "node:process";
 import { useEffect, useState } from "react";
 
 import { IoArrowDown } from "react-icons/io5";
 
 export interface Props {
   possibleValues?: Array<string>;
-  sendStateData: Function;
+  sendStateData: (value: string) => void;
 }
 
 export default function DropdownMenu({ sendStateData }: Props) {

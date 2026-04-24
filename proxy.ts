@@ -1,10 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import SessionHandler from "./lib/supabase/sessionhandler";
-import { log } from "./lib/logger";
 
 const sessionHandlerInstance = new SessionHandler(
   process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_ANON_KEY!,
+  process.env.NEXT_ROASTLY_SUPABASE_ANON_KEY!,
 );
 
 export default async function proxy(request: NextRequest) {

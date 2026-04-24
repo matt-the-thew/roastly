@@ -1,70 +1,68 @@
 import { useState } from "react";
-
-import { IoIosArrowBack } from "react-icons/io";
-import { IoIosArrowForward } from "react-icons/io";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import Image from "next/image";
 
 export interface Props {
-  imageRefs?: Array<string>;
+  images?: string[];
 }
 
-function paginationDisplayInjector(index: Number): React.ReactNode {
+function PaginationDots({ count, current }: { count: number; current: number }) {
   return (
-    <div className={`flex gap-0.5  p-2`}>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <button
+    <div className="flex gap-0.5 p-2">
+      {Array.from({ length: count }).map((_, i) => (
+        <div
           key={i}
-          className={`
-            h-3 w-3 border-2 border-white rounded-4xl duration-200
-            ${i === index ? "bg-white" : ""}`}
-          aria-current={i === index}
+          className={`h-3 w-3 border-2 border-white rounded-full duration-200 ${i === current ? "bg-white" : ""}`}
         />
       ))}
     </div>
   );
 }
 
-export function ImageCarousel({ imageRefs }: Props) {
-  const [currentImage, setCurrentImage] = useState<number>(1);
+export function ImageCarousel({ images }: Props) {
+  const [current, setCurrent] = useState(0);
+  const total = images?.length ?? 0;
 
-  function handleCarouselRight(): void {
-    let stateParser = currentImage;
-    stateParser < 5 ? (stateParser += 1) : stateParser;
-    setCurrentImage(stateParser);
-  }
-
-  function handleCarouselLeft(): void {
-    let stateParser = currentImage;
-    stateParser > 0 ? (stateParser -= 1) : stateParser;
-    setCurrentImage(stateParser);
+  if (!images || total === 0) {
+    return (
+      <div className="w-full h-full bg-gray-100 rounded-sm flex items-center justify-center">
+        <p className="font-mono text-sm text-gray-400">No photos yet</p>
+      </div>
+    );
   }
 
   return (
     <div className="relative w-full h-full overflow-hidden rounded-sm">
       <Image
-        src={currentImage % 2 == 0 ? "/donkeymonkey.jpg" : "/cafe_ex.jpg"}
-        alt="cafe interior"
-        width={200}
-        height={200}
-        className="object-cover w-full h-full"
+        src={images[current]}
+        alt={`Cafe photo ${current + 1}`}
+        fill
+        className="object-cover"
+        sizes="(max-width: 768px) 100vw, 450px"
       />
-      <div className="absolute top-[45%] w-full flex justify-between">
-        <button
-          className="w-fit h-10 bg-[#eaeaea] rounded-4xl p-3 mx-2 flex items-center justify-center cursor-pointer text-black hover:shadow-xl active:border"
-          onClick={handleCarouselLeft}
-        >
-          <IoIosArrowBack className="text-lg" />
-        </button>
-        <button
-          className="w-fit h-10 bg-[#eaeaea] rounded-4xl p-3 mx-2 flex items-center justify-center cursor-pointer text-black hover:shadow-xl active:border"
-          onClick={handleCarouselRight}
-        >
-          <IoIosArrowForward className="text-lg" />
-        </button>
-      </div>
-      <div className="absolute bottom-0 w-full flex justify-center">
-        {paginationDisplayInjector(currentImage)}
-      </div>
+      {total > 1 && (
+        <>
+          <div className="absolute top-[45%] w-full flex justify-between">
+            <button
+              className="w-fit h-10 bg-[#eaeaea] rounded-4xl p-3 mx-2 flex items-center justify-center cursor-pointer text-black hover:shadow-xl active:border disabled:opacity-30"
+              onClick={() => setCurrent((c) => Math.max(0, c - 1))}
+              disabled={current === 0}
+            >
+              <IoIosArrowBack className="text-lg" />
+            </button>
+            <button
+              className="w-fit h-10 bg-[#eaeaea] rounded-4xl p-3 mx-2 flex items-center justify-center cursor-pointer text-black hover:shadow-xl active:border disabled:opacity-30"
+              onClick={() => setCurrent((c) => Math.min(total - 1, c + 1))}
+              disabled={current === total - 1}
+            >
+              <IoIosArrowForward className="text-lg" />
+            </button>
+          </div>
+          <div className="absolute bottom-0 w-full flex justify-center">
+            <PaginationDots count={total} current={current} />
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -1,18 +1,13 @@
-import { MouseEventHandler } from "react";
-import Image from "next/image";
+import { useMapContext } from "@/lib/MapContext";
 
-export interface Props {
-  sendStateData: Function;
-}
+export default function CafeSubmissionForm() {
+  const { setOverlayView } = useMapContext();
 
-export default function CafeSubmissionForm({ sendStateData }: Props) {
   return (
     <div className="p-4 flex flex-col w-full h-full">
       <h2 className="text-lg font-bold">Cafe Submission Form</h2>
       <button
-        onClick={() => {
-          sendStateData("cafeList");
-        }}
+        onClick={() => setOverlayView("cafeList")}
         className="bg-[#eaeaea] w-20 self-end rounded-sm font-bold hover:bg-[#676767] cursor-pointer"
       >
         return
@@ -32,30 +27,30 @@ export default function CafeSubmissionForm({ sendStateData }: Props) {
             type="text"
             placeholder="Cafe Name"
             className="border-accent border w-full p-1 text-[0.9rem] rounded-md"
-          ></input>
+          />
           <label className="text-sm">Address</label>
           <input
             type="text"
             placeholder="Address"
             className="border-accent border w-full p-1 text-[0.9rem] rounded-md"
-          ></input>
+          />
           <label className="text-sm">Website</label>
           <input
             type="text"
             placeholder="Website"
             className="border-accent border w-full p-1 text-[0.9rem] rounded-md"
-          ></input>
+          />
           <label className="text-sm">Vibe</label>
           <input
             type="text"
             placeholder="Vibe"
             className="border-accent border w-full p-1 text-[0.9rem] rounded-md"
-          ></input>
+          />
           <label className="text-sm">Why you love it</label>
           <textarea
             className="border-accent border h-40 overflow-auto resize-none rounded-md p-2 text-[0.9rem]"
             placeholder="Tell us more..."
-          ></textarea>
+          />
         </form>
       </div>
     </div>

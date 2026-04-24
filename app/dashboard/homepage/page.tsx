@@ -5,69 +5,33 @@ import MapOverlay from "@/ui/components/MapOverlay";
 import { fetchLocations, Location } from "@/lib/fetchLocations";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { MapProvider } from "@/lib/MapContext";
 
 function HomePage() {
   const [locations, setLocations] = useState<Location[]>([]);
-  const [selectedCity, setSelectedCity] = useState("Los Angeles");
-  const [selectedLocationName, setSelectedLocationName] = useState<
-    string | null
-  >(null);
-  const [sidebarVisible, setSidebarVisible] = useState(true);
 
-  function recieveCityStateData(value: string): void {
-    setSelectedCity(value);
-  }
-
-  function recieveSelectedLocationName(value: string): void {
-    setSelectedLocationName(value);
-  }
-
-  function recieveSidebarVisible(value: boolean): void {
-    setSidebarVisible(value);
-  }
-
-  //eventually this will changed based on passed-up bounding box data
   useEffect(() => {
-    const promiseObject = fetchLocations();
     toast
-      .promise(promiseObject, {
+      .promise(fetchLocations(), {
         loading: "Loading cafes",
         success: "Cafes loaded",
         error: "Problem loading cafes",
       })
       .then(
-        (locationList) => {
-          setLocations(locationList);
-        },
-        (error) => {
-          console.error(`Error pulling locations from database: ${error}`);
-        },
+        (locationList) => setLocations(locationList),
+        (error) => console.error(`Error pulling locations from database: ${error}`),
       );
   }, []);
 
-  useEffect(() => {
-    console.log(selectedLocationName);
-  }, [selectedLocationName]);
-
-  useEffect(() => {});
-
   return (
-    <div className="flex flex-col h-full w-full">
-      <MapUserControls></MapUserControls>
-      <MapComponent
-        sendSelectedLocation={recieveSelectedLocationName}
-        selectedCity={selectedCity}
-        locationList={locations}
-        sidebarVisible={sidebarVisible}
-      >
-        <MapOverlay
-          locations={locations}
-          sendCityStateData={recieveCityStateData}
-          selectedLocationName={selectedLocationName}
-          sendSidebarVisible={recieveSidebarVisible}
-        ></MapOverlay>
-      </MapComponent>
-    </div>
+    <MapProvider locations={locations}>
+      <div className="flex flex-col h-full w-full">
+        <MapUserControls />
+        <MapComponent>
+          <MapOverlay />
+        </MapComponent>
+      </div>
+    </MapProvider>
   );
 }
 

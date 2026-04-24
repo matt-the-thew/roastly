@@ -1,120 +1,37 @@
-import { useEffect, useState } from "react";
-
+import { useMapContext } from "@/lib/MapContext";
 import CafeSubmissionForm from "./CafeSubmissionForm";
 import CafeList from "./CafeList";
 import CafeListEntry from "@/ui/components/CafeListEntry";
 import CafeDetails from "./CafeDetails";
-
-import { Location } from "@/lib/fetchLocations";
+import SocialFeed from "./SocialFeed";
 
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 
-interface Props {
-  sendSidebarVisible: Function;
-  selectedLocationName: string | null;
-  sendCityStateData: Function;
-  locations: Array<Location>;
-}
+export default function MapOverlay() {
+  const { locations, overlayView, sidebarVisible, setSidebarVisible } =
+    useMapContext();
 
-export default function MapOverlay({
-  sendSidebarVisible,
-  selectedLocationName,
-  sendCityStateData,
-  locations,
-}: Props) {
-  const [hidden, setHidden] = useState<boolean>(false);
-  const [selectedCafe, setSelectedCafe] = useState<Location | null>(null);
-  const [renderState, setRenderState] = useState<string>("cafeList");
-  const [selectedCity, setSelectedCity] = useState<string>("Los Angeles");
-
-  function toggleHidden(): void {
-    hidden ? setHidden(false) : setHidden(true);
-  }
-
-  function recieveStateData(value: string): void {
-    setRenderState(value);
-  }
-
-  function recieveCafeSelection(location: Location) {
-    setSelectedCafe(location);
-  }
-
-  function recieveCityStateData(value: string): void {
-    setSelectedCity(value);
-  }
-
-  useEffect(() => {
-    if (selectedCafe && renderState !== "cafeDetails") {
-      setRenderState("cafeDetails");
-    }
-    console.log(
-      selectedCafe?.name,
-      selectedCafe?.longitude,
-      selectedCafe?.latitude,
-    );
-  }, [selectedCafe]);
-
-  useEffect(() => {
-    if (selectedCity) {
-      sendCityStateData(selectedCity);
-    }
-  }, [selectedCity]);
-
-  useEffect(() => {
-    if (selectedLocationName) {
-      let locationWithMatchingName = locations.find(
-        ({ name }) => name == selectedLocationName,
-      );
-
-      setSelectedCafe(
-        locationWithMatchingName ? locationWithMatchingName : null,
-      );
-
-      setHidden(false);
-    }
-  }, [selectedLocationName]);
-
-  useEffect(() => {
-    sendSidebarVisible(hidden);
-  }, [hidden])
-
-  function handleRenderState(): React.ReactNode {
-    switch (renderState) {
+  function renderView() {
+    switch (overlayView) {
       case "cafeList":
         return (
-          <CafeList
-            numberOfCafes={locations.length}
-            sendUIStateData={recieveStateData}
-            sendCityStateData={recieveCityStateData}
-          >
-            {locations.map((location) => {
-              return (
-                <CafeListEntry
-                  title={location.name}
-                  rating={location.rating}
-                  description={location.description}
-                  key={location.id}
-                  location={location}
-                  sendCafeSelection={recieveCafeSelection}
-                ></CafeListEntry>
-              );
-            })}
+          <CafeList>
+            {locations.map((location) => (
+              <CafeListEntry
+                title={location.name}
+                rating={location.rating}
+                description={location.description}
+                key={location.id}
+                location={location}
+              />
+            ))}
           </CafeList>
         );
       case "submissionForm":
-        return (
-          <CafeSubmissionForm
-            sendStateData={recieveStateData}
-          ></CafeSubmissionForm>
-        );
+        return <CafeSubmissionForm />;
       case "cafeDetails":
-        return (
-          <CafeDetails
-            sendStateData={recieveStateData}
-            location={selectedCafe}
-          ></CafeDetails>
-        );
+        return <CafeDetails />;
       default:
         return null;
     }
@@ -122,22 +39,28 @@ export default function MapOverlay({
 
   return (
     <>
+      {/* Left sidebar: cafe list / details / submission */}
       <div
-        className={`fixed z-2 h-[95vh] w-113 top-[2.5vh] ${hidden ? "-left-116" : "left-8"} bg-background rounded-xl flex flex-col items-center overflow-hidden duration-300`}
+        className={`fixed z-2 h-[95vh] w-113 top-[2.5vh] ${sidebarVisible ? "left-8" : "-left-116"} bg-background rounded-xl flex flex-col items-center overflow-hidden duration-300`}
       >
-        <div className="overflow-auto w-full h-full">{handleRenderState()}</div>
+        <div className="overflow-auto w-full h-full">{renderView()}</div>
       </div>
+
+      {/* Toggle button */}
       <button
-        className={`fixed flex items-center justify-end bg-background w-12 h-20 rounded-lg z-1 ${hidden ? "-left-5" : "left-114"} top-[45vh] cursor-pointer hover:bg-primary duration-300`}
-        onClick={toggleHidden}
+        className={`fixed flex items-center justify-end bg-background w-12 h-20 rounded-lg z-1 ${sidebarVisible ? "left-114" : "-left-5"} top-[45vh] cursor-pointer hover:bg-primary duration-300`}
+        onClick={() => setSidebarVisible(!sidebarVisible)}
       >
-        {hidden && (
-          <IoIosArrowForward className="text-xl animate-pulse"></IoIosArrowForward>
+        {!sidebarVisible && (
+          <IoIosArrowForward className="text-xl animate-pulse" />
         )}
-        {!hidden && (
-          <IoIosArrowBack className="text-xl animate-pulse"></IoIosArrowBack>
-        )}
+        {sidebarVisible && <IoIosArrowBack className="text-xl animate-pulse" />}
       </button>
+
+      {/* Right sidebar: social feed */}
+      <div className="fixed z-2 h-[95vh] w-80 top-[2.5vh] right-8 bg-background rounded-xl overflow-hidden">
+        <SocialFeed />
+      </div>
     </>
   );
 }

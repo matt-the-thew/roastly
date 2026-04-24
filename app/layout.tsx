@@ -3,7 +3,7 @@ import { Roboto } from "next/font/google";
 import { Mrs_Sheppards } from "next/font/google";
 import { Martian_Mono } from "next/font/google";
 
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 const martian = Martian_Mono({
   subsets: ["latin"],
@@ -34,7 +34,6 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${martian.variable} ${roboto.variable} ${sheppards.variable}`}
     >
-      {/* TODO: Delete the "BORDER" modifier above, put in for redesign */}
       <link
         rel="apple-touch-icon"
         sizes="57x57"
