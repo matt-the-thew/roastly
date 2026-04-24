@@ -53,5 +53,22 @@ export async function GET(request: NextRequest) {
     }
   }
   log.debug("[AUTH/CONFIRM]: Token verified");
+
+  // Redirect new users to onboarding if they have no profile yet
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (!profile) {
+      redirect("/onboarding");
+    }
+  }
+
   redirect("/dashboard/homepage");
 }

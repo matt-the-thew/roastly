@@ -1,8 +1,8 @@
 create view cafes_public as
 select
   name,
-  ST_Lat(location) as latitude,
-  ST_Long(location) as longitude,
+  extensions.ST_Y(location::extensions.geometry) as latitude,
+  extensions.ST_X(location::extensions.geometry) as longitude,
   roast_level,
   brew_focus,
   vibe,

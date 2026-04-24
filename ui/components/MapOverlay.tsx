@@ -3,6 +3,7 @@ import CafeSubmissionForm from "./CafeSubmissionForm";
 import CafeList from "./CafeList";
 import CafeListEntry from "@/ui/components/CafeListEntry";
 import CafeDetails from "./CafeDetails";
+import SocialFeed from "./SocialFeed";
 
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
@@ -38,11 +39,14 @@ export default function MapOverlay() {
 
   return (
     <>
+      {/* Left sidebar: cafe list / details / submission */}
       <div
         className={`fixed z-2 h-[95vh] w-113 top-[2.5vh] ${sidebarVisible ? "left-8" : "-left-116"} bg-background rounded-xl flex flex-col items-center overflow-hidden duration-300`}
       >
         <div className="overflow-auto w-full h-full">{renderView()}</div>
       </div>
+
+      {/* Toggle button */}
       <button
         className={`fixed flex items-center justify-end bg-background w-12 h-20 rounded-lg z-1 ${sidebarVisible ? "left-114" : "-left-5"} top-[45vh] cursor-pointer hover:bg-primary duration-300`}
         onClick={() => setSidebarVisible(!sidebarVisible)}
@@ -52,6 +56,11 @@ export default function MapOverlay() {
         )}
         {sidebarVisible && <IoIosArrowBack className="text-xl animate-pulse" />}
       </button>
+
+      {/* Right sidebar: social feed */}
+      <div className="fixed z-2 h-[95vh] w-80 top-[2.5vh] right-8 bg-background rounded-xl overflow-hidden">
+        <SocialFeed />
+      </div>
     </>
   );
 }

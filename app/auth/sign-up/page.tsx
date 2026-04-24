@@ -4,6 +4,8 @@ import { useState } from "react";
 import { log } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/client";
 import Button from "@/ui/components/Button";
+import { IoChevronBackCircleOutline } from "react-icons/io5";
+import Link from "next/link";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
@@ -28,7 +30,10 @@ export default function SignUp() {
   }
 
   return (
-    <div className="w-120 h-150 rounded-2xl border border-gray-200 m-auto mt-[20vh] flex flex-col items-center">
+    <div className="relative w-120 h-150 rounded-2xl border border-gray-200 m-auto mt-[20vh] flex flex-col items-center">
+      <Link href="/auth/login">
+        <IoChevronBackCircleOutline className="absolute left-6 top-6 text-4xl text-slate-400 cursor-pointer hover:text-slate-300 duration-150" />
+      </Link>
       <Image
         src={"/logo.svg"}
         alt="Roastly logo"

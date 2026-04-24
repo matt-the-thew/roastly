@@ -23,15 +23,15 @@ export default function Button({
     activeColor = "active:bg-slate-100";
   }
   if (variant == "standard") {
-    backgroundStyle = "bg-brew";
+    backgroundStyle = "bg-primary";
     textColor = "text-gray-100";
-    hoverColor = "hover:bg-cacus";
+    hoverColor = "hover:bg-accent";
     activeColor = "active:bg-amber-300";
   }
 
   return (
     <button
-      className={`${backgroundStyle} min-w-fit text-nowrap rounded-lg ${hoverColor} ${activeColor} transition duration-150`}
+      className={`${backgroundStyle} p-2 min-w-fit text-nowrap rounded-lg ${hoverColor} ${activeColor} cursor-pointer transition duration-150`}
       onClick={clickEvent}
     >
       <p className={`${textColor} w-full h-full`}>{children}</p>

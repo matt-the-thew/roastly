@@ -13,18 +13,31 @@ const CITY_COORDS: Record<string, [number, number]> = {
   Seattle: [-122.2426, 47.3328],
 };
 
-function addMarker(
+interface MarkerHandle {
+  marker: mapboxgl.Marker;
+  root: ReturnType<typeof createRoot>;
+}
+
+function renderMarker(
   location: Location,
   map: Map,
   onClick: (location: Location) => void,
-) {
+  friendIds: string[],
+): MarkerHandle {
   const el = document.createElement("div");
   const root = createRoot(el);
   el.addEventListener("click", () => onClick(location));
-  root.render(<MarkerContent />);
-  new mapboxgl.Marker({ element: el })
+  root.render(
+    <MarkerContent
+      cafeId={location.id}
+      cafeName={location.name}
+      friendIds={friendIds}
+    />,
+  );
+  const marker = new mapboxgl.Marker({ element: el })
     .setLngLat([location.longitude, location.latitude])
     .addTo(map);
+  return { marker, root };
 }
 
 interface Props {
@@ -34,9 +47,9 @@ interface Props {
 export default function MapComponent({ children }: Props) {
   const mapRef = useRef<Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const { locations, selectedLocation, setSelectedLocation, selectedCity } =
+  const markersRef = useRef<MarkerHandle[]>([]);
+  const { locations, selectedLocation, setSelectedLocation, selectedCity, friendIds } =
     useMapContext();
-  const width = typeof window !== "undefined" ? window.innerWidth : 0;
 
   useEffect(() => {
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
@@ -64,12 +77,22 @@ export default function MapComponent({ children }: Props) {
     };
   }, []);
 
+  // Rebuild markers whenever locations or friendIds change so hover popups reflect current friend data
   useEffect(() => {
     if (!mapRef.current || locations.length === 0) return;
-    locations.forEach((location) =>
-      addMarker(location, mapRef.current!, setSelectedLocation),
+
+    // Clean up old markers
+    for (const { marker, root } of markersRef.current) {
+      marker.remove();
+      root.unmount();
+    }
+    markersRef.current = [];
+
+    const friendIdArray = Array.from(friendIds);
+    markersRef.current = locations.map((location) =>
+      renderMarker(location, mapRef.current!, setSelectedLocation, friendIdArray),
     );
-  }, [locations]);
+  }, [locations, friendIds]);
 
   useEffect(() => {
     const coords = CITY_COORDS[selectedCity];
