@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 export default function MapUserControls() {
-  const { user, profile } = useMapContext();
+  const { user, profile, feedVisible } = useMapContext();
   const router = useRouter();
 
   async function signOut() {
@@ -19,7 +19,7 @@ export default function MapUserControls() {
   }
 
   return (
-    <div className="fixed right-96 top-2 z-10 flex items-center gap-3">
+    <div className={`fixed ${feedVisible ? "right-96" : "right-4"} top-2 z-10 flex items-center gap-3 transition-[right] duration-300`}>
       <Link href={"/"}>
         <Image
           src={"/logo.svg"}

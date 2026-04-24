@@ -9,8 +9,14 @@ import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 
 export default function MapOverlay() {
-  const { locations, overlayView, sidebarVisible, setSidebarVisible } =
-    useMapContext();
+  const {
+    locations,
+    overlayView,
+    sidebarVisible,
+    setSidebarVisible,
+    feedVisible,
+    setFeedVisible,
+  } = useMapContext();
 
   function renderView() {
     switch (overlayView) {
@@ -58,9 +64,23 @@ export default function MapOverlay() {
       </button>
 
       {/* Right sidebar: social feed */}
-      <div className="fixed z-2 h-[95vh] w-80 top-[2.5vh] right-8 bg-background rounded-xl overflow-hidden">
+      <div
+        className={`fixed z-2 h-[95vh] w-80 top-[2.5vh] ${feedVisible ? "right-8" : "-right-80"} bg-background rounded-xl overflow-hidden transition-[right] duration-300`}
+      >
         <SocialFeed />
       </div>
+
+      {/* Feed toggle tab */}
+      <button
+        className={`fixed z-20 flex items-center justify-center bg-background w-10 h-10 rounded-l-lg top-16 ${feedVisible ? "right-88" : "right-0"} cursor-pointer hover:bg-primary hover:text-white transition-[right,background-color] duration-300`}
+        onClick={() => setFeedVisible(!feedVisible)}
+      >
+        {feedVisible ? (
+          <IoIosArrowForward className="text-xl" />
+        ) : (
+          <IoIosArrowBack className="text-xl animate-pulse" />
+        )}
+      </button>
     </>
   );
 }

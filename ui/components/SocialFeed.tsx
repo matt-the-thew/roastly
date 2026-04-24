@@ -22,7 +22,10 @@ export default function SocialFeed() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) { setLoading(false); return; }
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     const ids = Array.from(friendIds);
     getSocialFeed(user.id, ids).then((entries) => {
       setFeed(entries);
@@ -31,14 +34,18 @@ export default function SocialFeed() {
   }, [user, friendIds]);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
       <div className="p-4 border-b border-gray-100">
-        <h2 className="font-mono text-sm font-bold uppercase tracking-wide text-gray-500">Friend activity</h2>
+        <h2 className="font-mono text-sm font-bold uppercase tracking-wide text-gray-500">
+          Friend activity
+        </h2>
       </div>
       <div className="overflow-y-auto flex-1 flex flex-col">
         {!user && (
           <div className="flex flex-col items-center justify-center h-full gap-2 p-6 text-center">
-            <p className="font-mono text-sm text-gray-400">Sign in to see what your friends are liking.</p>
+            <p className="font-mono text-sm text-gray-400">
+              Sign in to see what your friends are liking.
+            </p>
             <button
               onClick={() => router.push("/auth/login")}
               className="text-sm font-mono text-primary hover:underline cursor-pointer"
@@ -55,11 +62,16 @@ export default function SocialFeed() {
         {user && !loading && feed.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full gap-2 p-6 text-center">
             <p className="font-mono text-sm text-gray-400">No activity yet.</p>
-            <p className="font-mono text-xs text-gray-300">Add friends to see their cafe likes here.</p>
+            <p className="font-mono text-xs text-gray-300">
+              Add friends to see their cafe likes here.
+            </p>
           </div>
         )}
         {feed.map((entry) => (
-          <div key={entry.id} className="flex items-start gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors">
+          <div
+            key={entry.id}
+            className="flex items-start gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors"
+          >
             <button
               onClick={() => router.push(`/profile/${entry.profile.username}`)}
               className="shrink-0 cursor-pointer"
@@ -74,15 +86,18 @@ export default function SocialFeed() {
             <div className="flex flex-col gap-0.5 min-w-0">
               <p className="text-sm leading-5">
                 <button
-                  onClick={() => router.push(`/profile/${entry.profile.username}`)}
+                  onClick={() =>
+                    router.push(`/profile/${entry.profile.username}`)
+                  }
                   className="font-bold hover:underline cursor-pointer"
                 >
                   {entry.profile.display_name || entry.profile.username}
-                </button>
-                {" "}liked{" "}
-                <span className="font-medium">{entry.cafe_name}</span>
+                </button>{" "}
+                liked <span className="font-medium">{entry.cafe_name}</span>
               </p>
-              <p className="text-xs font-mono text-gray-400">{timeAgo(entry.created_at)}</p>
+              <p className="text-xs font-mono text-gray-400">
+                {timeAgo(entry.created_at)}
+              </p>
             </div>
           </div>
         ))}
