@@ -5,7 +5,10 @@ export interface Props {
   reviewCount?: number;
 }
 
-function ratingImageGenerator(place: number, rating: number): React.ReactNode {
+export function ratingImageGenerator(
+  place: number,
+  rating: number,
+): React.ReactNode {
   if (rating >= place) {
     return (
       <Image

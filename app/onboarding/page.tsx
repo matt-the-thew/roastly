@@ -142,7 +142,7 @@ export default function Onboarding() {
             </label>
             <textarea
               className="border border-gray-200 rounded-md p-2 resize-none h-20"
-              placeholder="Coffee obsessed, always hunting for the next great pour-over…"
+              placeholder="Personalize your bio here…"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               maxLength={200}

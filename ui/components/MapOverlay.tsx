@@ -72,11 +72,11 @@ export default function MapOverlay() {
 
       {/* Feed toggle tab */}
       <button
-        className={`fixed z-20 flex items-center justify-center bg-background w-10 h-10 rounded-l-lg top-16 ${feedVisible ? "right-88" : "right-0"} cursor-pointer hover:bg-primary hover:text-white transition-[right,background-color] duration-300`}
+        className={`fixed z-1 flex items-center bg-background w-10 h-20 rounded-l-lg top-[40%] ${feedVisible ? "right-83" : "-right-4"} cursor-pointer hover:bg-primary hover:text-white transition-[right,background-color] duration-300`}
         onClick={() => setFeedVisible(!feedVisible)}
       >
         {feedVisible ? (
-          <IoIosArrowForward className="text-xl" />
+          <IoIosArrowForward className="text-xl ml-0.5" />
         ) : (
           <IoIosArrowBack className="text-xl animate-pulse" />
         )}

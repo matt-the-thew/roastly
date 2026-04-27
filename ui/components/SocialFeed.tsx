@@ -5,7 +5,7 @@ import { getSocialFeed, type FeedEntry } from "@/lib/supabase/feed";
 import UserAvatar from "./UserAvatar";
 import { useRouter } from "next/navigation";
 
-function timeAgo(iso: string): string {
+export function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "just now";
