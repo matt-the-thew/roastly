@@ -20,6 +20,8 @@ interface MapContextValue {
   setOverlayView: (view: OverlayView) => void;
   sidebarVisible: boolean;
   setSidebarVisible: (visible: boolean) => void;
+  feedVisible: boolean;
+  setFeedVisible: (visible: boolean) => void;
   // auth / social state
   user: User | null;
   profile: Profile | null;
@@ -40,6 +42,7 @@ export function MapProvider({
   const [selectedCity, setSelectedCity] = useState("Los Angeles");
   const [overlayView, setOverlayView] = useState<OverlayView>("cafeList");
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [feedVisible, setFeedVisible] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [friendIds, setFriendIds] = useState<Set<string>>(new Set());
@@ -96,6 +99,8 @@ export function MapProvider({
         setOverlayView,
         sidebarVisible,
         setSidebarVisible,
+        feedVisible,
+        setFeedVisible,
         user,
         profile,
         friendIds,

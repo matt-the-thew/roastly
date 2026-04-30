@@ -5,7 +5,11 @@ import { useMapContext } from "@/lib/MapContext";
 import CafeTagList from "./CafeTagList";
 import LikeButton from "./LikeButton";
 import FriendAttribution from "./FriendAttribution";
-import { getCafeImages, getPublicUrl, type CafeImage } from "@/lib/supabase/images";
+import {
+  getCafeImages,
+  getPublicUrl,
+  type CafeImage,
+} from "@/lib/supabase/images";
 
 export default function CafeDetails() {
   const { selectedLocation, setOverlayView } = useMapContext();
@@ -38,9 +42,11 @@ export default function CafeDetails() {
 
       <div className="flex items-center justify-between">
         <LikeButton cafeId={selectedLocation.id} />
-        <div className="relative">
+        {/* <div className="relative">
+          TODO: Implement Tags in DB, and make them appear here dynamically
+          Could wait until after launch, this is not critical MVP...
           <CafeTagList />
-        </div>
+        </div> */}
       </div>
 
       <FriendAttribution cafeId={selectedLocation.id} />
@@ -51,7 +57,9 @@ export default function CafeDetails() {
 
       <h2 className="text-lg font-bold mt-2">About</h2>
       <div className="pr-4">
-        <p className="text-[0.95rem] leading-7">{selectedLocation.description}</p>
+        <p className="text-[0.95rem] leading-7">
+          {selectedLocation.description}
+        </p>
       </div>
     </div>
   );
