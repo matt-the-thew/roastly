@@ -1,5 +1,5 @@
 import Image from "next/image";
-import CafeListRating from "@/ui/components/CafeListRating";
+import CafeListRating from "@/components/CafeList/CafeListRating";
 import { Location } from "@/lib/fetchLocations";
 import { useMapContext } from "@/lib/MapContext";
 

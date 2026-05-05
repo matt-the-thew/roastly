@@ -1,7 +1,7 @@
 {
   "name": "roastly",
   "version": "1.0.0",
-  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
+  "description": "A next-generation coffee culture sharing platform",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@mapbox/mapbox-gl-style-spec": "^14.22.0",
@@ -326,8 +326,9 @@
     "db:diff": "supabase db diff --use-migra"
   },
   "keywords": [],
-  "author": "Matthew Morton",
-  "license": "ISC",
+  "author": "Matthew Morton <morton@roastly.dev>",
+  "license": "UNLICENSED",
+  "private": true,
   "type": "module",
   "devDependencies": {
     "@eslint/js": "^9.39.4",
@@ -347,6 +348,7 @@
     "globals": "^14.0.0",
     "jsdom": "^28.1.0",
     "react-lorem-ipsum": "^1.4.10",
+    "typedoc": "^0.28.19",
     "typescript-eslint": "^8.58.2",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.4"

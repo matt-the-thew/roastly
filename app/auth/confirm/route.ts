@@ -2,10 +2,9 @@ import { type EmailOtpType } from "@supabase/supabase-js";
 import { type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { log } from "@/lib/logger";
 
 /*Searches parameters for either code or token hash,
-which varies based on Supabase version. Based on what it finds, 
+which varies based on Supabase version. Based on what it finds,
 calls the respectively correct function and handles errors.
 */
 async function verifyToken(request: NextRequest) {
@@ -16,14 +15,12 @@ async function verifyToken(request: NextRequest) {
   const supabase = await createClient();
 
   if (code) {
-    log.debug("[AUTH/CONFIRM]: using legacy token");
     const { error } = await supabase!.auth.exchangeCodeForSession(code);
     if (!error) return;
     throw new Error(
       `[AUTH/CONFIRM]: error exchanging code for session: ${error.message}`,
     );
   } else if (token_hash && type) {
-    log.debug("[AUTH/CONFIRM]: using Auth v2");
     const { error } = await supabase!.auth.verifyOtp({
       token_hash: token_hash,
       type: type,
@@ -35,28 +32,21 @@ async function verifyToken(request: NextRequest) {
   }
 }
 
-// function getSanitizedNextPath(request: NextRequest): string {
-//   const { searchParams } = new URL(request.url);
-//   const nextPath = searchParams.get("next") ?? "/";
-//   return nextPath.startsWith("/") ? nextPath : "/";
-// }
-
 export async function GET(request: NextRequest) {
-  log.debug(JSON.stringify(request));
-
   try {
     await verifyToken(request);
   } catch (err: unknown) {
     if (err instanceof Error) {
-      log.debug(`[AUTH/CONFIRM]: Error verifying token: ${err.message}`);
+      console.error(`[AUTH/CONFIRM]: Error verifying token: ${err.message}`);
       redirect("/auth/auth-code-error");
     }
   }
-  log.debug("[AUTH/CONFIRM]: Token verified");
 
   // Redirect new users to onboarding if they have no profile yet
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (user) {
     const { data: profile } = await supabase

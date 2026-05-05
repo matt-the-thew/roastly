@@ -1,9 +1,9 @@
 import { useMapContext } from "@/lib/MapContext";
-import CafeSubmissionForm from "./CafeSubmissionForm";
-import CafeList from "./CafeList";
-import CafeListEntry from "@/ui/components/CafeListEntry";
-import CafeDetails from "./CafeDetails";
-import SocialFeed from "./SocialFeed";
+import CafeSubmissionForm from "../CafeList/CafeSubmissionForm";
+import CafeList from "../CafeList/CafeList";
+import CafeListEntry from "../CafeList/CafeListEntry";
+import CafeDetails from "../CafeList/CafeDetails";
+import SocialFeed from "../Social/SocialFeed";
 
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";

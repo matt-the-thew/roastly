@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ImageCarousel } from "./ImageCarousel";
+import { ImageCarousel } from "../ImageCarousel";
 import { useMapContext } from "@/lib/MapContext";
 import CafeTagList from "./CafeTagList";
 import LikeButton from "./LikeButton";
-import FriendAttribution from "./FriendAttribution";
+import FriendAttribution from "../Social/FriendAttribution";
 import {
   getCafeImages,
   getPublicUrl,

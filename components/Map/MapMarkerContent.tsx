@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { getLikeCount, getLikersForCafe, type LikeWithProfile } from "@/lib/supabase/likes";
-import UserAvatar from "./UserAvatar";
+import UserAvatar from "../Social/UserAvatar";
 
 interface Props {
   cafeId: string;

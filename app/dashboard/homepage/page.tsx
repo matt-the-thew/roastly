@@ -1,7 +1,7 @@
 "use client";
-import MapComponent from "@/ui/components/MapComponent";
-import MapUserControls from "@/ui/components/MapUserControls";
-import MapOverlay from "@/ui/components/MapOverlay";
+import MapComponent from "@/components/Map/MapComponent";
+import MapUserControls from "@/components/Map/MapUserControls";
+import MapOverlay from "@/components/Map/MapOverlay";
 import { fetchLocations, Location } from "@/lib/fetchLocations";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -19,7 +19,8 @@ function HomePage() {
       })
       .then(
         (locationList) => setLocations(locationList),
-        (error) => console.error(`Error pulling locations from database: ${error}`),
+        (error) =>
+          console.error(`Error pulling locations from database: ${error}`),
       );
   }, []);
 

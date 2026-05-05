@@ -1,13 +1,15 @@
 "use client";
-import Navbar from "@/ui/components/Navbar";
+import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import Image from "next/image";
-import Footer from "@/ui/components/Footer";
-import { log } from "@/lib/logger";
+import Footer from "@/components/Footer";
 
-log.info("Welcome to Roastly.");
-log.info("<<Danger, Will Robinson!>>");
+console.log("Welcome to Roastly.");
+console.log("<<Danger, Will Robinson!>>");
 
+/*
+ * Exports the Landing Page of the Roastly Site
+ */
 export default function LandingPage() {
   return (
     <div className="flex flex-col h-screen">
