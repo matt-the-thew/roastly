@@ -26,6 +26,6 @@ export default async function proxy(request: NextRequest) {
 /** NextJS proxy instructions to ignore execution on requests to included paths. */
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|icon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|public|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

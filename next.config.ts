@@ -1,17 +1,16 @@
 import type { NextConfig } from "next";
 
-console.log("WEBPACK CONFIG LOADED");
-
 const nextConfig: NextConfig = {
   webpack: (config) => {
     config.watchOptions = {
-      poll: 500, // 250–1000 is fine
-      aggregateTimeout: 50, // keeps HMR snappy
+      poll: 500,
+      aggregateTimeout: 50,
       ignored: /node_modules/,
     };
     return config;
   },
   turbopack: {},
+  cacheComponents: true,
 };
 
 export default nextConfig;
