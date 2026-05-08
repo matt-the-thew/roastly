@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMapContext } from "@/lib/MapContext";
-import UserAvatar from "./UserAvatar";
+import UserAvatar from "../Social/UserAvatar";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";

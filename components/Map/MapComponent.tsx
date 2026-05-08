@@ -48,8 +48,13 @@ export default function MapComponent({ children }: Props) {
   const mapRef = useRef<Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const markersRef = useRef<MarkerHandle[]>([]);
-  const { locations, selectedLocation, setSelectedLocation, selectedCity, friendIds } =
-    useMapContext();
+  const {
+    locations,
+    selectedLocation,
+    setSelectedLocation,
+    selectedCity,
+    friendIds,
+  } = useMapContext();
 
   useEffect(() => {
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
@@ -90,7 +95,12 @@ export default function MapComponent({ children }: Props) {
 
     const friendIdArray = Array.from(friendIds);
     markersRef.current = locations.map((location) =>
-      renderMarker(location, mapRef.current!, setSelectedLocation, friendIdArray),
+      renderMarker(
+        location,
+        mapRef.current!,
+        setSelectedLocation,
+        friendIdArray,
+      ),
     );
   }, [locations, friendIds]);
 

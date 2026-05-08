@@ -2,12 +2,17 @@ import { type EmailOtpType } from "@supabase/supabase-js";
 import { type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { log } from "@/lib/logger";
 
-/*Searches parameters for either code or token hash,
-which varies based on Supabase version. Based on what it finds, 
-calls the respectively correct function and handles errors.
-*/
+/**
+ * Searches request parameters for either a code or token hash,
+ * which vaires based on Supabase version. Dynamically calls either
+ * (`supabase.auth.exchangeCodeForSession`)[https://supabase.com/docs/reference/javascript/auth-setsession],
+ * or
+ * (`supabase.auth.verifyOtp`)[https://supabase.com/docs/guides/auth/auth-email-passwordless?queryGroups=language&language=js#step-2-verify-the-otp-to-create-a-session].
+ *
+ * @param request - Request to parse auth parameters from.
+ * @returns {Error} if auth session can't be established from `request`.
+ */
 async function verifyToken(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
@@ -16,14 +21,14 @@ async function verifyToken(request: NextRequest) {
   const supabase = await createClient();
 
   if (code) {
-    log.debug("[AUTH/CONFIRM]: using legacy token");
     const { error } = await supabase!.auth.exchangeCodeForSession(code);
     if (!error) return;
-    throw new Error(
-      `[AUTH/CONFIRM]: error exchanging code for session: ${error.message}`,
-    );
+    else {
+      throw new Error(
+        `[AUTH/CONFIRM]: error exchanging code for session: ${error.message}`,
+      );
+    }
   } else if (token_hash && type) {
-    log.debug("[AUTH/CONFIRM]: using Auth v2");
     const { error } = await supabase!.auth.verifyOtp({
       token_hash: token_hash,
       type: type,
@@ -35,28 +40,28 @@ async function verifyToken(request: NextRequest) {
   }
 }
 
-// function getSanitizedNextPath(request: NextRequest): string {
-//   const { searchParams } = new URL(request.url);
-//   const nextPath = searchParams.get("next") ?? "/";
-//   return nextPath.startsWith("/") ? nextPath : "/";
-// }
-
+/**
+ * Handles email confirmation request, using {@link verifyToken}.
+ * If `verifyToken` throws an error, redirects to `/auth/login`.
+ * If logged in user has no profile, sends them to onboarding.
+ * Otherwise, directs user to the homepage.
+ * @param request - Email confirmation request.
+ */
 export async function GET(request: NextRequest) {
-  log.debug(JSON.stringify(request));
-
   try {
     await verifyToken(request);
   } catch (err: unknown) {
     if (err instanceof Error) {
-      log.debug(`[AUTH/CONFIRM]: Error verifying token: ${err.message}`);
-      redirect("/auth/auth-code-error");
+      console.error(`[AUTH/CONFIRM]: Error verifying token: ${err.message}`);
+      redirect("/auth/login");
     }
   }
-  log.debug("[AUTH/CONFIRM]: Token verified");
 
   // Redirect new users to onboarding if they have no profile yet
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (user) {
     const { data: profile } = await supabase

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["../roastly"],
+  "entryPointStrategy": "expand",
+  "out": "../roastly-documentation",
+  "tsconfig": "./tsconfig.json",
+  "plugin": [],
+  "readme": "README.md",
+  "exclude": [
+    "**/*.test.ts",
+    "**/node_modules/**",
+    "**/public/**",
+    "**/.claude/**",
+    "**/.next/**",
+    "**/CLAUDE.md"
+  ]
+}

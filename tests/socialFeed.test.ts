@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { timeAgo } from "@/ui/components/SocialFeed";
+import { timeAgo } from "@/components/Social/SocialFeed";
 
 describe("timeAgo", () => {
   it("returns 'just now' for sub-minute timestamps", () => {

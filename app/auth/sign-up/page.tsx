@@ -1,9 +1,8 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
-import { log } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/client";
-import Button from "@/ui/components/Button";
+import Button from "@/components/Button";
 import { IoChevronBackCircleOutline } from "react-icons/io5";
 import Link from "next/link";
 
@@ -14,7 +13,7 @@ export default function SignUp() {
   const supabase = createClient();
 
   async function signUp() {
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -22,10 +21,8 @@ export default function SignUp() {
       },
     });
 
-    log.debug(`SIGNUP DATA: ${JSON.stringify(data)}`);
-
     if (error) {
-      log.warn(`SIGNUP ERROR: ${error.message}`);
+      console.error(error);
     }
   }
 

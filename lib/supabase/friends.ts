@@ -14,7 +14,10 @@ export interface Friendship {
 }
 
 export interface FriendshipWithProfile extends Friendship {
-  profiles: Pick<Profile, "id" | "username" | "display_name" | "avatar_url" | "is_private">;
+  profiles: Pick<
+    Profile,
+    "id" | "username" | "display_name" | "avatar_url" | "is_private"
+  >;
 }
 
 /** All accepted friends for a user, with their profile data */
@@ -24,12 +27,16 @@ export async function getFriends(userId: string): Promise<Profile[]> {
   const [{ data: sent }, { data: received }] = await Promise.all([
     supabase
       .from("friendships")
-      .select("addressee_id, profiles!friendships_addressee_id_fkey(id, username, display_name, avatar_url, is_private, friend_code, bio, created_at)")
+      .select(
+        "addressee_id, profiles!friendships_addressee_id_fkey(id, username, display_name, avatar_url, is_private, friend_code, bio, created_at)",
+      )
       .eq("requester_id", userId)
       .eq("status", "accepted"),
     supabase
       .from("friendships")
-      .select("requester_id, profiles!friendships_requester_id_fkey(id, username, display_name, avatar_url, is_private, friend_code, bio, created_at)")
+      .select(
+        "requester_id, profiles!friendships_requester_id_fkey(id, username, display_name, avatar_url, is_private, friend_code, bio, created_at)",
+      )
       .eq("addressee_id", userId)
       .eq("status", "accepted"),
   ]);
@@ -50,11 +57,15 @@ export async function getFriendIds(userId: string): Promise<Set<string>> {
 }
 
 /** Pending requests received by this user */
-export async function getIncomingRequests(userId: string): Promise<FriendshipWithProfile[]> {
+export async function getIncomingRequests(
+  userId: string,
+): Promise<FriendshipWithProfile[]> {
   const supabase = createClient();
   const { data } = await supabase
     .from("friendships")
-    .select("*, profiles!friendships_requester_id_fkey(id, username, display_name, avatar_url, is_private)")
+    .select(
+      "*, profiles!friendships_requester_id_fkey(id, username, display_name, avatar_url, is_private)",
+    )
     .eq("addressee_id", userId)
     .eq("status", "pending")
     .gt("expires_at", new Date().toISOString());
@@ -62,7 +73,9 @@ export async function getIncomingRequests(userId: string): Promise<FriendshipWit
 }
 
 /** Pending requests sent by this user */
-export async function getOutgoingRequests(userId: string): Promise<Friendship[]> {
+export async function getOutgoingRequests(
+  userId: string,
+): Promise<Friendship[]> {
   const supabase = createClient();
   const { data } = await supabase
     .from("friendships")
@@ -89,7 +102,10 @@ export async function getFriendship(
   return (data as Friendship) ?? null;
 }
 
-export async function sendFriendRequest(requesterId: string, addresseeId: string): Promise<void> {
+export async function sendFriendRequest(
+  requesterId: string,
+  addresseeId: string,
+): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase
     .from("friendships")
@@ -109,7 +125,10 @@ export async function respondToRequest(
   if (error) throw new Error(error.message);
 }
 
-export async function removeFriend(userId: string, friendId: string): Promise<void> {
+export async function removeFriend(
+  userId: string,
+  friendId: string,
+): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase
     .from("friendships")
@@ -121,7 +140,10 @@ export async function removeFriend(userId: string, friendId: string): Promise<vo
 }
 
 /** Mutual friends between two users */
-export async function getMutualFriends(userId: string, otherId: string): Promise<Profile[]> {
+export async function getMutualFriends(
+  userId: string,
+  otherId: string,
+): Promise<Profile[]> {
   const [myFriends, theirFriends] = await Promise.all([
     getFriends(userId),
     getFriends(otherId),

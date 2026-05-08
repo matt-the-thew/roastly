@@ -1,18 +1,20 @@
-import { AuthApiError } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { log } from "@/lib/logger";
 import { JwtPayload } from "@supabase/supabase-js";
 
-/*
-Handles user sessions and session refreshes.
-Creates Supabase client and touches local browser
-storage to handle cookies.
-*/
-export default class SessionHandler {
+/** Handles creation and lifecycle of user sessions
+ * @param supabaseUrl - The Supabase project url.
+ * @param supabasePublishableKey - The Supabase project publishable key.
+ * @property user - JWT claims for the user, if the user exists.
+ * Properties listed on [Supabase's JWT Docs](https://supabase.com/docs/guides/auth/jwt-fields)
+ */
+export class SessionHandler {
   user: JwtPayload | undefined;
   request: NextRequest | undefined;
 
+  /** The
+   * @constructor
+   * passes the supabase URL and Publishable Key into `SessionHandler`*/
   public constructor(
     private supabaseUrl: string,
     private supabasePublishableKey: string,
@@ -21,9 +23,14 @@ export default class SessionHandler {
     this.supabasePublishableKey = supabasePublishableKey;
   }
 
+  /**
+   * Accesses local cookies to set/refresh JWTs.
+   * @param request - The user's request.
+   * @returns The user's request, updated with JWTs modified by Supabase.
+   */
   async updateSession(request: NextRequest): Promise<NextResponse | void> {
     try {
-      const supabase = createServerClient(
+      const supabaseServerClient = createServerClient(
         this.supabaseUrl,
         this.supabasePublishableKey,
         {
@@ -47,27 +54,19 @@ export default class SessionHandler {
           },
         },
       );
+
+      /**
+       * Initial user request, updated with Supabase-modified cookies.
+       */
       const supabaseResponse = NextResponse.next(this.request);
 
-      const { data, error } = await supabase.auth.getClaims();
+      const { data } = await supabaseServerClient.auth.getClaims();
       this.user = data?.claims;
-
-      // log.debug(
-      //   "[SessionHandler]: auth check:" +
-      //     JSON.stringify({
-      //       path: request.nextUrl.pathname,
-      //       hasClaims: Boolean(data?.claims),
-      //       userId: data?.claims?.sub ?? null,
-      //     }),
-      // );
 
       return supabaseResponse;
     } catch (error) {
-      if (error instanceof Error) {
-        log.error(`[SessionHandler]: an unknown error occurred ${error}`);
-      }
       if (error) {
-        log.debug(`[SessionHandler]: No user detected, ${error}`);
+        console.error(`[SessionHandler]: an unknown error occurred ${error}`);
       }
     }
   }

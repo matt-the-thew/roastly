@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { cacheLife } from "next/dist/server/use-cache/cache-life";
 
 export interface Location {
   brew_focus: string;
@@ -18,6 +19,8 @@ export interface Location {
 }
 
 export async function fetchLocations() {
+  "use cache";
+  cacheLife("days");
   const supabase = createClient();
   const { data, error } = await supabase.from("cafes_public").select(`*`);
 

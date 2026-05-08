@@ -1,5 +1,5 @@
 import { useMapContext } from "@/lib/MapContext";
-import DropdownMenu from "./DropdownMenu";
+import DropdownMenu from "../DropdownMenu";
 
 interface Props {
   children: React.ReactNode;
