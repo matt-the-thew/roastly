@@ -12,7 +12,9 @@ export class SessionHandler {
   user: JwtPayload | undefined;
   request: NextRequest | undefined;
 
-  /** The constructor of the `SessionHandler` class */
+  /** The
+   * @constructor
+   * passes the supabase URL and Publishable Key into `SessionHandler`*/
   public constructor(
     private supabaseUrl: string,
     private supabasePublishableKey: string,
