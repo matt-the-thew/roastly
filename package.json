@@ -326,7 +326,7 @@
     "db:diff": "supabase db diff --use-migra"
   },
   "keywords": [],
-  "author": "Matthew Morton <morton@roastly.dev>",
+  "author": "Matthew Morton <mmortondeveloper@gmail.com>",
   "license": "UNLICENSED",
   "private": true,
   "type": "module",

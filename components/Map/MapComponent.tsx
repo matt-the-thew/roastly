@@ -58,6 +58,7 @@ export default function MapComponent({ children }: Props) {
 
   useEffect(() => {
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+    // If a map exists, or the map's container is not ready, return
     if (!mapContainerRef.current || mapRef.current) return;
 
     mapRef.current = new mapboxgl.Map({

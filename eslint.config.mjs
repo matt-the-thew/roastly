@@ -14,6 +14,7 @@ export default defineConfig([
       "no-unused-vars": "warn",
       "no-unused-expressions": "warn",
       "no-debugger": "off",
+      "react/react-in-jsx-scope": "off",
     },
   },
   {
