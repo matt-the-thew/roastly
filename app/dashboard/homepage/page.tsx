@@ -11,6 +11,7 @@ function HomePage() {
   const [locations, setLocations] = useState<Location[]>([]);
 
   useEffect(() => {
+    if (locations) return;
     toast
       .promise(fetchLocations(), {
         loading: "Loading cafes",
