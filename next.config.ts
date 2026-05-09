@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
     return config;
   },
   turbopack: {},
-  cacheComponents: true,
+  // cacheComponents: true,
 };
 
 export default nextConfig;
