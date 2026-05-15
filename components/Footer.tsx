@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -17,7 +18,9 @@ export default function Footer() {
           <h1 className="text-xl">Company</h1>
           <p>About</p>
           <p>Blog</p>
-          <p>Partners</p>
+          <Link href={"/privacy-policy"} className="hover:underline">
+            Privacy Policy
+          </Link>
         </div>
         <div className="flex flex-col gap-2 p-4 grow justify-center [&>p]:w-fit [&>p]:cursor-pointer [&>p]:hover:underline">
           <h1 className="text-xl">Store</h1>
