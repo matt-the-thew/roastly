@@ -145,7 +145,7 @@ export default function PrivacyPolicyPage() {
                 <strong>Website</strong> refers to Roastly, accessible from{" "}
                 <a
                   href="https://roastly.dev"
-                  rel="external nofollow noopener"
+                  rel="external nofollow noopener noreferrer"
                   target="_blank"
                 >
                   https://roastly.dev

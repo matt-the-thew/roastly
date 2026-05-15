@@ -19,10 +19,12 @@ export default function MapUserControls() {
   }
 
   return (
-    <div className={`fixed ${feedVisible ? "right-96" : "right-4"} top-2 z-10 flex items-center gap-3 transition-[right] duration-300`}>
+    <div
+      className={`fixed ${feedVisible ? "right-96" : "right-4"} top-2 z-10 flex items-center gap-3 transition-[right] duration-300`}
+    >
       <Link href={"/"}>
         <Image
-          src={"/logo.svg"}
+          src={"/branding/roastly-logo.svg"}
           alt="Roastly logo"
           width={145.891}
           height={49.594}
@@ -41,7 +43,10 @@ export default function MapUserControls() {
               className="hover:opacity-80"
             />
           </Link>
-          <Link href="/settings" className="text-xs font-mono text-gray-500 hover:text-foreground">
+          <Link
+            href="/settings"
+            className="text-xs font-mono text-gray-500 hover:text-foreground"
+          >
             Settings
           </Link>
           <button

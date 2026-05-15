@@ -7,12 +7,12 @@ export interface Location {
   longitude: number;
   name: string;
   vibe: string;
-  id: string;
 }
 
 export async function fetchLocations() {
   const supabase = createClient();
-  const { data, error } = await supabase.from("cafes_public").select(`*`);
+  const { data, error } = await supabase.from("cafe_list_view").select(`*`);
+  console.log("Calling cafes");
 
   if (error) {
     console.log(error.message);

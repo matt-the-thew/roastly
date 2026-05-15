@@ -26,9 +26,8 @@ export default function MapOverlay() {
             {locations.map((location) => (
               <CafeListEntry
                 title={location.name}
-                rating={location.rating}
                 description={location.description}
-                key={location.id}
+                key={location.name}
                 location={location}
               />
             ))}

@@ -32,7 +32,7 @@ export default function SignUp() {
         <IoChevronBackCircleOutline className="absolute left-6 top-6 text-4xl text-slate-400 cursor-pointer hover:text-slate-300 duration-150" />
       </Link>
       <Image
-        src={"/logo.svg"}
+        src={"/branding/roastly-logo.svg"}
         alt="Roastly logo"
         width={145.891}
         height={49.594}

@@ -9,7 +9,7 @@ export default function Navbar() {
           <div className="w-50 h-full flex justify-center items-center">
             <Link href={"/"}>
               <Image
-                src={"/logo.svg"}
+                src={"/branding/roastly-logo.svg"}
                 alt="Roastly logo"
                 width={145.891}
                 height={49.594}

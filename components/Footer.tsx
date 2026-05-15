@@ -7,7 +7,7 @@ export default function Footer() {
       <footer className="font-display bg-background w-full h-50 flex border-t-4 border-slate-300">
         <div className="w-90 flex justify-evenly">
           <Image
-            src={"/logo.svg"}
+            src={"/branding/roastly-logo.svg"}
             alt="Roastly logo"
             height={240}
             width={680}

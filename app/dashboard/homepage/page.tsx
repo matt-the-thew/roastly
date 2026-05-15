@@ -14,7 +14,6 @@ function HomePage() {
     // Only pull the locations one time
     // TODO: Add bounding box-based query limiting
     // TODO: Add rate limiting in general.
-    if (locations) return;
     toast
       .promise(fetchLocations(), {
         loading: "Loading cafes",
