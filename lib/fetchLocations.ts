@@ -1,4 +1,6 @@
+"use server";
 import { createClient } from "@/lib/supabase/client";
+import { cacheLife } from "next/cache";
 
 export interface Location {
   description: string;
@@ -10,6 +12,8 @@ export interface Location {
 }
 
 export async function fetchLocations() {
+  "use cache";
+  cacheLife("hours");
   const supabase = createClient();
   const { data, error } = await supabase.from("cafe_list_view").select(`*`);
   console.log("Calling cafes");

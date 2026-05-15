@@ -26,11 +26,11 @@ export default function CafeListEntry({
   const { setSelectedLocation } = useMapContext();
 
   return (
-    <div
-      className="flex gap-3 w-[98%] h-60 p-2 mb-0 border-b border-[#eaeaea] hover:bg-[#f8f8f8] duration-95 cursor-pointer"
-      onClick={() => setSelectedLocation(location)}
-    >
-      <div className="w-[50%] flex flex-col">
+    <div className="flex gap-3 w-[98%] h-60 p-2 mb-0 border-b border-[#eaeaea] hover:bg-[#f8f8f8] duration-95 cursor-pointer">
+      <div
+        className="w-[50%] h-full flex flex-col"
+        onClick={() => setSelectedLocation(location)}
+      >
         <div className="flex justify-between">
           <h1 className="text-base font-bold">{title}</h1>
           <h1 className="w-10 text-sm text-[#747474]">
@@ -38,7 +38,9 @@ export default function CafeListEntry({
           </h1>
         </div>
         <div className="">
-          <CafeListRating rating={rating} reviewCount={reviewCount} />
+          {rating && (
+            <CafeListRating rating={rating} reviewCount={reviewCount} />
+          )}
         </div>
         {!description && (
           <p className="text-sm mt-0.5 italic">

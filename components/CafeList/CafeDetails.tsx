@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { ImageCarousel } from "../ImageCarousel";
 import { useMapContext } from "@/lib/MapContext";
-import CafeTagList from "./CafeTagList";
 import LikeButton from "./LikeButton";
 import FriendAttribution from "../Social/FriendAttribution";
 import {
@@ -12,16 +11,17 @@ import {
 } from "@/lib/supabase/images";
 
 export default function CafeDetails() {
-  const { selectedLocation, setOverlayView } = useMapContext();
+  const { selectedLocation, setOverlayView, setSelectedLocation } =
+    useMapContext();
   const [images, setImages] = useState<string[]>([]);
 
   useEffect(() => {
     if (!selectedLocation) return;
     setImages([]);
-    getCafeImages(selectedLocation.id).then((imgs: CafeImage[]) => {
+    getCafeImages(selectedLocation.name).then((imgs: CafeImage[]) => {
       setImages(imgs.map((img) => getPublicUrl(img.storage_path)));
     });
-  }, [selectedLocation?.id]);
+  }, [selectedLocation?.name]);
 
   if (!selectedLocation) return null;
 
@@ -29,7 +29,10 @@ export default function CafeDetails() {
     <div className="w-full h-full p-7 pt-10 flex flex-col gap-3">
       <div className="flex justify-end">
         <button
-          onClick={() => setOverlayView("cafeList")}
+          onClick={() => {
+            setOverlayView("cafeList");
+            setSelectedLocation(null);
+          }}
           className="bg-[#eaeaea] w-20 h-5 rounded-sm font-bold hover:bg-[#676767] cursor-pointer"
         >
           return
@@ -41,7 +44,7 @@ export default function CafeDetails() {
       </div>
 
       <div className="flex items-center justify-between">
-        <LikeButton cafeId={selectedLocation.id} />
+        <LikeButton cafeId={selectedLocation.name} />
         {/* <div className="relative">
           TODO: Implement Tags in DB, and make them appear here dynamically
           Could wait until after launch, this is not critical MVP...
@@ -49,7 +52,7 @@ export default function CafeDetails() {
         </div> */}
       </div>
 
-      <FriendAttribution cafeId={selectedLocation.id} />
+      <FriendAttribution cafeId={selectedLocation.name} />
 
       <div className="h-70">
         <ImageCarousel images={images} />

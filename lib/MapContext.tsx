@@ -9,6 +9,11 @@ import type { User } from "@supabase/supabase-js";
 
 export type OverlayView = "cafeList" | "cafeDetails" | "submissionForm";
 
+interface LatLongCoordinates {
+  latitude: number;
+  longitude: number;
+}
+
 interface MapContextValue {
   // map / cafe state
   locations: Location[];
@@ -24,6 +29,9 @@ interface MapContextValue {
   setFeedVisible: (visible: boolean) => void;
   zoomLevel: number | null;
   setZoomLevel: (level: number) => void;
+  // user location state
+  userLocation: LatLongCoordinates | null;
+  setUserLocation: (latitude: number, longitude: number) => void;
   // auth / social state
   user: User | null;
   profile: Profile | null;
