@@ -1,7 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
-import { getLikeCount, getLikersForCafe, type LikeWithProfile } from "@/lib/supabase/likes";
+import {
+  getLikeCount,
+  getLikersForCafe,
+  type LikeWithProfile,
+} from "@/lib/supabase/likes";
 import UserAvatar from "../Social/UserAvatar";
+import Image from "next/image";
 
 interface Props {
   cafeId: string;
@@ -21,7 +26,9 @@ export default function MarkerContent({ cafeId, cafeName, friendIds }: Props) {
   useEffect(() => {
     if (!hovered || friendIds.length === 0) return;
     getLikersForCafe(cafeId).then((likers) => {
-      setFriendLikers(likers.filter((l) => friendIds.includes(l.user_id)).slice(0, 3));
+      setFriendLikers(
+        likers.filter((l) => friendIds.includes(l.user_id)).slice(0, 3),
+      );
     });
   }, [hovered, cafeId, friendIds]);
 
@@ -31,9 +38,16 @@ export default function MarkerContent({ cafeId, cafeName, friendIds }: Props) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Marker dot */}
-      <div className="w-5 h-5 bg-primary rounded-4xl flex items-center justify-center cursor-pointer hover:bg-amber-500 border border-black">
+      {/* Marker pin icon*/}
+      <div className="w-8 h-auto flex items-center justify-center cursor-pointer">
         <div className="bg-background w-2 h-2 z-2 rounded-2xl" />
+        <Image
+          src={"/icons/pushpin-icon.svg"}
+          height={35}
+          width={35}
+          alt="A red pushpin, facing down."
+          className="w-50 h-auto drop-shadow-slate-950 drop-shadow-xs"
+        ></Image>
       </div>
 
       {/* Hover popup */}

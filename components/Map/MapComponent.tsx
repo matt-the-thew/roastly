@@ -29,7 +29,7 @@ function renderMarker(
   el.addEventListener("click", () => onClick(location));
   root.render(
     <MarkerContent
-      cafeId={location.id}
+      cafeId={location.name}
       cafeName={location.name}
       friendIds={friendIds}
     />,

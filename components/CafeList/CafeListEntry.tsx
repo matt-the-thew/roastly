@@ -2,6 +2,7 @@ import Image from "next/image";
 import CafeListRating from "@/components/CafeList/CafeListRating";
 import { Location } from "@/lib/fetchLocations";
 import { useMapContext } from "@/lib/MapContext";
+import Link from "next/link";
 
 export interface Props {
   title: string;
@@ -52,14 +53,20 @@ export default function CafeListEntry({
           <p className="text-sm mt-3 line-clamp-4">{description}</p>
         )}
       </div>
-      <div className="w-[50%] h-full">
+      <div className="w-[50%] h-full relative hover:shadow-xl duration-100 rounded-lg">
         <Image
-          src={!image ? "/cafe_ex.jpg" : image}
+          src={!image ? "/images/placeholder-image.jpeg" : image}
           alt="A cafe interior, from a low angle."
           width={612}
           height={408}
           className="h-full object-cover rounded-lg"
         />
+        <p className="absolute top-[45%] left-2 bg-background p-0.5 rounded-sm">
+          No images yet!{" "}
+          <Link href={"#"} className="text-primary hover:underline">
+            upload an image.
+          </Link>
+        </p>
       </div>
     </div>
   );

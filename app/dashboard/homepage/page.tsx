@@ -11,7 +11,7 @@ function HomePage() {
   const [locations, setLocations] = useState<Location[]>([]);
 
   useEffect(() => {
-    // Only pull the locations one time
+    // Bootstrap initial cafe list once on mount
     // TODO: Add bounding box-based query limiting
     // TODO: Add rate limiting in general.
     toast
