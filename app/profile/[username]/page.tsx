@@ -3,8 +3,21 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
-import { getProfileByUsername, getInitials, getAvatarColor, type Profile } from "@/lib/supabase/profile";
-import { getFriendship, getFriends, getMutualFriends, sendFriendRequest, respondToRequest, removeFriend, getIncomingRequests } from "@/lib/supabase/friends";
+import {
+  getProfileByUsername,
+  getInitials,
+  getAvatarColor,
+  type Profile,
+} from "@/lib/supabase/profile";
+import {
+  getFriendship,
+  getFriends,
+  getMutualFriends,
+  sendFriendRequest,
+  respondToRequest,
+  removeFriend,
+  getIncomingRequests,
+} from "@/lib/supabase/friends";
 import { getUserLikedCafeIds } from "@/lib/supabase/likes";
 import { fetchLocations, type Location } from "@/lib/fetchLocations";
 import type { Friendship } from "@/lib/supabase/friends";
@@ -32,17 +45,25 @@ export default function ProfilePage() {
 
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       const [target, locations] = await Promise.all([
         getProfileByUsername(username),
         fetchLocations(),
       ]);
       setAllLocations(locations);
 
-      if (!target) { setLoading(false); return; }
+      if (!target) {
+        setLoading(false);
+        return;
+      }
       setTargetProfile(target);
 
-      if (!user) { setLoading(false); return; }
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       const { data: viewerData } = await supabase
         .from("profiles")
@@ -69,10 +90,12 @@ export default function ProfilePage() {
       }
 
       // Load liked cafes if viewer can see full profile
-      const canSee = self || (friendship?.status === "accepted") || !target.is_private;
+      const canSee =
+        self || friendship?.status === "accepted" || !target.is_private;
       if (canSee) {
         const ids = await getUserLikedCafeIds(target.id);
-        setLikedCafes(locations.filter((l) => ids.includes(l.id)));
+        //TODO: clean up id/name primary key complexity on cafe table, and cafe_list_view
+        setLikedCafes(locations.filter((l) => ids.includes(l.name)));
       }
 
       setLoading(false);
@@ -89,7 +112,9 @@ export default function ProfilePage() {
       setFriendship(updated);
       toast.success("Friend request sent!");
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Could not send request");
+      toast.error(
+        err instanceof Error ? err.message : "Could not send request",
+      );
     } finally {
       setSendingRequest(false);
     }
@@ -127,27 +152,42 @@ export default function ProfilePage() {
     );
   }
 
-  const initials = getInitials(targetProfile.display_name || targetProfile.username);
+  const initials = getInitials(
+    targetProfile.display_name || targetProfile.username,
+  );
   const avatarColor = getAvatarColor(targetProfile.username);
 
   // Viewer received a request from target
   const pendingFromTarget =
-    !isSelf && friendship?.status === "pending" && friendship.addressee_id === viewerProfile?.id;
+    !isSelf &&
+    friendship?.status === "pending" &&
+    friendship.addressee_id === viewerProfile?.id;
   // Viewer sent a request to target
   const pendingToTarget =
-    !isSelf && friendship?.status === "pending" && friendship.requester_id === viewerProfile?.id;
+    !isSelf &&
+    friendship?.status === "pending" &&
+    friendship.requester_id === viewerProfile?.id;
 
   return (
     <div className="w-screen min-h-screen flex justify-center py-16">
       <div className="w-120 flex flex-col gap-8">
-        <button onClick={() => router.back()} className="text-sm font-mono text-gray-400 hover:text-foreground w-fit">
+        <button
+          onClick={() => router.back()}
+          className="text-sm font-mono text-gray-400 hover:text-foreground w-fit"
+        >
           ← Back
         </button>
 
         {/* Header */}
         <div className="flex items-center gap-5">
           {targetProfile.avatar_url ? (
-            <Image src={targetProfile.avatar_url} alt="" width={80} height={80} className="w-20 h-20 rounded-full object-cover" />
+            <Image
+              src={targetProfile.avatar_url}
+              alt=""
+              width={80}
+              height={80}
+              className="w-20 h-20 rounded-full object-cover"
+            />
           ) : (
             <div
               className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white"
@@ -157,16 +197,25 @@ export default function ProfilePage() {
             </div>
           )}
           <div className="flex flex-col gap-1">
-            <h1 className="font-display text-2xl font-bold">{targetProfile.display_name || targetProfile.username}</h1>
-            <p className="font-mono text-sm text-gray-400">@{targetProfile.username}</p>
+            <h1 className="font-display text-2xl font-bold">
+              {targetProfile.display_name || targetProfile.username}
+            </h1>
+            <p className="font-mono text-sm text-gray-400">
+              @{targetProfile.username}
+            </p>
             {canViewFull && (
-              <p className="font-mono text-sm text-gray-500">{friendCount} friends</p>
+              <p className="font-mono text-sm text-gray-500">
+                {friendCount} friends
+              </p>
             )}
           </div>
           {/* Action buttons */}
           <div className="ml-auto flex flex-col gap-2">
             {isSelf && (
-              <button onClick={() => router.push("/settings")} className="border border-gray-200 rounded-md px-4 py-1.5 text-sm font-mono hover:bg-gray-50 cursor-pointer">
+              <button
+                onClick={() => router.push("/settings")}
+                className="border border-gray-200 rounded-md px-4 py-1.5 text-sm font-mono hover:bg-gray-50 cursor-pointer"
+              >
                 Edit profile
               </button>
             )}
@@ -180,16 +229,33 @@ export default function ProfilePage() {
               </button>
             )}
             {pendingToTarget && (
-              <span className="text-sm font-mono text-gray-400 italic">Request pending…</span>
+              <span className="text-sm font-mono text-gray-400 italic">
+                Request pending…
+              </span>
             )}
             {pendingFromTarget && (
               <div className="flex gap-2">
-                <button onClick={() => handleRespondToRequest("accepted")} className="bg-primary text-white rounded-md px-3 py-1.5 text-sm font-bold cursor-pointer hover:opacity-90">Accept</button>
-                <button onClick={() => handleRespondToRequest("denied")} className="border border-gray-200 rounded-md px-3 py-1.5 text-sm font-mono cursor-pointer hover:bg-gray-50">Ignore</button>
+                <button
+                  onClick={() => handleRespondToRequest("accepted")}
+                  className="bg-primary text-white rounded-md px-3 py-1.5 text-sm font-bold cursor-pointer hover:opacity-90"
+                >
+                  Accept
+                </button>
+                <button
+                  onClick={() => handleRespondToRequest("denied")}
+                  className="border border-gray-200 rounded-md px-3 py-1.5 text-sm font-mono cursor-pointer hover:bg-gray-50"
+                >
+                  Ignore
+                </button>
               </div>
             )}
             {isFriend && !isSelf && (
-              <button onClick={handleUnfriend} className="text-sm font-mono text-red-400 hover:underline cursor-pointer">Unfriend</button>
+              <button
+                onClick={handleUnfriend}
+                className="text-sm font-mono text-red-400 hover:underline cursor-pointer"
+              >
+                Unfriend
+              </button>
             )}
           </div>
         </div>
@@ -198,20 +264,25 @@ export default function ProfilePage() {
         {!canViewFull ? (
           <div className="border border-gray-200 rounded-xl p-8 flex flex-col items-center gap-3 text-center">
             <p className="font-mono text-gray-400">This account is private.</p>
-            <p className="text-sm font-mono text-gray-300">Add {targetProfile.username} as a friend to see their profile.</p>
+            <p className="text-sm font-mono text-gray-300">
+              Add {targetProfile.username} as a friend to see their profile.
+            </p>
           </div>
         ) : (
           <>
             {/* Bio */}
             {targetProfile.bio && (
-              <p className="text-[0.95rem] leading-7 text-gray-600">{targetProfile.bio}</p>
+              <p className="text-[0.95rem] leading-7 text-gray-600">
+                {targetProfile.bio}
+              </p>
             )}
 
             {/* Mutual friends */}
             {!isSelf && mutualFriends.length > 0 && (
               <section className="flex flex-col gap-3">
                 <h2 className="font-mono text-sm text-gray-500 uppercase tracking-wide">
-                  {mutualFriends.length} mutual friend{mutualFriends.length !== 1 ? "s" : ""}
+                  {mutualFriends.length} mutual friend
+                  {mutualFriends.length !== 1 ? "s" : ""}
                 </h2>
                 <div className="flex flex-wrap gap-3">
                   {mutualFriends.map((f) => (
@@ -221,11 +292,19 @@ export default function ProfilePage() {
                       className="flex items-center gap-2 border border-gray-200 rounded-full px-3 py-1.5 text-sm font-mono hover:bg-gray-50 cursor-pointer"
                     >
                       {f.avatar_url ? (
-                        <Image src={f.avatar_url} alt="" width={20} height={20} className="w-5 h-5 rounded-full object-cover" />
+                        <Image
+                          src={f.avatar_url}
+                          alt=""
+                          width={20}
+                          height={20}
+                          className="w-5 h-5 rounded-full object-cover"
+                        />
                       ) : (
                         <div
                           className="w-5 h-5 rounded-full flex items-center justify-center text-[0.6rem] font-bold text-white"
-                          style={{ backgroundColor: getAvatarColor(f.username) }}
+                          style={{
+                            backgroundColor: getAvatarColor(f.username),
+                          }}
                         >
                           {getInitials(f.display_name || f.username)}
                         </div>
@@ -247,9 +326,14 @@ export default function ProfilePage() {
               ) : (
                 <div className="flex flex-col gap-2">
                   {likedCafes.map((cafe) => (
-                    <div key={cafe.id} className="border border-gray-200 rounded-xl p-4 flex flex-col gap-1">
+                    <div
+                      key={cafe.name}
+                      className="border border-gray-200 rounded-xl p-4 flex flex-col gap-1"
+                    >
                       <p className="font-bold">{cafe.name}</p>
-                      <p className="text-sm text-gray-500 leading-6 line-clamp-2">{cafe.description}</p>
+                      <p className="text-sm text-gray-500 leading-6 line-clamp-2">
+                        {cafe.description}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -259,23 +343,39 @@ export default function ProfilePage() {
             {/* Add friend by code (only on own profile) */}
             {isSelf && (
               <section className="flex flex-col gap-3 border-t border-gray-100 pt-6">
-                <h2 className="font-mono text-sm text-gray-500 uppercase tracking-wide">Add a friend</h2>
+                <h2 className="font-mono text-sm text-gray-500 uppercase tracking-wide">
+                  Add a friend
+                </h2>
                 <div className="flex gap-2">
                   <input
                     className="border border-gray-200 rounded-md p-2 font-mono flex-1 uppercase tracking-widest"
                     placeholder="XXX-XXXX"
                     value={codeInput}
-                    onChange={(e) => setCodeInput(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 7))}
+                    onChange={(e) =>
+                      setCodeInput(
+                        e.target.value
+                          .toUpperCase()
+                          .replace(/[^A-Z0-9]/g, "")
+                          .slice(0, 7),
+                      )
+                    }
                     maxLength={7}
                   />
                   <button
                     disabled={codeInput.length !== 7}
                     onClick={async () => {
                       if (!viewerProfile) return;
-                      const { getProfileByFriendCode } = await import("@/lib/supabase/profile");
+                      const { getProfileByFriendCode } =
+                        await import("@/lib/supabase/profile");
                       const target = await getProfileByFriendCode(codeInput);
-                      if (!target) { toast.error("No user found with that code"); return; }
-                      if (target.id === viewerProfile.id) { toast.error("That's your own code!"); return; }
+                      if (!target) {
+                        toast.error("No user found with that code");
+                        return;
+                      }
+                      if (target.id === viewerProfile.id) {
+                        toast.error("That's your own code!");
+                        return;
+                      }
                       await sendFriendRequest(viewerProfile.id, target.id);
                       toast.success(`Request sent to ${target.username}!`);
                       setCodeInput("");

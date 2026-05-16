@@ -19,7 +19,7 @@ export default function LandingPage() {
       <div className="w-full h-fi flex grow items-center justify-center">
         <div className="flex flex-col h-full w-[65%] items-center mt-30">
           <Image
-            src={"/logo.svg"}
+            src={"/branding/roastly-logo.svg"}
             alt="Roastly logo"
             height={240}
             width={680}

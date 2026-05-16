@@ -78,7 +78,7 @@ export default function Onboarding() {
     <div className="w-screen h-screen flex justify-center items-start">
       <div className="w-120 mt-[15vh] rounded-2xl border border-gray-200 flex flex-col items-center p-10 gap-6">
         <Image
-          src={"/logo.svg"}
+          src={"/branding/roastly-logo.svg"}
           alt="Roastly logo"
           width={145.891}
           height={49.594}

@@ -1,25 +1,22 @@
+"use server";
 import { createClient } from "@/lib/supabase/client";
+import { cacheLife } from "next/cache";
 
 export interface Location {
-  brew_focus: string;
   description: string;
-  has_bathroom: boolean;
-  has_outlets: boolean;
-  has_patio: boolean;
-  has_wifi: boolean;
   is_verified: boolean;
   latitude: number;
   longitude: number;
   name: string;
-  roast_level: string;
   vibe: string;
-  rating: number;
-  id: string;
 }
 
 export async function fetchLocations() {
+  "use cache";
+  cacheLife("hours");
   const supabase = createClient();
-  const { data, error } = await supabase.from("cafes_public").select(`*`);
+  const { data, error } = await supabase.from("cafe_list_view").select(`*`);
+  console.log("Calling cafes");
 
   if (error) {
     console.log(error.message);

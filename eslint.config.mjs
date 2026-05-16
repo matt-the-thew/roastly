@@ -10,14 +10,6 @@ export default defineConfig([
     ignores: ["**/node_modules/**", "**/.next/**"],
   },
   {
-    rules: {
-      "no-unused-vars": "warn",
-      "no-unused-expressions": "warn",
-      "no-debugger": "off",
-      "react/react-in-jsx-scope": "off",
-    },
-  },
-  {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     plugins: { js },
     extends: ["js/recommended"],
@@ -25,4 +17,14 @@ export default defineConfig([
   },
   tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
+  {
+    rules: {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "warn",
+      "no-unused-expressions": "warn",
+      "no-debugger": "off",
+      "react/react-in-jsx-scope": "off",
+      "react/no-unescaped-entities": "off",
+    },
+  },
 ]);

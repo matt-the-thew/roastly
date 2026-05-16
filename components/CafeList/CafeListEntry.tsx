@@ -2,6 +2,7 @@ import Image from "next/image";
 import CafeListRating from "@/components/CafeList/CafeListRating";
 import { Location } from "@/lib/fetchLocations";
 import { useMapContext } from "@/lib/MapContext";
+import Link from "next/link";
 
 export interface Props {
   title: string;
@@ -25,11 +26,11 @@ export default function CafeListEntry({
   const { setSelectedLocation } = useMapContext();
 
   return (
-    <div
-      className="flex gap-3 w-[98%] h-60 p-2 mb-0 border-b border-[#eaeaea] hover:bg-[#f8f8f8] duration-95 cursor-pointer"
-      onClick={() => setSelectedLocation(location)}
-    >
-      <div className="w-[50%] flex flex-col">
+    <div className="flex gap-3 w-[98%] h-60 p-2 mb-0 border-b border-[#eaeaea] hover:bg-[#f8f8f8] duration-95 cursor-pointer">
+      <div
+        className="w-[50%] h-full flex flex-col"
+        onClick={() => setSelectedLocation(location)}
+      >
         <div className="flex justify-between">
           <h1 className="text-base font-bold">{title}</h1>
           <h1 className="w-10 text-sm text-[#747474]">
@@ -37,7 +38,9 @@ export default function CafeListEntry({
           </h1>
         </div>
         <div className="">
-          <CafeListRating rating={rating} reviewCount={reviewCount} />
+          {rating && (
+            <CafeListRating rating={rating} reviewCount={reviewCount} />
+          )}
         </div>
         {!description && (
           <p className="text-sm mt-0.5 italic">
@@ -52,14 +55,20 @@ export default function CafeListEntry({
           <p className="text-sm mt-3 line-clamp-4">{description}</p>
         )}
       </div>
-      <div className="w-[50%] h-full">
+      <div className="w-[50%] h-full relative hover:shadow-xl duration-100 rounded-lg">
         <Image
-          src={!image ? "/cafe_ex.jpg" : image}
+          src={!image ? "/images/placeholder-image.jpeg" : image}
           alt="A cafe interior, from a low angle."
           width={612}
           height={408}
           className="h-full object-cover rounded-lg"
         />
+        <p className="absolute top-[45%] left-2 bg-background p-0.5 rounded-sm">
+          No images yet!{" "}
+          <Link href={"#"} className="text-primary hover:underline">
+            upload an image.
+          </Link>
+        </p>
       </div>
     </div>
   );

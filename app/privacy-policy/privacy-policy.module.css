@@ -1,0 +1,13 @@
+#wrapper h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    padding: 2rem 0;
+}
+
+#wrapper p {
+    padding: 0.5rem 0;
+}
+
+#wrapper li {
+    padding: 0.5rem 0;
+}

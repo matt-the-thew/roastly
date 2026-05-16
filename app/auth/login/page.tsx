@@ -47,7 +47,7 @@ export default function Login() {
       <div className="w-120 mt-[20vh] rounded-2xl border border-gray-200 flex flex-col items-center p-10 gap-6 h-fit">
         <Link href={"/"}>
           <Image
-            src={"/logo.svg"}
+            src={"/branding/roastly-logo.svg"}
             alt="Roastly logo"
             width={145.891}
             height={49.594}

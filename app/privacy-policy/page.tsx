@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import styles from "./privacy-policy.module.css";
 
 export default function PrivacyPolicyPage() {
   return (
@@ -8,7 +9,7 @@ export default function PrivacyPolicyPage() {
       <div className="fixed w-screen">
         <Navbar />
       </div>
-      <div className="w-full flex justify-center">
+      <div className="w-full flex justify-center" id={styles["wrapper"]}>
         <div className="w-[70%] max-w-200 py-30">
           <h1>Privacy Policy</h1>
           <p>Last updated: March 23, 2026</p>
@@ -42,7 +43,7 @@ export default function PrivacyPolicyPage() {
             </li>
             <li>
               <p>
-                <strong>Affiliate</strong> means an entity that controls, is
+                <strong>Affiliate </strong>means an entity that controls, is
                 controlled by, or is under common control with a party, where
                 &quot;control&quot; means ownership of 50% or more of the
                 shares, equity interest or other securities entitled to vote for
@@ -63,7 +64,7 @@ export default function PrivacyPolicyPage() {
             </li>
             <li>
               <p>
-                <strong>CCPA</strong> and/or <strong>CPRA</strong> refers to the
+                <strong>CCPA</strong> and/or <strong>CPRA </strong>refers to the
                 California Consumer Privacy Act (the &quot;CCPA&quot;) as
                 amended by the California Privacy Rights Act of 2020 (the
                 &quot;CPRA&quot;).
@@ -104,18 +105,10 @@ export default function PrivacyPolicyPage() {
                 <strong>Device</strong> means any device that can access the
                 Service such as a computer, a cell phone or a digital tablet.
               </p>
-            </li>
-            <li>
               <p>
-                <strong>Personal Data</strong> (or &quot;Personal
-                Information&quot;) is any information that relates to an
-                identified or identifiable individual.
-              </p>
-              <p>
-                For the purposes of the CCPA/CPRA, Personal Data means any
-                information that identifies, relates to, describes or is capable
-                of being associated with, or could reasonably be linked,
-                directly or indirectly, with You.
+                CPRA, Personal Data means any information that identifies,
+                relates to, describes or is capable of being associated with, or
+                could reasonably be linked, directly or indirectly, with You.
               </p>
               <p>
                 We use &quot;Personal Data&quot; and &quot;Personal
@@ -152,7 +145,7 @@ export default function PrivacyPolicyPage() {
                 <strong>Website</strong> refers to Roastly, accessible from{" "}
                 <a
                   href="https://roastly.dev"
-                  rel="external nofollow noopener"
+                  rel="external nofollow noopener noreferrer"
                   target="_blank"
                 >
                   https://roastly.dev
@@ -1373,11 +1366,7 @@ export default function PrivacyPolicyPage() {
             data-cfasync="false"
             src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"
           ></script>
-          <Link href="/">
-            <button className="p-4 mt-4 bg-brew text-white rounded-lg hover:bg-cream cursor-pointer active:border active:border-brew">
-              Go Back
-            </button>
-          </Link>
+          <Link href="/"></Link>
         </div>
       </div>
 
