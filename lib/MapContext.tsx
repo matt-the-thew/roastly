@@ -56,6 +56,7 @@ export function MapProvider({
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [feedVisible, setFeedVisible] = useState(true);
   const [zoomLevel, setZoomLevel] = useState<number | null>(null);
+  const [userLocation, setUserLocationState] = useState<LatLongCoordinates | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [friendIds, setFriendIds] = useState<Set<string>>(new Set());
@@ -87,6 +88,10 @@ export function MapProvider({
     loadSocialData(user.id);
   }, [user]);
 
+  function setUserLocation(latitude: number, longitude: number) {
+    setUserLocationState({ latitude, longitude });
+  }
+
   async function loadSocialData(userId: string) {
     const [p, ids] = await Promise.all([
       getProfile(userId),
@@ -117,6 +122,8 @@ export function MapProvider({
         setFeedVisible,
         zoomLevel,
         setZoomLevel,
+        userLocation,
+        setUserLocation,
         user,
         profile,
         friendIds,
