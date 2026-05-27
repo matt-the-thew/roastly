@@ -22,7 +22,9 @@ export async function getProfile(userId: string): Promise<Profile | null> {
   return data ?? null;
 }
 
-export async function getProfileByUsername(username: string): Promise<Profile | null> {
+export async function getProfileByUsername(
+  username: string,
+): Promise<Profile | null> {
   const supabase = createClient();
   const { data } = await supabase
     .from("profiles")
@@ -32,7 +34,9 @@ export async function getProfileByUsername(username: string): Promise<Profile | 
   return data ?? null;
 }
 
-export async function getProfileByFriendCode(code: string): Promise<Profile | null> {
+export async function getProfileByFriendCode(
+  code: string,
+): Promise<Profile | null> {
   const supabase = createClient();
   const { data } = await supabase
     .from("profiles")
@@ -52,7 +56,13 @@ export async function createProfile(
   const supabase = createClient();
   const { data, error } = await supabase
     .from("profiles")
-    .insert({ id: userId, username, display_name: displayName, bio, avatar_url: avatarUrl })
+    .insert({
+      id: userId,
+      username,
+      display_name: displayName,
+      bio,
+      avatar_url: avatarUrl,
+    })
     .select()
     .single();
   if (error) throw new Error(error.message);
@@ -61,7 +71,9 @@ export async function createProfile(
 
 export async function updateProfile(
   userId: string,
-  updates: Partial<Pick<Profile, "display_name" | "bio" | "avatar_url" | "is_private">>,
+  updates: Partial<
+    Pick<Profile, "display_name" | "bio" | "avatar_url" | "is_private">
+  >,
 ): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase
@@ -71,7 +83,9 @@ export async function updateProfile(
   if (error) throw new Error(error.message);
 }
 
-export async function isUsernameAvailable(username: string): Promise<boolean> {
+export async function isUsernameAvailable(
+  username: string,
+): Promise<boolean> {
   const supabase = createClient();
   const { data } = await supabase
     .from("profiles")
@@ -81,21 +95,46 @@ export async function isUsernameAvailable(username: string): Promise<boolean> {
   return data === null;
 }
 
-/** Returns initials from a display name, e.g. "John Doe" → "JD" */
-export function getInitials(displayName: string): string {
-  return displayName
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0].toUpperCase())
-    .join("");
+/** Returns initials from a display name, e.g. "John Doe" → "JD" \
+ * @param {string} displayName - The string to be abbreviated
+ * @returns {string} - first and last, no matter how many names
+ */
+export function getInitials(displayName: string): string | Error {
+  //if display name undefined, return Error
+  if (!displayName) {
+    console.warn("[WARNING]: parameter displayName is not defined");
+    return "";
+  }
+  let last: string | undefined;
+  //get first letter of each word
+  //split into array of words
+  const uppercaseChars: Array<string> = displayName
+    //handle multiple spaces
+    .trim()
+    //split by any repeating spaces
+    .split(/\s+/)
+    //make first char of all entries uppercase
+    .map((w) => w[0].toUpperCase());
+  //get first uppercase letter
+  const first = uppercaseChars.at(0);
+  //get last uppercase letter if more than one name
+  if (uppercaseChars.length > 1) {
+    last = uppercaseChars.at(-1);
+    return first! + last;
+  } else return first!;
 }
 
 /** Deterministic background color from a string */
 export function getAvatarColor(seed: string): string {
   const colors = [
-    "#e07b39", "#5b8dd9", "#6bbf72", "#c96b6b",
-    "#9b6bc9", "#d4a84b", "#4bbdca", "#c96b9b",
+    "#e07b39",
+    "#5b8dd9",
+    "#6bbf72",
+    "#c96b6b",
+    "#9b6bc9",
+    "#d4a84b",
+    "#4bbdca",
+    "#c96b9b",
   ];
   let hash = 0;
   for (let i = 0; i < seed.length; i++) {

@@ -4,14 +4,17 @@ import { getInitials, getAvatarColor } from "@/lib/supabase/profile";
 describe("getInitials", () => {
   it("returns initials from two-word name", () => {
     expect(getInitials("John Doe")).toBe("JD");
+    expect(getInitials("Mary Jane")).toBe("MJ");
   });
 
   it("returns single initial from one-word name", () => {
     expect(getInitials("Alice")).toBe("A");
+    expect(getInitials("Jeremy")).toBe("J");
   });
 
   it("uses only the first two words", () => {
-    expect(getInitials("John Michael Doe")).toBe("JM");
+    expect(getInitials("John Michael Doe")).toBe("JD");
+    expect(getInitials("Terrence Dirk Flannigan")).toBe("TF");
   });
 
   it("handles empty string", () => {
@@ -39,9 +42,17 @@ describe("getAvatarColor", () => {
 
   it("returns different colors for different seeds", () => {
     const colors = new Set(
-      ["alice", "bob", "carol", "dave", "eve", "frank", "grace", "henry", "iris"].map(
-        getAvatarColor,
-      ),
+      [
+        "alice",
+        "bob",
+        "carol",
+        "dave",
+        "eve",
+        "frank",
+        "grace",
+        "henry",
+        "iris",
+      ].map(getAvatarColor),
     );
     // With 8 colors and 9 seeds some collisions are possible, but not all should match
     expect(colors.size).toBeGreaterThan(1);
