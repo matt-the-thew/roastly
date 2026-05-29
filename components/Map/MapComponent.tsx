@@ -120,8 +120,16 @@ export default function MapComponent({ children }: Props) {
     }
   }, [selectedLocation]);
 
+  useEffect(() => {
+    console.log("Map has rendered");
+  }, []);
+
   return (
-    <div id="map-container" ref={mapContainerRef} className="w-full h-full">
+    <div
+      id="map-container"
+      ref={mapContainerRef}
+      className="w-full h-full"
+    >
       {children}
     </div>
   );

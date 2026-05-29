@@ -1,5 +1,10 @@
-import { describe, it, expect } from "vitest";
-import { getInitials, getAvatarColor } from "@/lib/supabase/profile";
+import { vi, describe, it, expect, beforeEach } from "vitest";
+import {
+  getInitials,
+  getAvatarColor,
+  getProfile,
+} from "@/lib/supabase/profile";
+import { mockSupabaseClient } from "@/__mocks__/supabase/supabaseClient";
 
 describe("getInitials", () => {
   it("returns initials from two-word name", () => {
@@ -56,5 +61,48 @@ describe("getAvatarColor", () => {
     );
     // With 8 colors and 9 seeds some collisions are possible, but not all should match
     expect(colors.size).toBeGreaterThan(1);
+  });
+});
+
+describe("getProfile", async () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("tries to pull data from DB", async () => {
+    await getProfile("test_user_id");
+    expect(mockSupabaseClient.from).toHaveBeenCalled();
+  });
+
+  it("passes accurate query information", async () => {
+    const mockChain = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      single: vi
+        .fn()
+        .mockResolvedValue({ data: { id: "test_data" }, error: null }),
+    };
+
+    (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
+      mockChain,
+    );
+
+    await getProfile("test_user_id");
+
+    const fromSpy = vi.spyOn(mockSupabaseClient, "from");
+    // should call from("profiles")
+    expect(fromSpy).toHaveBeenCalledWith("profiles");
+    // should call select("*")
+    expect(mockChain.select).toHaveBeenCalledWith("*");
+    // should call eq("id", user_id)
+    expect(mockChain.eq).toHaveBeenCalledWith("id", "test_user_id");
+  });
+
+  it("should recieve correct data", async () => {
+    const result = await getProfile("test_user_id");
+    // should get a result
+    expect(result).toBeDefined();
+    // result should pass correct data
+    expect(result).toEqual({ id: "test_data" });
   });
 });
