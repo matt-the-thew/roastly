@@ -1,10 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SessionHandler } from "./lib/supabase/sessionhandler";
+import { redirect } from "next/navigation";
 
-const sessionHandlerInstance = new SessionHandler(
+const sessionHandlerInstance: SessionHandler = new SessionHandler(
   process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_URL!,
   process.env.NEXT_ROASTLY_SUPABASE_ANON_KEY!,
 );
+
+const protectedRoutes: string[] = [
+  "/dashboard/homepage",
+  "/blog",
+  "/settings",
+  "/profile/*",
+];
 
 /**
  * Executes before any request is completed.
@@ -14,16 +22,30 @@ const sessionHandlerInstance = new SessionHandler(
  */
 export default async function proxy(request: NextRequest) {
   await sessionHandlerInstance.updateSession(request);
-  /** If authenticated user tires to access login, send them to dashboard. */
+  /* If authenticated user tires to access login,
+     send them to dashboard. */
   if (
     sessionHandlerInstance.user &&
     request.nextUrl.pathname.startsWith("/auth/login")
   ) {
-    return NextResponse.redirect(new URL("/dashboard/homepage", request.url));
+    return NextResponse.redirect(
+      new URL("/dashboard/homepage", request.url),
+    );
+  }
+  /* If unauthenticated user tries to access protectedRoutes,
+     send them to login. */
+  if (
+    !sessionHandlerInstance.user &&
+    protectedRoutes.some((route) =>
+      request.nextUrl.pathname.startsWith(route),
+    )
+  ) {
+    return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 }
 
-/** NextJS proxy instructions to ignore execution on requests to included paths. */
+/* NextJS proxy instructions to ignore execution on requests to included
+   paths. */
 export const config = {
   matcher: [
     "/((?!_next/static|_next/image|favicon.ico|public|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
