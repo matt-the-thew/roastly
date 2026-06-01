@@ -1,46 +1,13 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { signInWithEmail } from "@/app/actions/signInWithEmail";
+import { signInWithGoogle } from "@/app/actions/signInWithGoogle";
+import { useState } from "react";
 import toast from "react-hot-toast";
 
 export default function Login() {
-  const supabase = createClient();
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
-  async function signInWithGoogle() {
-    toast.promise(
-      supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: `${window.location.origin}/auth/confirm` },
-      }),
-      {
-        loading: "Signing in with Google…",
-        success: "Redirecting…",
-        error: "Sign-in failed",
-      },
-    );
-  }
-
-  async function signInWithEmail(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    router.push("/dashboard/homepage");
-  }
 
   return (
     <div className="w-screen h-screen flex justify-center">
@@ -55,9 +22,13 @@ export default function Login() {
           />
         </Link>
 
-        <button onClick={signInWithGoogle} className="cursor-pointer w-[80%]">
+        {/* Google OAuth image & link */}
+        <button
+          onClick={signInWithGoogle}
+          className="cursor-pointer w-[80%]"
+        >
           <Image
-            src={"/web_light_sq_ctn@4x.png"}
+            src={"/images/google-signin-button.png"}
             alt="Sign in with Google"
             width={756}
             height={160}
@@ -71,14 +42,20 @@ export default function Login() {
           <div className="flex-1 h-px bg-gray-200" />
         </div>
 
-        <form onSubmit={signInWithEmail} className="w-full flex flex-col gap-3">
+        {/* Sign in with email & password */}
+        <form
+          name="sign-in"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            signInWithEmail(new FormData(e.currentTarget));
+          }}
+          className="w-full flex flex-col gap-3"
+        >
           <input
             className="border border-gray-200 rounded-md p-2 w-full"
             type="email"
             placeholder="Email"
             autoComplete="username"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             required
           />
           <input
@@ -86,8 +63,6 @@ export default function Login() {
             type="password"
             placeholder="Password"
             autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             required
           />
           <button
@@ -100,7 +75,10 @@ export default function Login() {
         </form>
 
         <div className="flex gap-4 text-sm font-mono">
-          <Link href="/auth/sign-up" className="hover:underline text-primary">
+          <Link
+            href="/auth/sign-up"
+            className="hover:underline text-primary"
+          >
             Create account
           </Link>
           <span className="text-gray-300">|</span>
