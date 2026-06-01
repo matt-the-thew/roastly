@@ -24,7 +24,8 @@ export default function DropdownMenu({ sendStateData }: Props) {
   }, [currentCity]);
 
   function toggleMenu() {
-    menuOpen ? setMenuOpen(false) : setMenuOpen(true);
+    if (menuOpen) setMenuOpen(false);
+    else setMenuOpen(true);
   }
 
   function handleCityChange(city: string): void {
@@ -45,7 +46,7 @@ export default function DropdownMenu({ sendStateData }: Props) {
     return (
       <>
         <div
-          className="absolute w-full bg-background border border-slate-300 rounded-md text-sm flex flex-col items-start justify-between hover:shadow-sm cursor-pointer *:hover:bg-primary *:px-3 *:py-3"
+          className="absolute w-full bg-background border border-slate-300 rounded-md text-sm flex flex-col items-start justify-between hover:shadow-sm cursor-pointer *:hover:bg-primary *:px-3 *:py-3 z-1"
           onClick={toggleMenu}
         >
           <p className="w-full grow bg-background">{currentCity}</p>
