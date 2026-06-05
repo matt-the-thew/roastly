@@ -10,18 +10,21 @@ const martian = Martian_Mono({
   subsets: ["latin"],
   variable: "--font-martian",
   weight: ["400", "700"],
+  preload: true,
 });
 
 const sheppards = Mrs_Sheppards({
   subsets: ["latin"],
   weight: "400",
   variable: "--font-sheppards",
+  preload: true,
 });
 
 const roboto = Roboto({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-roboto",
+  preload: true,
 });
 
 export const metadata: Metadata = {
