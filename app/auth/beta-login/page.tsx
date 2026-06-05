@@ -15,7 +15,7 @@ export default function BetaLoginPage() {
         <label htmlFor="beta token">Enter your Beta Token:</label>
         <input
           name="beta_token"
-          placeholder="Beta Token"
+          placeholder="XXXX-XXXX"
           className="border border-slate-400 rounded-md w-[80%] p-2"
         ></input>
         <button

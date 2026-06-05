@@ -1,13 +1,45 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { signInWithEmail } from "@/app/actions/signInWithEmail";
-import { signInWithGoogle } from "@/app/actions/signInWithGoogle";
+import { FormEvent } from "react";
 import { useState } from "react";
-import toast from "react-hot-toast";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    const formData = new FormData(event.currentTarget);
+    console.log(Object.fromEntries(formData.entries()));
+
+    try {
+      const response = await fetch("/api/auth/sign-in", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setLoading(false);
+        throw new Error(data.error || "Error fetching sign-in route");
+      }
+    } catch (err) {
+      setLoading(false);
+      if (err instanceof Error) {
+        throw new Error(`[Login Form Submission Error]: ${err.message}`);
+      } else {
+        throw new Error(
+          `[Login Form Submission Error]: An unknown error occurred ${err}`,
+        );
+      }
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="w-screen h-screen flex justify-center">
@@ -23,8 +55,8 @@ export default function Login() {
         </Link>
 
         {/* Google OAuth image & link */}
-        <button
-          onClick={signInWithGoogle}
+        {/*<button
+          onClick={login.signInWithGoogle}
           className="cursor-pointer w-[80%]"
         >
           <Image
@@ -34,26 +66,24 @@ export default function Login() {
             height={160}
             className="hover:shadow-lg active:border-2"
           />
-        </button>
-
+        </button>*/}
+        {/*
         <div className="flex items-center w-full gap-3">
           <div className="flex-1 h-px bg-gray-200" />
           <span className="text-sm text-gray-400 font-mono">or</span>
           <div className="flex-1 h-px bg-gray-200" />
         </div>
-
+*/}
         {/* Sign in with email & password */}
         <form
           name="sign-in"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            signInWithEmail(new FormData(e.currentTarget));
-          }}
+          onSubmit={handleSubmit}
           className="w-full flex flex-col gap-3"
         >
           <input
             className="border border-gray-200 rounded-md p-2 w-full"
             type="email"
+            name="email"
             placeholder="Email"
             autoComplete="username"
             required
@@ -61,16 +91,16 @@ export default function Login() {
           <input
             className="border border-gray-200 rounded-md p-2 w-full"
             type="password"
+            name="password"
             placeholder="Password"
             autoComplete="current-password"
             required
           />
           <button
             type="submit"
-            disabled={loading}
             className="bg-primary text-white rounded-md p-2 font-bold hover:opacity-90 disabled:opacity-50 cursor-pointer"
           >
-            {loading ? "Signing in…" : "Sign in"}
+            {loading ? "Signing In..." : "Sign In"}
           </button>
         </form>
 
