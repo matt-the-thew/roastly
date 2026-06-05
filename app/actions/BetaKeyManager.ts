@@ -1,6 +1,8 @@
-import { SignJWT } from "jose";
-import { createHmac, createHash } from "crypto";
+import { SignJWT, jwtVerify } from "jose";
+import { createHmac } from "crypto";
 import { supabaseSRClient } from "@/lib/supabase/serviceRoleClient";
+/* Server-only, handles beta-key encryption secrets */
+import "server-only";
 
 /**
  * Unique type for {@function BetaKeyManager._createJWT}.
@@ -11,38 +13,15 @@ type BetaKeyTableRow = {
   id: string;
 };
 
+/**
+ * @classdesc Handles beta Key creation, validation,
+ * and resulting auth sessions.
+ */
 export class BetaKeyManager {
-  /**
-   * @classdesc Handles beta Key creation, validation,
-   * and resulting auth sessions.
-   */
-
   // jose requires Uint8Array input for signature
   REDEMPTION_SECRET = new TextEncoder().encode(
-    process.env.BETA_Key_JWT_SECRET,
+    process.env.BETA_KEY_JWT_SECRET,
   );
-  /**
-   * Hashes key input and compares it to stored data.
-   * @param rawKey {string} - unhashed key input
-   * @returns {Array<Object>} - Supabase query result
-   * @throws {Error} - Issue verifying beta key
-   */
-  async verifyBetaKey(rawKey: string) {
-    const hash = createHash("sha256")
-      .update(rawKey.toUpperCase())
-      .digest("hex");
-
-    const { data, error } = await supabaseSRClient
-      .from("beta_keys")
-      .select("key_hash")
-      .eq("key_hash", hash)
-      .is("used_by", null)
-      .single();
-
-    if (!data) throw new Error("Invalid/Exhausted beta key");
-    if (error) throw new Error(`Error verifying key: ${error}`);
-    return data;
-  }
 
   /**
    * Creates and signs JWT to authorize sign up
@@ -57,6 +36,8 @@ export class BetaKeyManager {
     })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
+      .setIssuer("https://roastly.dev/api/auth/verify-beta")
+      .setAudience("https://roastly.dev/auth/sign-up")
       .setExpirationTime("15m")
       .setJti(crypto.randomUUID())
       .sign(this.REDEMPTION_SECRET);
@@ -64,9 +45,16 @@ export class BetaKeyManager {
     return token;
   }
 
-  async redeemBetaKey(rawBetaKey: string) {
+  /**
+   * Creates HMAC with symmetrical secret key, and compares to
+   * stored values in DB with service role access.
+   * @param rawBetaKey {string} - unhashed key input
+   * @returns {string} - signed JWT to initialize sign-up session
+   * @throws Will throw Error when beta key is Non-Existent/Expired.
+   */
+  async redeemBetaKey(rawBetaKey: string): Promise<string> {
     // create salted hash for secrecy in transit
-    const hash = createHmac("sha256", process.env.BETA_KEY_JWT_SECRET!)
+    const hash = createHmac("sha256", process.env.BETA_KEY_HMAC_SECRET!)
       .update(rawBetaKey.toUpperCase())
       .digest("hex");
 
@@ -80,9 +68,34 @@ export class BetaKeyManager {
       .select("id")
       .single();
 
-    if (!data) throw new Error("Invalid or expired beta key");
-    if (error) throw new Error(`Error: ${error}`);
+    if (!data)
+      throw new Error("[BetaKeyManager]: Non-existent/Expired beta key");
+    if (error) throw new Error(`[BetaKeyManager]: ${error}`);
 
-    return await this._createJWT(data);
+    return (await this._createJWT(data)) as string;
+  }
+
+  /**
+   * Accepts and verifies JWT token issued by {@function redeemBetaKey}.
+   * @param jwt{string}
+   * @returns {boolean} - Whether or not the jwt is valid.
+   */
+  async validateJWT(jwt: string): Promise<boolean> {
+    try {
+      console.log("verifying passed JWT:", jwt);
+      const { payload } = await jwtVerify(jwt, this.REDEMPTION_SECRET, {
+        issuer: "https://roastly.dev/api/auth/verify-beta",
+        audience: "https://roastly.dev/auth/sign-up",
+      });
+
+      /*Simply return true if JWT is validated with purpose*/
+      if (payload.purpose == "beta_redeem") {
+        return true;
+      }
+      return false;
+    } catch {
+      /*Simply return false if error occues in jose method */
+      return false;
+    }
   }
 }

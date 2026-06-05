@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/client";
 import { NextResponse } from "next/server";
 import toast from "react-hot-toast";
-import { type OAuthResponse } from "@supabase/supabase-js";
-import { jwtVerify } from "jose";
-import { supabaseSRClient } from "@/lib/supabase/serviceRoleClient";
+import {
+  type OAuthResponse,
+  type UserResponse,
+} from "@supabase/supabase-js";
 
 export class LoginService {
   /**
@@ -13,42 +14,7 @@ export class LoginService {
    * execute.
    */
 
-  async _registerWithBetaKey(redemptionJWT: string): Promise<boolean> {
-    // Format secret as Uint8Array, required by jose
-    const REDEMPTION_SECRET = new TextEncoder().encode(
-      process.env.BETA_Key_JWT_SECRET,
-    );
-    let payload;
-    // extract payload with secret
-    try {
-      const { payload: p } = await jwtVerify(
-        redemptionJWT,
-        REDEMPTION_SECRET,
-      );
-      payload = p;
-    } catch (error) {
-      throw new Error(`Error redeeming JWT: ${error}`);
-    }
-
-    /*Throw errors if the token is incorrect, or if it is assocaited with
-    an account. Only return TRUE if both these conditions are explicitly
-    met, otherwise default to FALSE */
-    if (payload.purpose !== "beta_redeem")
-      throw new Error("Wrong token type");
-
-    const { data: key } = await supabaseSRClient
-      .from("beta_keys")
-      .select("used_by")
-      .eq("id", payload.key_id)
-      .single();
-
-    if (key?.used_by !== null)
-      throw new Error("Token associated with existing account");
-
-    if (payload.purpose == "beta_redeem" && key?.used_by == null) {
-      return true;
-    } else return false;
-  }
+  supabase = createClient();
 
   /**
    * Signs user in as "anonymous user", when in development
@@ -56,15 +22,14 @@ export class LoginService {
    */
   async signInAsDev() {
     if (process.env.NODE_ENV === "development") {
-      const supabase = createClient();
       const {
         data: { session },
-      } = await supabase.auth.getSession();
+      } = await this.supabase.auth.getSession();
       // if already logged in, fail
       if (session) return;
 
       // sign in as a blank user for dev purposes
-      await supabase.auth.signInAnonymously();
+      await this.supabase.auth.signInAnonymously();
       console.log("Signing in as Developer");
     }
   }
@@ -80,10 +45,8 @@ export class LoginService {
     email: string,
     password: string,
   ): Promise<NextResponse | Error> {
-    // creates a new supabase client
-    const supabase = createClient();
     // sends data to supabase auth
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await this.supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -104,9 +67,8 @@ export class LoginService {
    * @returns {Promise<OAuthResponse>}
    */
   async signInWithGoogle(): Promise<OAuthResponse> {
-    const supabase = createClient();
     return toast.promise(
-      supabase.auth.signInWithOAuth({
+      this.supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}/auth/confirm`,
@@ -118,5 +80,65 @@ export class LoginService {
         error: "Sign-in failed",
       },
     );
+  }
+
+  /**
+   * Checks if user exists and has an account.
+   * @returns {boolean}
+   */
+  async checkNewUser(): Promise<boolean> {
+    const {
+      data: { user },
+    } = await this.supabase.auth.getUser();
+
+    /*If user not in DB*/
+    if (!user) return false;
+
+    /*If user exists, see if they have a profile in DB */
+    const { data: profile, error } = await this.supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    /*Handle output of supabase function*/
+    if (error) throw new Error(`[LOGIN_SERVICE]: ${error}`);
+    if (profile) return true;
+
+    /*Default to false for security against uncaught edge cases*/
+    return false;
+  }
+
+  /**
+   * Signs up a new user with email and password, using OTP magic-link.
+   * Handles email and password in plaintext, so must be called server-side
+   * after encrypted FormData is captured.
+   * @param email {string} - Email in plaintext.
+   * @param password {string} - Password in plaintext.
+   * @returns {User} - Supabase user object, from
+   * {@function supabase.auth.getUser}
+   * @throws Will throw errors if {@function supabase.auth.signUp} throws
+   * errors, or if signUp completes and no user session is detected.
+   */
+  async signUpWithEmailAndPassword(
+    email: string,
+    password: string,
+  ): Promise<UserResponse> {
+    const { error } = await this.supabase.auth.signUp({
+      email: email,
+      password: password,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}/api/auth/confirm`,
+      },
+    });
+
+    if (error) {
+      throw new Error(`Error creating account: ${error}`);
+    }
+    const user = this.supabase.auth.getUser();
+    if (!user)
+      throw new Error("[Sign Up Error]: No user detected after sign up.");
+
+    return user;
   }
 }
