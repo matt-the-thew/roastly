@@ -66,7 +66,9 @@ export class SessionHandler {
       return supabaseResponse;
     } catch (error) {
       if (error) {
-        console.error(`[SessionHandler]: an unknown error occurred ${error}`);
+        console.error(
+          `[SessionHandler]: an unknown error occurred ${error}`,
+        );
       }
     }
   }

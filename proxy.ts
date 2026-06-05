@@ -1,10 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SessionHandler } from "./lib/supabase/sessionhandler";
-import { redirect } from "next/navigation";
 
 const sessionHandlerInstance: SessionHandler = new SessionHandler(
   process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_URL!,
-  process.env.NEXT_ROASTLY_SUPABASE_ANON_KEY!,
+  process.env.ROASTLY_SUPABASE_ANON_KEY!,
 );
 
 const protectedRoutes: string[] = [
