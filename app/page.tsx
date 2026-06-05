@@ -3,6 +3,8 @@ import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import Image from "next/image";
 import Footer from "@/components/Footer";
+import { LoginService } from "./actions/LoginService";
+import { useEffect } from "react";
 
 console.log("Welcome to Roastly.");
 console.log("<<Danger, Will Robinson!>>");
@@ -11,6 +13,12 @@ console.log("<<Danger, Will Robinson!>>");
  * Exports the Landing Page of the Roastly Site
  */
 export default function LandingPage() {
+  useEffect(() => {
+    (async function () {
+      const login = new LoginService();
+      login.signInAsDev();
+    })();
+  }, []);
   return (
     <div className="flex flex-col h-screen">
       <div>
@@ -34,15 +42,16 @@ export default function LandingPage() {
                 Curated daily, just for you.
               </p>
               <p className="px-25 mt-4 text-lg leading-6.5 font-mono">
-                Everyone deserves great coffee, and great coffee deserves to be
-                shared. Celebrate the best cafes in your community, and all the
-                people who love them just as much as you do.{" "}
+                Everyone deserves great coffee, and great coffee deserves
+                to be shared. Celebrate the best cafes in your community,
+                and all the people who love them just as much as you
+                do.{" "}
               </p>
             </div>
           </section>
           <div className="mt-10 grid place-items-center">
             <Image
-              src={"/heromap.png"}
+              src={"/images/map-with-icons.png"}
               height={600}
               width={600}
               loading="eager"
