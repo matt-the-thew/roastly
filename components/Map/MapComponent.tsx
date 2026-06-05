@@ -57,7 +57,7 @@ export default function MapComponent({ children }: Props) {
   } = useMapContext();
 
   useEffect(() => {
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+    mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN!;
     // If a map exists, or the map's container is not ready, return
     if (!mapContainerRef.current || mapRef.current) return;
 
@@ -66,6 +66,8 @@ export default function MapComponent({ children }: Props) {
       logoPosition: "bottom-right",
       center: [-118.7617, 34.1533],
       zoom: 12,
+      maxZoom: 15,
+      minZoom: 11,
     });
 
     const geolocate = new GeolocateControl({
