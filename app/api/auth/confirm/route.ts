@@ -1,7 +1,7 @@
 "use server";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { type NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { serverClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 /**
@@ -19,7 +19,7 @@ async function verifyToken(request: NextRequest) {
   const code = searchParams.get("code");
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType;
-  const supabase = await createClient();
+  const supabase = await serverClient();
 
   if (code) {
     const { error } = await supabase!.auth.exchangeCodeForSession(code);
@@ -35,7 +35,9 @@ async function verifyToken(request: NextRequest) {
       type: type,
     });
     if (!error) return;
-    throw new Error(`[AUTH/CONFIRM]: error verifying otp: ${error.message}`);
+    throw new Error(
+      `[AUTH/CONFIRM]: error verifying otp: ${error.message}`,
+    );
   } else {
     throw new Error("[AUTH/CONFIRM]: No token or token_hash found");
   }
@@ -53,13 +55,15 @@ export async function GET(request: NextRequest) {
     await verifyToken(request);
   } catch (err: unknown) {
     if (err instanceof Error) {
-      console.error(`[AUTH/CONFIRM]: Error verifying token: ${err.message}`);
+      console.error(
+        `[AUTH/CONFIRM]: Error verifying token: ${err.message}`,
+      );
       redirect("/auth/login");
     }
   }
 
   // Redirect new users to onboarding if they have no profile yet
-  const supabase = await createClient();
+  const supabase = await serverClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

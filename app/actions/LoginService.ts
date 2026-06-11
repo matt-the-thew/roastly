@@ -1,5 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
-import { NextResponse } from "next/server";
+import { browserClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import {
   type OAuthResponse,
@@ -14,14 +13,17 @@ export class LoginService {
    * execute.
    */
 
-  supabase = createClient();
+  supabase = browserClient();
 
   /**
    * Signs user in as "anonymous user", when in development
    * @returns {void}
    */
   async signInAsDev() {
-    if (process.env.NODE_ENV === "development") {
+    if (
+      process.env.NODE_ENV === "development" &&
+      process.env.DEV_LOGIN === "true"
+    ) {
       const {
         data: { session },
       } = await this.supabase.auth.getSession();
@@ -36,7 +38,7 @@ export class LoginService {
 
   /**
    * Handles login data with email and password, in plaintext. To be used
-   * by API after decrypting {@type FormData} from login requests
+   * client-side, can't be called in API since supabase is BaaS.
    * @param email {string} - plaintext email
    * @param password {string} - plaintext password
    * @returns {NextResponse} - Redirect to homepage
@@ -44,7 +46,7 @@ export class LoginService {
   async signInWithEmail(
     email: string,
     password: string,
-  ): Promise<NextResponse | Error> {
+  ): Promise<boolean> {
     // sends data to supabase auth
     const { error } = await this.supabase.auth.signInWithPassword({
       email,
@@ -53,12 +55,12 @@ export class LoginService {
 
     // return error is error signing in
     if (error) {
-      toast.error("There was a problem logging in. Please try again.");
-      return new Error(`${error}`);
-    } else toast.success("Logged in successfully!");
-    return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}/dashboard/homepage`,
-    );
+      console.error(`[Login_Service]: ${error}`);
+      return false;
+    } else {
+      console.log("[Login_Service]: Logged in successfully!");
+      return true;
+    }
   }
 
   /**

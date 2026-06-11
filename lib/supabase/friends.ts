@@ -1,5 +1,5 @@
 "use client";
-import { createClient } from "@/lib/supabase/client";
+import { browserClient } from "@/lib/supabase/client";
 import type { Profile } from "./profile";
 
 export type FriendshipStatus = "pending" | "accepted" | "denied";
@@ -22,7 +22,7 @@ export interface FriendshipWithProfile extends Friendship {
 
 /** All accepted friends for a user, with their profile data */
 export async function getFriends(userId: string): Promise<Profile[]> {
-  const supabase = createClient();
+  const supabase = browserClient();
   // Two queries: rows where user is requester or addressee
   const [{ data: sent }, { data: received }] = await Promise.all([
     supabase
@@ -60,7 +60,7 @@ export async function getFriendIds(userId: string): Promise<Set<string>> {
 export async function getIncomingRequests(
   userId: string,
 ): Promise<FriendshipWithProfile[]> {
-  const supabase = createClient();
+  const supabase = browserClient();
   const { data } = await supabase
     .from("friendships")
     .select(
@@ -76,7 +76,7 @@ export async function getIncomingRequests(
 export async function getOutgoingRequests(
   userId: string,
 ): Promise<Friendship[]> {
-  const supabase = createClient();
+  const supabase = browserClient();
   const { data } = await supabase
     .from("friendships")
     .select("*")
@@ -91,7 +91,7 @@ export async function getFriendship(
   userId: string,
   otherId: string,
 ): Promise<Friendship | null> {
-  const supabase = createClient();
+  const supabase = browserClient();
   const { data } = await supabase
     .from("friendships")
     .select("*")
@@ -106,7 +106,7 @@ export async function sendFriendRequest(
   requesterId: string,
   addresseeId: string,
 ): Promise<void> {
-  const supabase = createClient();
+  const supabase = browserClient();
   const { error } = await supabase
     .from("friendships")
     .insert({ requester_id: requesterId, addressee_id: addresseeId });
@@ -117,7 +117,7 @@ export async function respondToRequest(
   friendshipId: string,
   response: "accepted" | "denied",
 ): Promise<void> {
-  const supabase = createClient();
+  const supabase = browserClient();
   const { error } = await supabase
     .from("friendships")
     .update({ status: response })
@@ -129,7 +129,7 @@ export async function removeFriend(
   userId: string,
   friendId: string,
 ): Promise<void> {
-  const supabase = createClient();
+  const supabase = browserClient();
   const { error } = await supabase
     .from("friendships")
     .delete()

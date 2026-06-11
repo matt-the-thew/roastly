@@ -4,12 +4,12 @@ import { Location } from "@/lib/fetchLocations";
 import type { Profile } from "@/lib/supabase/profile";
 import { getProfile } from "@/lib/supabase/profile";
 import { getFriendIds } from "@/lib/supabase/friends";
-import { createClient } from "@/lib/supabase/client";
+import { browserClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
 export type OverlayView = "cafeList" | "cafeDetails" | "submissionForm";
 
-interface LatLongCoordinates {
+export interface LatLongCoordinates {
   latitude: number;
   longitude: number;
 }
@@ -48,15 +48,15 @@ export function MapProvider({
   locations: Location[];
   children: React.ReactNode;
 }) {
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
-    null,
-  );
+  const [selectedLocation, setSelectedLocation] =
+    useState<Location | null>(null);
   const [selectedCity, setSelectedCity] = useState("Los Angeles");
   const [overlayView, setOverlayView] = useState<OverlayView>("cafeList");
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [feedVisible, setFeedVisible] = useState(true);
   const [zoomLevel, setZoomLevel] = useState<number | null>(null);
-  const [userLocation, setUserLocationState] = useState<LatLongCoordinates | null>(null);
+  const [userLocation, setUserLocationState] =
+    useState<LatLongCoordinates | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [friendIds, setFriendIds] = useState<Set<string>>(new Set());
@@ -67,7 +67,7 @@ export function MapProvider({
 
   // Bootstrap auth state once on mount
   useEffect(() => {
-    const supabase = createClient();
+    const supabase = browserClient();
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user ?? null);
     });
@@ -137,6 +137,7 @@ export function MapProvider({
 
 export function useMapContext(): MapContextValue {
   const ctx = useContext(MapContext);
-  if (!ctx) throw new Error("useMapContext must be used within MapProvider");
+  if (!ctx)
+    throw new Error("useMapContext must be used within MapProvider");
   return ctx;
 }

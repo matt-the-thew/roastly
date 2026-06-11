@@ -1,5 +1,5 @@
 "use client";
-import { createClient } from "@/lib/supabase/client";
+import { browserClient } from "@/lib/supabase/client";
 
 export interface Profile {
   id: string;
@@ -13,7 +13,7 @@ export interface Profile {
 }
 
 export async function getProfile(userId: string): Promise<Profile | null> {
-  const supabase = createClient();
+  const supabase = browserClient();
   const { data } = await supabase
     .from("profiles")
     .select("*")
@@ -25,7 +25,7 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 export async function getProfileByUsername(
   username: string,
 ): Promise<Profile | null> {
-  const supabase = createClient();
+  const supabase = browserClient();
   const { data } = await supabase
     .from("profiles")
     .select("*")
@@ -37,7 +37,7 @@ export async function getProfileByUsername(
 export async function getProfileByFriendCode(
   code: string,
 ): Promise<Profile | null> {
-  const supabase = createClient();
+  const supabase = browserClient();
   const { data } = await supabase
     .from("profiles")
     .select("*")
@@ -53,7 +53,7 @@ export async function createProfile(
   bio: string = "",
   avatarUrl: string = "",
 ): Promise<Profile | null> {
-  const supabase = createClient();
+  const supabase = browserClient();
   const { data, error } = await supabase
     .from("profiles")
     .insert({
@@ -75,7 +75,7 @@ export async function updateProfile(
     Pick<Profile, "display_name" | "bio" | "avatar_url" | "is_private">
   >,
 ): Promise<void> {
-  const supabase = createClient();
+  const supabase = browserClient();
   const { error } = await supabase
     .from("profiles")
     .update(updates)
@@ -86,7 +86,7 @@ export async function updateProfile(
 export async function isUsernameAvailable(
   username: string,
 ): Promise<boolean> {
-  const supabase = createClient();
+  const supabase = browserClient();
   const { data } = await supabase
     .from("profiles")
     .select("id")

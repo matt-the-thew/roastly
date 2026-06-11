@@ -1,5 +1,5 @@
 "use client";
-import { createClient } from "@/lib/supabase/client";
+import { browserClient } from "@/lib/supabase/client";
 
 export interface CafeImage {
   id: string;
@@ -9,7 +9,7 @@ export interface CafeImage {
 }
 
 export async function getCafeImages(cafeId: string): Promise<CafeImage[]> {
-  const supabase = createClient();
+  const supabase = browserClient();
   const { data } = await supabase
     .from("cafe_images")
     .select("id, cafe_id, storage_path, display_order")
@@ -18,9 +18,11 @@ export async function getCafeImages(cafeId: string): Promise<CafeImage[]> {
   return (data ?? []) as CafeImage[];
 }
 
-export async function getCafeImagesForMany(cafeIds: string[]): Promise<Record<string, CafeImage[]>> {
+export async function getCafeImagesForMany(
+  cafeIds: string[],
+): Promise<Record<string, CafeImage[]>> {
   if (cafeIds.length === 0) return {};
-  const supabase = createClient();
+  const supabase = browserClient();
   const { data } = await supabase
     .from("cafe_images")
     .select("id, cafe_id, storage_path, display_order")
@@ -35,7 +37,9 @@ export async function getCafeImagesForMany(cafeIds: string[]): Promise<Record<st
 }
 
 export function getPublicUrl(storagePath: string): string {
-  const supabase = createClient();
-  const { data } = supabase.storage.from("cafe-images").getPublicUrl(storagePath);
+  const supabase = browserClient();
+  const { data } = supabase.storage
+    .from("cafe-images")
+    .getPublicUrl(storagePath);
   return data.publicUrl;
 }

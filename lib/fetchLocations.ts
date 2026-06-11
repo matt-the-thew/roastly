@@ -1,5 +1,5 @@
 "use server";
-import { createClient } from "@/lib/supabase/client";
+import { browserClient } from "@/lib/supabase/client";
 
 export interface Location {
   description: string;
@@ -11,7 +11,7 @@ export interface Location {
 }
 
 export async function fetchLocations() {
-  const supabase = createClient();
+  const supabase = browserClient();
   const { data, error } = await supabase
     .from("cafe_list_view")
     .select(`*`);
