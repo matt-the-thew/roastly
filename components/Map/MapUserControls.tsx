@@ -3,16 +3,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMapContext } from "@/lib/MapContext";
 import UserAvatar from "../Social/UserAvatar";
-import { createClient } from "@/lib/supabase/client";
+import { browserClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { CiLocationArrow1 } from "react-icons/ci";
 
 export default function MapUserControls() {
   const { user, profile, feedVisible } = useMapContext();
   const router = useRouter();
 
   async function signOut() {
-    const supabase = createClient();
+    const supabase = browserClient();
     await supabase.auth.signOut();
     toast.success("Signed out");
     router.push("/");
@@ -59,11 +60,19 @@ export default function MapUserControls() {
       ) : (
         <Link
           href="/auth/login"
-          className="bg-background border border-gray-200 rounded-xl px-3 py-1.5 text-xs font-mono hover:bg-primary hover:text-white transition-colors"
+          className="bg-background border border-gray-200 rounded-xl
+          px-3 py-1.5 text-xs font-mono hover:bg-primary
+          hover:text-white transition-colors"
         >
           Sign in
         </Link>
       )}
+      <div
+        className="w-8 h-8 bg-background rounded-lg flex
+        justify-center items-center hover:bg-primary cursor-pointer hover:text-white duration-200"
+      >
+        <CiLocationArrow1 className="w-[80%] h-[70%]" />
+      </div>
     </div>
   );
 }

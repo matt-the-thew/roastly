@@ -57,7 +57,7 @@ export default function MapComponent({ children }: Props) {
   } = useMapContext();
 
   useEffect(() => {
-    mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN!;
+    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!;
     // If a map exists, or the map's container is not ready, return
     if (!mapContainerRef.current || mapRef.current) return;
 
@@ -66,8 +66,11 @@ export default function MapComponent({ children }: Props) {
       logoPosition: "bottom-right",
       center: [-118.7617, 34.1533],
       zoom: 12,
-      maxZoom: 15,
-      minZoom: 11,
+      /*TODO: Lock max zoom, might help with bounding box queries/data efficiency.
+        Seems to create a graphical glitch with .flyTo(), which is no good.
+        Temp removal with logic below for when I get around to this.*/
+      // maxZoom: 15,
+      // minZoom: 11,
     });
 
     const geolocate = new GeolocateControl({
@@ -89,12 +92,15 @@ export default function MapComponent({ children }: Props) {
   useEffect(() => {
     if (!mapRef.current || locations.length === 0) return;
 
-    // Clean up old markers
-    for (const { marker, root } of markersRef.current) {
-      marker.remove();
-      root.unmount();
-    }
+    const previousMarkers = [...markersRef.current];
     markersRef.current = [];
+    // Clean up old markers
+    setTimeout(() => {
+      for (const { marker, root } of markersRef.current) {
+        marker.remove();
+        root.unmount();
+      }
+    }, 0);
 
     const friendIdArray = Array.from(friendIds);
     markersRef.current = locations.map((location) =>

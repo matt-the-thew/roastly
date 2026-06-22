@@ -24,6 +24,8 @@ describe("getLikeCount", async () => {
 
     const fromSpy = vi.spyOn(mockSupabaseClient, "from");
 
+    await likes.getLikeCount("test_cafe_id");
+
     expect(fromSpy).toHaveBeenCalled();
     expect(fromSpy).toHaveBeenCalledWith("likes");
     expect(mockChain.select).toHaveBeenCalledWith("id", {

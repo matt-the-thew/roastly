@@ -16,4 +16,4 @@ export const mockSupabaseClient = {
   })),
 };
 
-export const createClient = vi.fn(() => mockSupabaseClient);
+export const browserClient = vi.fn(() => mockSupabaseClient);

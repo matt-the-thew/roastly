@@ -14,7 +14,7 @@ export default function Footer() {
             alt="Roastly logo"
             height={240}
             width={680}
-            className="w-60"
+            className="w-60 h-auto"
           ></Image>
         </div>
         <div className="flex flex-col gap-2 p-4 grow justify-center [&>p]:w-fit [&>p]:cursor-pointer [&>p]:hover:underline">

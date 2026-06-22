@@ -1,8 +1,8 @@
 "use client";
-import Navbar from "@/components/Navbar";
+import Navbar from "../components/Navbar";
 import Link from "next/link";
 import Image from "next/image";
-import Footer from "@/components/Footer";
+import Footer from "../components/Footer";
 import { LoginService } from "./actions/LoginService";
 import { useEffect } from "react";
 
@@ -16,7 +16,7 @@ export default function LandingPage() {
   useEffect(() => {
     (async function () {
       const login = new LoginService();
-      login.signInAsDev();
+      // login.signInAsDev();
     })();
   }, []);
   return (
@@ -56,7 +56,7 @@ export default function LandingPage() {
               width={600}
               loading="eager"
               alt="A picture of a map, with ambiguous markings"
-              className="hidden md:inline lg:inline relative w-120 blur-xs"
+              className="hidden md:inline lg:inline relative w-120 h-auto blur-xs"
             ></Image>
             <Link
               href={"/dashboard/homepage"}

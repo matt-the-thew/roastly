@@ -3,10 +3,10 @@ import CafeListRating from "@/components/CafeList/CafeListRating";
 import { Location } from "@/lib/fetchLocations";
 import { useMapContext } from "@/lib/MapContext";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export interface Props {
   title: string;
-  distance?: number;
   rating?: number;
   reviewCount?: number;
   description?: string;
@@ -16,7 +16,6 @@ export interface Props {
 
 export default function CafeListEntry({
   title,
-  distance,
   rating,
   reviewCount = 0,
   description,
@@ -24,6 +23,9 @@ export default function CafeListEntry({
   location,
 }: Props) {
   const { setSelectedLocation } = useMapContext();
+  const [distanceTo, setDistanceTo] = useState(null);
+
+  useEffect(() => {}, []);
 
   return (
     <div className="flex gap-3 w-[98%] h-60 p-2 mb-0 border-b border-[#eaeaea] hover:bg-[#f8f8f8] duration-95 cursor-pointer">
@@ -34,7 +36,7 @@ export default function CafeListEntry({
         <div className="flex justify-between">
           <h1 className="text-base font-bold">{title}</h1>
           <h1 className="w-10 text-sm text-[#747474]">
-            {distance ? distance : "?"} mi
+            {distanceTo ? distanceTo : "?"} mi
           </h1>
         </div>
         <div className="">

@@ -3,39 +3,40 @@ import Image from "next/image";
 import Link from "next/link";
 import { FormEvent } from "react";
 import { useState } from "react";
+import { LoginService } from "@/app/actions/LoginService";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const loginService = new LoginService();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
     const formData = new FormData(event.currentTarget);
-    console.log(Object.fromEntries(formData.entries()));
+    const formDataObject = Object.fromEntries(formData.entries());
 
     try {
-      const response = await fetch("/api/auth/sign-in", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const login = await loginService.signInWithEmail(
+        formDataObject.email as string,
+        formDataObject.password as string,
+      );
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setLoading(false);
-        throw new Error(data.error || "Error fetching sign-in route");
+      /*Handle uncertain failure mode */
+      if (!login) {
+        throw new Error("An unknown error occurred.");
+      } else {
+        router.push(
+          `${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}/dashboard/homepage`,
+        );
       }
     } catch (err) {
       setLoading(false);
       if (err instanceof Error) {
-        throw new Error(`[Login Form Submission Error]: ${err.message}`);
+        throw new Error(`[Login_Error]: ${err.message}`);
       } else {
-        throw new Error(
-          `[Login Form Submission Error]: An unknown error occurred ${err}`,
-        );
+        throw new Error(`[Login_Error]: An unknown error occurred ${err}`);
       }
     }
     setLoading(false);

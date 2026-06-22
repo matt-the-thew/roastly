@@ -2,9 +2,10 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { browserClient } from "@/lib/supabase/client";
 import {
   createProfile,
+  getProfile,
   isUsernameAvailable,
   getInitials,
   getAvatarColor,
@@ -13,7 +14,7 @@ import toast from "react-hot-toast";
 
 export default function Onboarding() {
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = browserClient();
   const [userId, setUserId] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
@@ -23,6 +24,7 @@ export default function Onboarding() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    // Redundant check for authorization, after proxy check on intial req
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) {
         router.replace("/auth/login");
@@ -52,8 +54,8 @@ export default function Onboarding() {
     if (!available) setUsernameError("Username already taken");
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
     if (!userId) return;
     if (usernameError || username.length < 3) {
       toast.error("Fix the username before continuing");
@@ -65,7 +67,9 @@ export default function Onboarding() {
       toast.success("Profile created!");
       router.push("/dashboard/homepage");
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong");
+      toast.error(
+        err instanceof Error ? err.message : "Something went wrong",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -84,20 +88,25 @@ export default function Onboarding() {
           height={49.594}
           className="w-40"
         />
-        <h1 className="font-display text-2xl font-bold">Set up your profile</h1>
+        <h1 className="font-display text-2xl font-bold">
+          Set up your profile
+        </h1>
 
         {/* Avatar preview */}
         <div
           className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white select-none"
           style={{ backgroundColor: avatarColor }}
         >
-          {initials}
+          {`${initials}`}
         </div>
         <p className="text-xs text-gray-400 font-mono -mt-4">
           You can upload a real photo in Settings later.
         </p>
 
-        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full flex flex-col gap-4"
+        >
           <div className="flex flex-col gap-1">
             <label className="text-sm font-mono text-gray-500">
               Display name
@@ -129,10 +138,14 @@ export default function Onboarding() {
               <p className="text-xs text-gray-400 font-mono">Checking…</p>
             )}
             {usernameError && (
-              <p className="text-xs text-red-400 font-mono">{usernameError}</p>
+              <p className="text-xs text-red-400 font-mono">
+                {usernameError}
+              </p>
             )}
             {!usernameError && username.length >= 3 && !checking && (
-              <p className="text-xs text-green-500 font-mono">Available!</p>
+              <p className="text-xs text-green-500 font-mono">
+                Available!
+              </p>
             )}
           </div>
 

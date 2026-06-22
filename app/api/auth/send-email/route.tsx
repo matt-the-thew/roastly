@@ -1,3 +1,4 @@
+"use server";
 import { type NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { EmailTemplate } from "@/components/EmailTemplate";
@@ -57,7 +58,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     payload = (await request.json()) as SendEmailHookPayload;
   } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid JSON body" },
+      { status: 400 },
+    );
   }
 
   /**
@@ -77,7 +81,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
    */
   const { user, email_data } = payload;
 
-  if (!user?.email || !email_data?.token_hash || !email_data?.redirect_to) {
+  if (
+    !user?.email ||
+    !email_data?.token_hash ||
+    !email_data?.redirect_to
+  ) {
     return NextResponse.json(
       { error: "Missing required fields" },
       { status: 400 },

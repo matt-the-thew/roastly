@@ -14,7 +14,11 @@ interface Props {
   friendIds: string[];
 }
 
-export default function MarkerContent({ cafeId, cafeName, friendIds }: Props) {
+export default function MarkerContent({
+  cafeId,
+  cafeName,
+  friendIds,
+}: Props) {
   const [hovered, setHovered] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [friendLikers, setFriendLikers] = useState<LikeWithProfile[]>([]);
@@ -39,14 +43,22 @@ export default function MarkerContent({ cafeId, cafeName, friendIds }: Props) {
       onMouseLeave={() => setHovered(false)}
     >
       {/* Marker pin icon*/}
-      <div className="w-8 h-auto flex items-center justify-center cursor-pointer">
-        <div className="bg-background w-2 h-2 z-2 rounded-2xl" />
-        <Image
+      <div className="w-9 h-9 bg-primary rounded-2xl border-3 border-background flex items-center justify-center cursor-pointer">
+        {/*<div className="bg-primary w-12 h-12 z-2 rounded-2xl">*/}
+        {/*Keeping pin tag for simple revert if needed */}
+        {/*<Image
           src={"/icons/pushpin-icon.svg"}
           height={35}
           width={35}
           alt="A red pushpin, facing down."
           className="w-50 h-auto drop-shadow-slate-950 drop-shadow-xs"
+        ></Image>*/}
+        {/*</div>*/}
+        <Image
+          src={"/icons/coffee_mug_rating_present.webp"}
+          alt="A cartoon coffee cup."
+          height={24}
+          width={24}
         ></Image>
       </div>
 
@@ -56,7 +68,9 @@ export default function MarkerContent({ cafeId, cafeName, friendIds }: Props) {
           <p className="font-bold text-sm whitespace-nowrap">{cafeName}</p>
           <div className="flex items-center gap-2">
             <span className="text-primary text-sm">♥</span>
-            <span className="font-mono text-xs text-gray-500">{likeCount}</span>
+            <span className="font-mono text-xs text-gray-500">
+              {likeCount}
+            </span>
             {friendLikers.length > 0 && (
               <div className="flex -space-x-1 ml-1">
                 {friendLikers.map((l) => (

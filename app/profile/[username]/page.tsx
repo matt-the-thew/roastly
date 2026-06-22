@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { createClient } from "@/lib/supabase/client";
+import { browserClient } from "@/lib/supabase/client";
 import {
   getProfileByUsername,
   getInitials,
@@ -26,7 +26,7 @@ import toast from "react-hot-toast";
 export default function ProfilePage() {
   const { username } = useParams<{ username: string }>();
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = browserClient();
 
   const [viewerProfile, setViewerProfile] = useState<Profile | null>(null);
   const [targetProfile, setTargetProfile] = useState<Profile | null>(null);
@@ -108,7 +108,10 @@ export default function ProfilePage() {
     setSendingRequest(true);
     try {
       await sendFriendRequest(viewerProfile.id, targetProfile.id);
-      const updated = await getFriendship(viewerProfile.id, targetProfile.id);
+      const updated = await getFriendship(
+        viewerProfile.id,
+        targetProfile.id,
+      );
       setFriendship(updated);
       toast.success("Friend request sent!");
     } catch (err: unknown) {
@@ -122,7 +125,8 @@ export default function ProfilePage() {
 
   async function handleUnfriend() {
     if (!viewerProfile || !targetProfile) return;
-    if (!confirm(`Remove ${targetProfile.display_name} as a friend?`)) return;
+    if (!confirm(`Remove ${targetProfile.display_name} as a friend?`))
+      return;
     await removeFriend(viewerProfile.id, targetProfile.id);
     setFriendship(null);
     toast.success("Friend removed");
@@ -131,7 +135,10 @@ export default function ProfilePage() {
   async function handleRespondToRequest(response: "accepted" | "denied") {
     if (!friendship) return;
     await respondToRequest(friendship.id, response);
-    const updated = await getFriendship(viewerProfile!.id, targetProfile!.id);
+    const updated = await getFriendship(
+      viewerProfile!.id,
+      targetProfile!.id,
+    );
     setFriendship(updated);
     if (response === "accepted") toast.success("You're now friends!");
   }
@@ -263,9 +270,12 @@ export default function ProfilePage() {
         {/* Private wall for non-friends */}
         {!canViewFull ? (
           <div className="border border-gray-200 rounded-xl p-8 flex flex-col items-center gap-3 text-center">
-            <p className="font-mono text-gray-400">This account is private.</p>
+            <p className="font-mono text-gray-400">
+              This account is private.
+            </p>
             <p className="text-sm font-mono text-gray-300">
-              Add {targetProfile.username} as a friend to see their profile.
+              Add {targetProfile.username} as a friend to see their
+              profile.
             </p>
           </div>
         ) : (
@@ -322,7 +332,9 @@ export default function ProfilePage() {
                 Liked cafes ({likedCafes.length})
               </h2>
               {likedCafes.length === 0 ? (
-                <p className="text-sm font-mono text-gray-400">No likes yet.</p>
+                <p className="text-sm font-mono text-gray-400">
+                  No likes yet.
+                </p>
               ) : (
                 <div className="flex flex-col gap-2">
                   {likedCafes.map((cafe) => (
@@ -367,7 +379,8 @@ export default function ProfilePage() {
                       if (!viewerProfile) return;
                       const { getProfileByFriendCode } =
                         await import("@/lib/supabase/profile");
-                      const target = await getProfileByFriendCode(codeInput);
+                      const target =
+                        await getProfileByFriendCode(codeInput);
                       if (!target) {
                         toast.error("No user found with that code");
                         return;

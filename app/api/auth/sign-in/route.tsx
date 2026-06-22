@@ -1,40 +1,53 @@
 "use server";
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase/client";
+import { LoginService } from "@/app/actions/LoginService";
+import "server-only";
 
 export async function POST(request: NextRequest) {
-  const formData = await request.formData();
-  const email: string = formData.get("email") as string;
-  const password: string = formData.get("password") as string;
-  console.log("email pass:", email, password);
+  const loginService = new LoginService();
+  const data = await request.json();
+  const { email, password } = data;
 
-  if (!email || !password) {
-    return NextResponse.json(
-      { error: "Email and password are required for sign-in." },
-      { status: 400 },
-    );
+  try {
+    const signIn = await loginService.signInWithEmail(email, password);
+
+    if (signIn) {
+      return NextResponse.json(
+        {
+          message: "Signed in successfully.",
+        },
+        {
+          status: 200,
+        },
+      );
+    } else {
+      return NextResponse.json(
+        {
+          success: false,
+        },
+        {
+          status: 401,
+        },
+      );
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      return NextResponse.json(
+        {
+          message: error.message,
+        },
+        {
+          status: 500,
+        },
+      );
+    }
   }
-
-  // Create supabase client instance
-  const supabase = createClient();
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: email as string,
-    password: password as string,
-  });
-
-  // Return error if supabase throws error, or if no user data found
-  if (error || !data.user) {
-    return NextResponse.json(
-      { error: error ? `${error.message}` : "No user data was recieved." },
-      { status: 400 },
-    );
-  }
-
-  // Return success if no errors are thrown
   return NextResponse.json(
     {
-      message: `Authentication successful, signed in as ${data.user}`,
+      message: "Something went wrong",
     },
-    { status: 200 },
+    {
+      status: 500,
+    },
   );
 }
