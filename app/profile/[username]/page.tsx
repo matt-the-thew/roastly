@@ -25,7 +25,6 @@ import toast from "react-hot-toast";
 export default function ProfilePage() {
   const { username } = useParams<{ username: string }>();
   const router = useRouter();
-  const supabase = browserClient();
 
   const [viewerProfile, setViewerProfile] = useState<Profile | null>(null);
   const [targetProfile, setTargetProfile] = useState<Profile | null>(null);
@@ -43,6 +42,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     async function load() {
+      const supabase = browserClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
