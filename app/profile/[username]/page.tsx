@@ -16,7 +16,6 @@ import {
   sendFriendRequest,
   respondToRequest,
   removeFriend,
-  getIncomingRequests,
 } from "@/lib/supabase/friends";
 import { getUserLikedCafeIds } from "@/lib/supabase/likes";
 import { fetchLocations, type Location } from "@/lib/fetchLocations";
@@ -36,7 +35,6 @@ export default function ProfilePage() {
   const [likedCafes, setLikedCafes] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSelf, setIsSelf] = useState(false);
-  const [codeInput, setCodeInput] = useState("");
   const [sendingRequest, setSendingRequest] = useState(false);
   const [allLocations, setAllLocations] = useState<Location[]>([]);
 
@@ -257,12 +255,24 @@ export default function ProfilePage() {
               </div>
             )}
             {isFriend && !isSelf && (
-              <button
-                onClick={handleUnfriend}
-                className="text-sm font-mono text-red-400 hover:underline cursor-pointer"
-              >
-                Unfriend
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() =>
+                    router.push(
+                      `/dashboard/homepage?message=${targetProfile.id}`,
+                    )
+                  }
+                  className="bg-primary text-white rounded-md px-3 py-1.5 text-sm font-mono cursor-pointer hover:opacity-90"
+                >
+                  Message
+                </button>
+                <button
+                  onClick={handleUnfriend}
+                  className="text-sm font-mono text-red-400 hover:underline cursor-pointer"
+                >
+                  Unfriend
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -351,55 +361,6 @@ export default function ProfilePage() {
                 </div>
               )}
             </section>
-
-            {/* Add friend by code (only on own profile) */}
-            {isSelf && (
-              <section className="flex flex-col gap-3 border-t border-gray-100 pt-6">
-                <h2 className="font-mono text-sm text-gray-500 uppercase tracking-wide">
-                  Add a friend
-                </h2>
-                <div className="flex gap-2">
-                  <input
-                    className="border border-gray-200 rounded-md p-2 font-mono flex-1 uppercase tracking-widest"
-                    placeholder="XXX-XXXX"
-                    value={codeInput}
-                    onChange={(e) =>
-                      setCodeInput(
-                        e.target.value
-                          .toUpperCase()
-                          .replace(/[^A-Z0-9]/g, "")
-                          .slice(0, 7),
-                      )
-                    }
-                    maxLength={7}
-                  />
-                  <button
-                    disabled={codeInput.length !== 7}
-                    onClick={async () => {
-                      if (!viewerProfile) return;
-                      const { getProfileByFriendCode } =
-                        await import("@/lib/supabase/profile");
-                      const target =
-                        await getProfileByFriendCode(codeInput);
-                      if (!target) {
-                        toast.error("No user found with that code");
-                        return;
-                      }
-                      if (target.id === viewerProfile.id) {
-                        toast.error("That's your own code!");
-                        return;
-                      }
-                      await sendFriendRequest(viewerProfile.id, target.id);
-                      toast.success(`Request sent to ${target.username}!`);
-                      setCodeInput("");
-                    }}
-                    className="bg-primary text-white rounded-md px-4 py-2 text-sm font-bold hover:opacity-90 disabled:opacity-50 cursor-pointer"
-                  >
-                    Send
-                  </button>
-                </div>
-              </section>
-            )}
           </>
         )}
       </div>

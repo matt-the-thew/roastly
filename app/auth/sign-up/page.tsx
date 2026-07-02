@@ -109,7 +109,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="pt-[20%]">
+    <div className="pt-[10%]">
       <div className="relative w-120 rounded-2xl border border-gray-200 m-auto flex flex-col items-center">
         <Image
           src={"/branding/roastly-logo.svg"}

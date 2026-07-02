@@ -99,8 +99,8 @@ export async function isUsernameAvailable(
  * @param {string} displayName - The string to be abbreviated
  * @returns {string} - first and last, no matter how many names
  */
-export function getInitials(displayName: string): string | Error {
-  //if display name undefined, return Error
+export function getInitials(displayName: string): string {
+  //if display name is empty/undefined, return an empty string
   if (!displayName) {
     console.warn("[WARNING]: parameter displayName is not defined");
     return "";

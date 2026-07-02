@@ -137,10 +137,10 @@ export class LoginService {
     if (error) {
       throw new Error(`Error creating account: ${error}`);
     }
-    const user = this.supabase.auth.getUser();
-    if (!user)
+    const userResponse = await this.supabase.auth.getUser();
+    if (!userResponse.data.user)
       throw new Error("[Sign Up Error]: No user detected after sign up.");
 
-    return user;
+    return userResponse;
   }
 }
