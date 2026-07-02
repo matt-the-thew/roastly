@@ -46,3 +46,17 @@ next-env.d.ts
 # supabase
 supabase/snippets/
 
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+# Workspace
+pnpm-workspace.yaml
+
+# temp
+**.temp**
+**.temp/**

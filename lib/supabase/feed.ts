@@ -1,5 +1,5 @@
 "use client";
-import { createClient } from "@/lib/supabase/client";
+import { browserClient } from "@/lib/supabase/client";
 import type { Profile } from "./profile";
 
 export interface FeedEntry {
@@ -8,7 +8,10 @@ export interface FeedEntry {
   cafe_id: string;
   cafe_name: string;
   created_at: string;
-  profile: Pick<Profile, "id" | "username" | "display_name" | "avatar_url">;
+  profile: Pick<
+    Profile,
+    "id" | "username" | "display_name" | "avatar_url"
+  >;
 }
 
 /**
@@ -22,7 +25,7 @@ export async function getSocialFeed(
   limit = 50,
 ): Promise<FeedEntry[]> {
   if (friendIds.length === 0) return [];
-  const supabase = createClient();
+  const supabase = browserClient();
 
   const { data } = await supabase
     .from("likes")
@@ -33,12 +36,33 @@ export async function getSocialFeed(
     .order("created_at", { ascending: false })
     .limit(limit);
 
-  return (data ?? []).map((row: any) => ({
-    id: row.id,
-    user_id: row.user_id,
-    cafe_id: row.cafe_id,
-    cafe_name: row.cafes?.name ?? "Unknown cafe",
-    created_at: row.created_at,
-    profile: row.profiles,
-  }));
+  // type LikeRow = {
+  //   id: string;
+  //   user_id: string;
+  //   cafe_id: string;
+  //   created_at: string;
+  //   profile:
+  //     | Pick<Profile, "id" | "username" | "display_name" | "avatar_url">[]
+  //     | null;
+  //   cafes: { name: string }[] | null;
+  // };
+
+  return (data ?? []).map((row: any) => {
+    // PostgREST embeds a to-one relation as an object, but can surface it as a
+    // single-element array depending on how the relationship is inferred.
+    // Normalize both shapes. (Previously this read `row.profile` — the wrong
+    // key — so every feed entry's profile silently resolved to null.)
+    const profileRel = Array.isArray(row.profiles)
+      ? row.profiles[0]
+      : row.profiles;
+    const cafeRel = Array.isArray(row.cafes) ? row.cafes[0] : row.cafes;
+    return {
+      id: row.id,
+      user_id: row.user_id,
+      cafe_id: row.cafe_id,
+      cafe_name: cafeRel?.name ?? "Unknown cafe",
+      created_at: row.created_at,
+      profile: profileRel ?? null,
+    };
+  });
 }

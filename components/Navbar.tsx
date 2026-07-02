@@ -13,6 +13,7 @@ export default function Navbar() {
                 alt="Roastly logo"
                 width={145.891}
                 height={49.594}
+                loading="eager"
               />
             </Link>
           </div>

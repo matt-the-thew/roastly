@@ -1,16 +1,17 @@
 import { useMapContext } from "@/lib/MapContext";
 import CafeSubmissionForm from "../CafeList/CafeSubmissionForm";
 import CafeList from "../CafeList/CafeList";
-import CafeListEntry from "../CafeList/CafeListEntry";
 import CafeDetails from "../CafeList/CafeDetails";
 import SocialFeed from "../Social/SocialFeed";
+import ConversationList from "../Chat/ConversationList";
+import ChatThread from "../Chat/ChatThread";
+import FriendsPanel from "../Friends/FriendsPanel";
 
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 
 export default function MapOverlay() {
   const {
-    locations,
     overlayView,
     sidebarVisible,
     setSidebarVisible,
@@ -21,22 +22,17 @@ export default function MapOverlay() {
   function renderView() {
     switch (overlayView) {
       case "cafeList":
-        return (
-          <CafeList>
-            {locations.map((location) => (
-              <CafeListEntry
-                title={location.name}
-                description={location.description}
-                key={location.name}
-                location={location}
-              />
-            ))}
-          </CafeList>
-        );
+        return <CafeList />;
       case "submissionForm":
         return <CafeSubmissionForm />;
       case "cafeDetails":
         return <CafeDetails />;
+      case "conversationList":
+        return <ConversationList />;
+      case "chatThread":
+        return <ChatThread />;
+      case "friends":
+        return <FriendsPanel />;
       default:
         return null;
     }
@@ -59,7 +55,9 @@ export default function MapOverlay() {
         {!sidebarVisible && (
           <IoIosArrowForward className="text-xl animate-pulse" />
         )}
-        {sidebarVisible && <IoIosArrowBack className="text-xl animate-pulse" />}
+        {sidebarVisible && (
+          <IoIosArrowBack className="text-xl animate-pulse" />
+        )}
       </button>
 
       {/* Right sidebar: social feed */}

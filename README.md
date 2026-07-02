@@ -1,5 +1,7 @@
 # Roastly
 
+Should this name be taken, or fall through, I will call this application **BLOOM**.
+
 ## The Coffee Culture App for Everyone
 
 Roastly is a next-generation, first of its kind social platform.

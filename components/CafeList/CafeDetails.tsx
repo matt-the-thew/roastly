@@ -18,10 +18,10 @@ export default function CafeDetails() {
   useEffect(() => {
     if (!selectedLocation) return;
     setImages([]);
-    getCafeImages(selectedLocation.name).then((imgs: CafeImage[]) => {
+    getCafeImages(selectedLocation.id).then((imgs: CafeImage[]) => {
       setImages(imgs.map((img) => getPublicUrl(img.storage_path)));
     });
-  }, [selectedLocation?.name]);
+  }, [selectedLocation?.id]);
 
   if (!selectedLocation) return null;
 
@@ -44,7 +44,7 @@ export default function CafeDetails() {
       </div>
 
       <div className="flex items-center justify-between">
-        <LikeButton cafeId={selectedLocation.name} />
+        <LikeButton cafeId={selectedLocation.id} />
         {/* <div className="relative">
           TODO: Implement Tags in DB, and make them appear here dynamically
           Could wait until after launch, this is not critical MVP...
@@ -52,7 +52,7 @@ export default function CafeDetails() {
         </div> */}
       </div>
 
-      <FriendAttribution cafeId={selectedLocation.name} />
+      <FriendAttribution cafeId={selectedLocation.id} />
 
       <div className="h-70">
         <ImageCarousel images={images} />

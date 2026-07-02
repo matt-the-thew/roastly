@@ -30,6 +30,9 @@ export class SessionHandler {
    */
   async updateSession(request: NextRequest): Promise<NextResponse | void> {
     try {
+      /*Create a new server client, and pass cookies from it as Supabase
+        recommends. The parameter-object mess below is THEIR recommended
+        best practice, I did not write this code.*/
       const supabaseServerClient = createServerClient(
         this.supabaseUrl,
         this.supabasePublishableKey,
@@ -42,11 +45,9 @@ export class SessionHandler {
               cookiesToSet.forEach(({ name, value }) =>
                 request.cookies.set(name, value),
               );
-
               const supabaseResponse = NextResponse.next({
                 request,
               });
-
               cookiesToSet.forEach(({ name, value, options }) =>
                 supabaseResponse.cookies.set(name, value, options),
               );
@@ -56,9 +57,11 @@ export class SessionHandler {
       );
 
       /**
-       * Initial user request, updated with Supabase-modified cookies.
+       * Amended request from supabaseServerClient.
        */
-      const supabaseResponse = NextResponse.next(this.request);
+      const supabaseResponse: NextResponse = NextResponse.next(
+        this.request,
+      );
 
       const { data } = await supabaseServerClient.auth.getClaims();
       this.user = data?.claims;
@@ -66,7 +69,9 @@ export class SessionHandler {
       return supabaseResponse;
     } catch (error) {
       if (error) {
-        console.error(`[SessionHandler]: an unknown error occurred ${error}`);
+        console.error(
+          `[SessionHandler]: an unknown error occurred ${error}`,
+        );
       }
     }
   }

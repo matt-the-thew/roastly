@@ -1,4 +1,5 @@
 import "./globals.css";
+import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import { Mrs_Sheppards } from "next/font/google";
 import { Martian_Mono } from "next/font/google";
@@ -9,19 +10,28 @@ const martian = Martian_Mono({
   subsets: ["latin"],
   variable: "--font-martian",
   weight: ["400", "700"],
+  preload: true,
 });
 
 const sheppards = Mrs_Sheppards({
   subsets: ["latin"],
   weight: "400",
   variable: "--font-sheppards",
+  preload: true,
 });
 
 const roboto = Roboto({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-roboto",
+  preload: true,
 });
+
+export const metadata: Metadata = {
+  title: "Roastly: See What's Brewing",
+  description:
+    "Browse local cafes on the world's first specialty coffee database.",
+};
 
 export default function RootLayout({
   children,

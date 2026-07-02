@@ -1,71 +1,181 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import Button from "@/components/Button";
-import { IoChevronBackCircleOutline } from "react-icons/io5";
 import Link from "next/link";
+import { FormEvent, useState } from "react";
 
-export default function SignUp() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function SignUpPage() {
+  /*Set in-memory variable for whether or not user has valid beta key.
+    If this is true, the create account dialog is displayed. The JWT
+    is still checked by api/auth/sign-up, and if invalid, the user can't
+    do anything.*/
+  const [validatedBetaUser, setvalidatedBetaUser] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const supabase = createClient();
+  /**
+   * Fetches api/auth/verify-beta, which runs HMAC on the key, and compares
+   * it with existing data.
+   * @returns {Promise<string>} - Resolves to signed JWT if successful.
+   * @throws Will throw an error if beta key is not valid.
+   */
+  const handleBetaKeySubmit = async (
+    event: FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
+    event.preventDefault();
+    setLoading(true);
 
-  async function signUp() {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}/auth/confirm`,
-      },
-    });
+    const formData = new FormData(event.currentTarget);
+    const formDataObject = Object.fromEntries(formData.entries());
 
-    if (error) {
-      console.error(error);
+    try {
+      const response = await fetch("/api/auth/verify-beta", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formDataObject),
+      });
+
+      const data = await response.json();
+      setLoading(false);
+
+      if (!response.ok) {
+        setLoading(false);
+        throw new Error(
+          data.error || "[Beta Key Verification Error]: Unable to fetch.",
+        );
+      }
+
+      if (data.sign_up_authorization_token) {
+        setvalidatedBetaUser(data.sign_up_authorization_token);
+      }
+    } catch (err) {
+      setLoading(false);
+      if (err instanceof Error) {
+        throw new Error(`[Beta Key Verification Error]: ${err}`);
+      } else {
+        throw new Error(
+          `[Beta Key Verification Error]: An unknown error occurred: ${err}`,
+        );
+      }
     }
-  }
+  };
+
+  /**
+   * Fetches api/auth/sign-up with sign up form data.
+   * @param event {FormEvent<HTMLFormElement>} - Form submisison event provided by onSubmit
+   * @returns {void}
+   * @throws Error if user is not authorized to sign up, or if request is not successful.
+   */
+  const handleAccountCreationSubmit = async (
+    event: FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
+    event.preventDefault();
+    setLoading(true);
+    /*Get formData from form element submission event */
+    const formData = new FormData(event.currentTarget);
+    /*Append in-memory JWT from react state.*/
+    if (!validatedBetaUser)
+      throw new Error("[Account Creation Error]: Unauthorized.");
+    formData.append("beta_redeem", validatedBetaUser);
+    const formDataObject = Object.fromEntries(formData.entries());
+
+    try {
+      const response = await fetch("api/auth/sign-up", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formDataObject),
+      });
+
+      const data = await response.json();
+      setLoading(false);
+
+      if (!response.ok) {
+        setLoading(false);
+        throw new Error(
+          data.error || "[Account Creation Error]: Unable to fetch.",
+        );
+      }
+    } catch (err) {
+      setLoading(false);
+      if (err instanceof Error) {
+        throw new Error(`[Account Creation Error]: ${err.message}`);
+      }
+      throw new Error(
+        `[Account Creation Error]: An unknown error occurred, ${err}`,
+      );
+    }
+  };
 
   return (
-    <div className="relative w-120 h-150 rounded-2xl border border-gray-200 m-auto mt-[20vh] flex flex-col items-center">
-      <Link href="/auth/login">
-        <IoChevronBackCircleOutline className="absolute left-6 top-6 text-4xl text-slate-400 cursor-pointer hover:text-slate-300 duration-150" />
-      </Link>
-      <Image
-        src={"/branding/roastly-logo.svg"}
-        alt="Roastly logo"
-        width={145.891}
-        height={49.594}
-        className="w-50 mt-10"
-      />
-      <div className="w-[60%] flex flex-col *:mt-2">
-        <label htmlFor="email">Email:</label>
-        <input
-          className="border border-gray-200 rounded-md p-2"
-          type="text"
-          id="email"
-          name="email"
-          autoComplete="username"
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-          }}
+    <div className="pt-[10%]">
+      <div className="relative w-120 rounded-2xl border border-gray-200 m-auto flex flex-col items-center">
+        <Image
+          src={"/branding/roastly-logo.svg"}
+          alt="Roastly logo"
+          width={145.891}
+          height={49.594}
+          className="w-50 mt-10"
         />
-        <label htmlFor="password">Password:</label>
-        <input
-          className="border border-gray-200 rounded-md p-2"
-          type="password"
-          id="password"
-          name="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-          }}
-        />
-        <div className="flex flex-col gap-4 justify-around">
-          <Button clickEvent={signUp}>Sign Up</Button>
-        </div>
+
+        {/*Display beta key entry if no beta key is entered*/}
+        {!validatedBetaUser && (
+          <form
+            className="flex flex-col justify-center p-2 gap-2 items-center w-full mb-5"
+            onSubmit={handleBetaKeySubmit}
+          >
+            <label className="text-gray-400">Enter your Beta Token:</label>
+            <input
+              name="beta_key"
+              placeholder="XXXX-XXXX"
+              className="text-center border border-gray-300 rounded-md w-[80%] p-2"
+            ></input>
+            <button
+              type="submit"
+              className="bg-primary rounded-md text-white p-2 w-[80%] cursor-pointer hover:ring-2 hover:ring-primary hover:border-primary hover:text-black hover:bg-background"
+            >
+              {loading ? "Submitting..." : "Submit"}
+            </button>
+          </form>
+        )}
+
+        {/*Display sign up dialog if API returns success*/}
+        {validatedBetaUser && (
+          <form
+            onSubmit={handleAccountCreationSubmit}
+            className="flex flex-col justify-center items-center p-2 gap-2 w-full mb-5"
+          >
+            <h1 className="text-gray-800 p-2">Create your account:</h1>
+            <input
+              className="border border-gray-200 rounded-md p-2 w-[80%]"
+              type="text"
+              name="email"
+              placeholder="barista@example.com"
+              autoComplete="username"
+            />
+            <input
+              className="border border-gray-200 rounded-md p-2 w-[80%]"
+              type="password"
+              name="password"
+              placeholder="************"
+              autoComplete="current-password"
+            />
+            <button
+              type="submit"
+              className="bg-primary rounded-md text-white p-2 w-[80%] cursor-pointer hover:ring-2 hover:ring-primary hover:border-primary hover:text-black hover:bg-background"
+            >
+              {loading ? "Submitting..." : "Submit"}
+            </button>
+          </form>
+        )}
+        <div className="h-0.5 rounded-md w-[77%] border-t border-gray-300 "></div>
+        <Link
+          href={"/auth/login"}
+          className="text-sm text-gray-500 m-3 hover:underline mb-5"
+        >
+          Go Back
+        </Link>
       </div>
     </div>
   );

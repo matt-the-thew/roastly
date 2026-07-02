@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { createClient } from "@/lib/supabase/client";
+import { browserClient } from "@/lib/supabase/client";
 import {
   getProfileByUsername,
   getInitials,
@@ -16,7 +16,6 @@ import {
   sendFriendRequest,
   respondToRequest,
   removeFriend,
-  getIncomingRequests,
 } from "@/lib/supabase/friends";
 import { getUserLikedCafeIds } from "@/lib/supabase/likes";
 import { fetchLocations, type Location } from "@/lib/fetchLocations";
@@ -26,7 +25,7 @@ import toast from "react-hot-toast";
 export default function ProfilePage() {
   const { username } = useParams<{ username: string }>();
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = browserClient();
 
   const [viewerProfile, setViewerProfile] = useState<Profile | null>(null);
   const [targetProfile, setTargetProfile] = useState<Profile | null>(null);
@@ -36,7 +35,6 @@ export default function ProfilePage() {
   const [likedCafes, setLikedCafes] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSelf, setIsSelf] = useState(false);
-  const [codeInput, setCodeInput] = useState("");
   const [sendingRequest, setSendingRequest] = useState(false);
   const [allLocations, setAllLocations] = useState<Location[]>([]);
 
@@ -108,7 +106,10 @@ export default function ProfilePage() {
     setSendingRequest(true);
     try {
       await sendFriendRequest(viewerProfile.id, targetProfile.id);
-      const updated = await getFriendship(viewerProfile.id, targetProfile.id);
+      const updated = await getFriendship(
+        viewerProfile.id,
+        targetProfile.id,
+      );
       setFriendship(updated);
       toast.success("Friend request sent!");
     } catch (err: unknown) {
@@ -122,7 +123,8 @@ export default function ProfilePage() {
 
   async function handleUnfriend() {
     if (!viewerProfile || !targetProfile) return;
-    if (!confirm(`Remove ${targetProfile.display_name} as a friend?`)) return;
+    if (!confirm(`Remove ${targetProfile.display_name} as a friend?`))
+      return;
     await removeFriend(viewerProfile.id, targetProfile.id);
     setFriendship(null);
     toast.success("Friend removed");
@@ -131,7 +133,10 @@ export default function ProfilePage() {
   async function handleRespondToRequest(response: "accepted" | "denied") {
     if (!friendship) return;
     await respondToRequest(friendship.id, response);
-    const updated = await getFriendship(viewerProfile!.id, targetProfile!.id);
+    const updated = await getFriendship(
+      viewerProfile!.id,
+      targetProfile!.id,
+    );
     setFriendship(updated);
     if (response === "accepted") toast.success("You're now friends!");
   }
@@ -250,12 +255,24 @@ export default function ProfilePage() {
               </div>
             )}
             {isFriend && !isSelf && (
-              <button
-                onClick={handleUnfriend}
-                className="text-sm font-mono text-red-400 hover:underline cursor-pointer"
-              >
-                Unfriend
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() =>
+                    router.push(
+                      `/dashboard/homepage?message=${targetProfile.id}`,
+                    )
+                  }
+                  className="bg-primary text-white rounded-md px-3 py-1.5 text-sm font-mono cursor-pointer hover:opacity-90"
+                >
+                  Message
+                </button>
+                <button
+                  onClick={handleUnfriend}
+                  className="text-sm font-mono text-red-400 hover:underline cursor-pointer"
+                >
+                  Unfriend
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -263,9 +280,12 @@ export default function ProfilePage() {
         {/* Private wall for non-friends */}
         {!canViewFull ? (
           <div className="border border-gray-200 rounded-xl p-8 flex flex-col items-center gap-3 text-center">
-            <p className="font-mono text-gray-400">This account is private.</p>
+            <p className="font-mono text-gray-400">
+              This account is private.
+            </p>
             <p className="text-sm font-mono text-gray-300">
-              Add {targetProfile.username} as a friend to see their profile.
+              Add {targetProfile.username} as a friend to see their
+              profile.
             </p>
           </div>
         ) : (
@@ -322,7 +342,9 @@ export default function ProfilePage() {
                 Liked cafes ({likedCafes.length})
               </h2>
               {likedCafes.length === 0 ? (
-                <p className="text-sm font-mono text-gray-400">No likes yet.</p>
+                <p className="text-sm font-mono text-gray-400">
+                  No likes yet.
+                </p>
               ) : (
                 <div className="flex flex-col gap-2">
                   {likedCafes.map((cafe) => (
@@ -339,54 +361,6 @@ export default function ProfilePage() {
                 </div>
               )}
             </section>
-
-            {/* Add friend by code (only on own profile) */}
-            {isSelf && (
-              <section className="flex flex-col gap-3 border-t border-gray-100 pt-6">
-                <h2 className="font-mono text-sm text-gray-500 uppercase tracking-wide">
-                  Add a friend
-                </h2>
-                <div className="flex gap-2">
-                  <input
-                    className="border border-gray-200 rounded-md p-2 font-mono flex-1 uppercase tracking-widest"
-                    placeholder="XXX-XXXX"
-                    value={codeInput}
-                    onChange={(e) =>
-                      setCodeInput(
-                        e.target.value
-                          .toUpperCase()
-                          .replace(/[^A-Z0-9]/g, "")
-                          .slice(0, 7),
-                      )
-                    }
-                    maxLength={7}
-                  />
-                  <button
-                    disabled={codeInput.length !== 7}
-                    onClick={async () => {
-                      if (!viewerProfile) return;
-                      const { getProfileByFriendCode } =
-                        await import("@/lib/supabase/profile");
-                      const target = await getProfileByFriendCode(codeInput);
-                      if (!target) {
-                        toast.error("No user found with that code");
-                        return;
-                      }
-                      if (target.id === viewerProfile.id) {
-                        toast.error("That's your own code!");
-                        return;
-                      }
-                      await sendFriendRequest(viewerProfile.id, target.id);
-                      toast.success(`Request sent to ${target.username}!`);
-                      setCodeInput("");
-                    }}
-                    className="bg-primary text-white rounded-md px-4 py-2 text-sm font-bold hover:opacity-90 disabled:opacity-50 cursor-pointer"
-                  >
-                    Send
-                  </button>
-                </div>
-              </section>
-            )}
           </>
         )}
       </div>

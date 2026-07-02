@@ -4,14 +4,17 @@ import Link from "next/link";
 export default function Footer() {
   return (
     <>
-      <footer className="font-display bg-background w-full h-50 flex border-t-4 border-slate-300">
+      <footer
+        className="font-display bg-background w-full h-50 flex border-t-4 border-slate-300"
+        data-testid="footer"
+      >
         <div className="w-90 flex justify-evenly">
           <Image
             src={"/branding/roastly-logo.svg"}
             alt="Roastly logo"
             height={240}
             width={680}
-            className="w-60"
+            className="w-60 h-auto"
           ></Image>
         </div>
         <div className="flex flex-col gap-2 p-4 grow justify-center [&>p]:w-fit [&>p]:cursor-pointer [&>p]:hover:underline">
