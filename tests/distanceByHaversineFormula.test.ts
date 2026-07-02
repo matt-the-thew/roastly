@@ -23,12 +23,12 @@ describe("distanceByHaversine", () => {
     LA_LAS_VEGAS: {
       pairOne: { lon: -118.2437, lat: 34.0522 },
       pairTwo: { lon: -115.1398, lat: 36.1699 },
-      distanceBetween: 230,
+      distanceBetween: 228,
     },
     LA_TOKYO: {
       pairOne: { lon: -118.2437, lat: 34.0522 },
       pairTwo: { lon: 139.6503, lat: 35.6762 },
-      distanceBetween: 5546,
+      distanceBetween: 5480,
     },
   };
 

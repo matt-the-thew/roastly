@@ -3,8 +3,16 @@ import {
   getInitials,
   getAvatarColor,
   getProfile,
+  getProfileByUsername,
+  getProfileByFriendCode,
+  createProfile,
+  updateProfile,
+  isUsernameAvailable,
 } from "@/lib/supabase/profile";
-import { mockSupabaseClient } from "@/__mocks__/supabase/supabaseClient";
+import {
+  mockSupabaseClient,
+  createQueryBuilder,
+} from "@/__mocks__/supabase/supabaseClient";
 
 describe("getInitials", () => {
   it("returns initials from two-word name", () => {
@@ -104,5 +112,158 @@ describe("getProfile", async () => {
     expect(result).toBeDefined();
     // result should pass correct data
     expect(result).toEqual({ id: "test_data" });
+  });
+});
+
+describe("getProfileByUsername", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("queries profiles by username and returns the row", async () => {
+    const builder = createQueryBuilder({
+      data: { id: "p1", username: "alice" },
+      error: null,
+    });
+    (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
+      builder,
+    );
+
+    const result = await getProfileByUsername("alice");
+
+    expect(mockSupabaseClient.from).toHaveBeenCalledWith("profiles");
+    expect(builder.eq).toHaveBeenCalledWith("username", "alice");
+    expect(result).toEqual({ id: "p1", username: "alice" });
+  });
+
+  it("returns null when no row is found", async () => {
+    (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
+      createQueryBuilder({ data: null, error: null }),
+    );
+    const result = await getProfileByUsername("ghost");
+    expect(result).toBeNull();
+  });
+});
+
+describe("getProfileByFriendCode", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("uppercases the friend code before querying", async () => {
+    const builder = createQueryBuilder({
+      data: { id: "p2", friend_code: "X7K29QA" },
+      error: null,
+    });
+    (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
+      builder,
+    );
+
+    const result = await getProfileByFriendCode("x7k29qa");
+
+    expect(builder.eq).toHaveBeenCalledWith("friend_code", "X7K29QA");
+    expect(result).toEqual({ id: "p2", friend_code: "X7K29QA" });
+  });
+
+  it("returns null when no profile matches the friend code", async () => {
+    (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
+      createQueryBuilder({ data: null, error: null }),
+    );
+    const result = await getProfileByFriendCode("zzzzzzz");
+    expect(result).toBeNull();
+  });
+});
+
+describe("createProfile", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("inserts a profile and returns the created row", async () => {
+    const created = { id: "u1", username: "bob", display_name: "Bob" };
+    const builder = createQueryBuilder({ data: created, error: null });
+    (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
+      builder,
+    );
+
+    const result = await createProfile("u1", "bob", "Bob", "hi", "url");
+
+    expect(mockSupabaseClient.from).toHaveBeenCalledWith("profiles");
+    expect(builder.insert).toHaveBeenCalledWith({
+      id: "u1",
+      username: "bob",
+      display_name: "Bob",
+      bio: "hi",
+      avatar_url: "url",
+    });
+    expect(result).toEqual(created);
+  });
+
+  it("throws when the insert errors", async () => {
+    (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
+      createQueryBuilder({ data: null, error: { message: "duplicate key" } }),
+    );
+
+    await expect(createProfile("u1", "bob", "Bob")).rejects.toThrow(
+      "duplicate key",
+    );
+  });
+});
+
+describe("updateProfile", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("updates the profile row scoped to the user id", async () => {
+    const builder = createQueryBuilder({ data: null, error: null });
+    (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
+      builder,
+    );
+
+    await expect(
+      updateProfile("u1", { bio: "new bio", is_private: true }),
+    ).resolves.toBeUndefined();
+
+    expect(builder.update).toHaveBeenCalledWith({
+      bio: "new bio",
+      is_private: true,
+    });
+    expect(builder.eq).toHaveBeenCalledWith("id", "u1");
+  });
+
+  it("throws when the update errors", async () => {
+    (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
+      createQueryBuilder({ data: null, error: { message: "rls denied" } }),
+    );
+
+    await expect(updateProfile("u1", { bio: "x" })).rejects.toThrow(
+      "rls denied",
+    );
+  });
+});
+
+describe("isUsernameAvailable", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns true when no matching row exists", async () => {
+    (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
+      createQueryBuilder({ data: null, error: null }),
+    );
+    await expect(isUsernameAvailable("freeuser")).resolves.toBe(true);
+  });
+
+  it("returns false when a matching row exists", async () => {
+    const builder = createQueryBuilder({ data: { id: "u9" }, error: null });
+    (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
+      builder,
+    );
+
+    const result = await isUsernameAvailable("taken");
+
+    expect(builder.eq).toHaveBeenCalledWith("username", "taken");
+    expect(result).toBe(false);
   });
 });
