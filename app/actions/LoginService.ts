@@ -13,7 +13,11 @@ export class LoginService {
    * execute.
    */
 
-  supabase = browserClient();
+  private _supabase?: ReturnType<typeof browserClient>;
+
+  private get supabase(): ReturnType<typeof browserClient> {
+    return (this._supabase ??= browserClient());
+  }
 
   /**
    * Signs user in as "anonymous user", when in development
