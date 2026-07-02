@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+Before continuing, read AGENTS.md and follow it.
+
 ## Commands
 
 ```bash
