@@ -13,7 +13,11 @@ import { MapProvider, useMapContext } from "@/lib/MapContext";
 import { mockSupabaseClient } from "@/__mocks__/supabase/supabaseClient";
 
 vi.mock("@/lib/supabase/profile", () => ({ getProfile: vi.fn() }));
-vi.mock("@/lib/supabase/friends", () => ({ getFriendIds: vi.fn() }));
+vi.mock("@/lib/supabase/friends", () => ({
+  getFriendIds: vi.fn(),
+  getIncomingRequests: vi.fn(),
+  subscribeToFriendRequests: vi.fn(),
+}));
 vi.mock("@/lib/supabase/likes", () => ({ getLikeCounts: vi.fn() }));
 vi.mock("@/lib/supabase/chat", () => ({
   getOrCreateConversation: vi.fn(),
@@ -25,7 +29,11 @@ vi.mock("@/lib/fetchLocations", () => ({
 }));
 
 import { getProfile } from "@/lib/supabase/profile";
-import { getFriendIds } from "@/lib/supabase/friends";
+import {
+  getFriendIds,
+  getIncomingRequests,
+  subscribeToFriendRequests,
+} from "@/lib/supabase/friends";
 import { getLikeCounts } from "@/lib/supabase/likes";
 import {
   getOrCreateConversation,
@@ -36,6 +44,8 @@ import { fetchLocationsInBounds } from "@/lib/fetchLocations";
 
 const mGetProfile = vi.mocked(getProfile);
 const mGetFriendIds = vi.mocked(getFriendIds);
+const mGetIncomingRequests = vi.mocked(getIncomingRequests);
+const mSubscribeToFriendRequests = vi.mocked(subscribeToFriendRequests);
 const mGetLikeCounts = vi.mocked(getLikeCounts);
 const mGetOrCreate = vi.mocked(getOrCreateConversation);
 const mGetTotalUnread = vi.mocked(getTotalUnread);
@@ -105,6 +115,8 @@ beforeEach(() => {
     avatar_url: "me.png",
   } as never);
   mGetFriendIds.mockResolvedValue(new Set(["friend-1"]));
+  mGetIncomingRequests.mockResolvedValue([]);
+  mSubscribeToFriendRequests.mockReturnValue(vi.fn());
   mGetLikeCounts.mockResolvedValue({ a: 3 });
   mGetTotalUnread.mockResolvedValue(7);
   mSubscribe.mockReturnValue(vi.fn());
