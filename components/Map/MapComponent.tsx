@@ -1,10 +1,17 @@
 "use client";
-import mapboxgl, { Map, GeolocateControl } from "mapbox-gl";
-import { useRef, useEffect } from "react";
-import { Location } from "@/lib/fetchLocations";
-import MarkerContent from "./MapMarkerContent";
-import { createRoot } from "react-dom/client";
+import Map, {
+  Marker,
+  GeolocateControl,
+  MapRef,
+  ViewStateChangeEvent,
+} from "react-map-gl/mapbox";
+import { useRef, useEffect, useCallback, useState } from "react";
 import { useMapContext } from "@/lib/MapContext";
+import MarkerContent from "./MapMarkerContent";
+import MapMarkerCard from "./MapMarkerCard";
+import LoadCafesHereButton from "./LoadCafesHereButton";
+import type { BoundingBox } from "@/lib/boundingBox";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 const CITY_COORDS: Record<string, [number, number]> = {
   "Los Angeles": [-118.2426, 34.0549],
@@ -13,132 +20,152 @@ const CITY_COORDS: Record<string, [number, number]> = {
   Seattle: [-122.2426, 47.3328],
 };
 
-interface MarkerHandle {
-  marker: mapboxgl.Marker;
-  root: ReturnType<typeof createRoot>;
-}
-
-function renderMarker(
-  location: Location,
-  map: Map,
-  onClick: (location: Location) => void,
-  friendIds: string[],
-): MarkerHandle {
-  const el = document.createElement("div");
-  const root = createRoot(el);
-  el.addEventListener("click", () => onClick(location));
-  root.render(
-    <MarkerContent
-      cafeId={location.name}
-      cafeName={location.name}
-      friendIds={friendIds}
-    />,
-  );
-  const marker = new mapboxgl.Marker({ element: el })
-    .setLngLat([location.longitude, location.latitude])
-    .addTo(map);
-  return { marker, root };
-}
-
 interface Props {
   children: React.ReactNode;
 }
 
+const ZOOM_THROTTLE_MS = 100;
+
+function getViewportBounds(
+  mapRef: React.RefObject<MapRef | null>,
+): BoundingBox | null {
+  const bounds = mapRef.current?.getMap().getBounds();
+  if (!bounds) return null;
+  return {
+    minLng: bounds.getWest(),
+    maxLng: bounds.getEast(),
+    minLat: bounds.getSouth(),
+    maxLat: bounds.getNorth(),
+  };
+}
+
 export default function MapComponent({ children }: Props) {
-  const mapRef = useRef<Map | null>(null);
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const markersRef = useRef<MarkerHandle[]>([]);
+  const mapRef = useRef<MapRef>(null);
+  const geolocateRef = useRef<mapboxgl.GeolocateControl>(null);
+  const lastZoomUpdateRef = useRef(0);
+  const [viewportBounds, setViewportBounds] = useState<BoundingBox | null>(
+    null,
+  );
+
   const {
+    setZoomLevel,
     locations,
-    selectedLocation,
     setSelectedLocation,
     selectedCity,
     friendIds,
+    setUserLocation,
+    setGeolocateTrigger,
+    isRegionLoaded,
+    loadCafesInBounds,
   } = useMapContext();
 
   useEffect(() => {
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!;
-    // If a map exists, or the map's container is not ready, return
-    if (!mapContainerRef.current || mapRef.current) return;
+    setGeolocateTrigger(() => geolocateRef.current?.trigger());
+  }, [setGeolocateTrigger]);
 
-    mapRef.current = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      logoPosition: "bottom-right",
-      center: [-118.7617, 34.1533],
-      zoom: 12,
-      /*TODO: Lock max zoom, might help with bounding box queries/data efficiency.
-        Seems to create a graphical glitch with .flyTo(), which is no good.
-        Temp removal with logic below for when I get around to this.*/
-      // maxZoom: 15,
-      // minZoom: 11,
-    });
-
-    const geolocate = new GeolocateControl({
-      trackUserLocation: true,
-      showAccuracyCircle: true,
-      positionOptions: { enableHighAccuracy: true },
-    });
-
-    mapRef.current.addControl(geolocate, "top-right");
-    mapRef.current.on("load", () => geolocate.trigger());
-
-    return () => {
-      mapRef.current?.remove();
-      mapRef.current = null;
-    };
-  }, []);
-
-  // Rebuild markers whenever locations or friendIds change so hover popups reflect current friend data
-  useEffect(() => {
-    if (!mapRef.current || locations.length === 0) return;
-
-    const previousMarkers = [...markersRef.current];
-    markersRef.current = [];
-    // Clean up old markers
-    setTimeout(() => {
-      for (const { marker, root } of markersRef.current) {
-        marker.remove();
-        root.unmount();
-      }
-    }, 0);
-
-    const friendIdArray = Array.from(friendIds);
-    markersRef.current = locations.map((location) =>
-      renderMarker(
-        location,
-        mapRef.current!,
-        setSelectedLocation,
-        friendIdArray,
-      ),
-    );
-  }, [locations, friendIds]);
-
+  // Fly to city when selectedCity changes
   useEffect(() => {
     const coords = CITY_COORDS[selectedCity];
-    if (coords)
-      mapRef.current?.flyTo({ center: coords, duration: 500, zoom: 10.5 });
-  }, [selectedCity]);
-
-  useEffect(() => {
-    if (selectedLocation) {
+    if (coords) {
       mapRef.current?.flyTo({
-        center: [selectedLocation.longitude, selectedLocation.latitude],
-        duration: 300,
+        center: coords,
+        duration: 2000,
+        zoom: 10.5,
       });
     }
-  }, [selectedLocation]);
+  }, [selectedCity]);
 
-  useEffect(() => {
-    console.log("Map has rendered");
-  }, []);
+  const friendIdArray = Array.from(friendIds);
+
+  const handleLoad = useCallback(() => {
+    geolocateRef.current?.trigger();
+    // Bootstrap the initial cafe cache for whatever viewport we land on.
+    const bounds = getViewportBounds(mapRef);
+    if (bounds) {
+      loadCafesInBounds(bounds);
+    }
+  }, [loadCafesInBounds]);
+
+  const handleZoom = useCallback(
+    (e: ViewStateChangeEvent) => {
+      const now = Date.now();
+      if (now - lastZoomUpdateRef.current < ZOOM_THROTTLE_MS) return;
+      lastZoomUpdateRef.current = now;
+      setZoomLevel(e.viewState.zoom);
+    },
+    [setZoomLevel],
+  );
+
+  const handleZoomEnd = useCallback(
+    (e: ViewStateChangeEvent) => {
+      lastZoomUpdateRef.current = Date.now();
+      setZoomLevel(e.viewState.zoom);
+    },
+    [setZoomLevel],
+  );
+
+  // After any pan/zoom settles, check whether the new viewport is already
+  // covered by a cached region. If not, surface the "Load cafes here" button
+  // instead of auto-fetching, so panning around doesn't spam queries.
+  const handleMoveEnd = useCallback(() => {
+    const bounds = getViewportBounds(mapRef);
+    if (!bounds) return;
+    setViewportBounds(isRegionLoaded(bounds) ? null : bounds);
+  }, [isRegionLoaded]);
 
   return (
-    <div
-      id="map-container"
-      ref={mapContainerRef}
-      className="w-full h-full"
+    <Map
+      ref={mapRef}
+      mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
+      initialViewState={{
+        longitude: -118.7617,
+        latitude: 34.1533,
+        zoom: 12,
+      }}
+      style={{ width: "100%", height: "100%" }}
+      mapStyle="mapbox://styles/mapbox/standard"
+      logoPosition="bottom-right"
+      onLoad={handleLoad}
+      onZoom={handleZoom}
+      onZoomEnd={handleZoomEnd}
+      onMoveEnd={handleMoveEnd}
     >
+      <GeolocateControl
+        ref={geolocateRef}
+        position="top-right"
+        trackUserLocation={true}
+        showAccuracyCircle={true}
+        positionOptions={{ enableHighAccuracy: true }}
+        onGeolocate={(e) =>
+          setUserLocation(e.coords.latitude, e.coords.longitude)
+        }
+      />
+
+      {locations.map((location) => (
+        <Marker
+          key={location.id}
+          longitude={location.longitude}
+          latitude={location.latitude}
+          onClick={() => setSelectedLocation(location)}
+        >
+          <MarkerContent
+            cafeId={location.id}
+            cafeName={location.name}
+            friendIds={friendIdArray}
+          />
+        </Marker>
+      ))}
+
+      <MapMarkerCard mapRef={mapRef} />
+
+      {viewportBounds && (
+        <LoadCafesHereButton
+          bounds={viewportBounds}
+          onLoaded={() => setViewportBounds(null)}
+        />
+      )}
+
       {children}
-    </div>
+    </Map>
   );
 }

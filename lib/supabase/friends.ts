@@ -1,6 +1,7 @@
 "use client";
 import { browserClient } from "@/lib/supabase/client";
 import type { Profile } from "./profile";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 export type FriendshipStatus = "pending" | "accepted" | "denied";
 
@@ -137,6 +138,32 @@ export async function removeFriend(
       `and(requester_id.eq.${userId},addressee_id.eq.${friendId}),and(requester_id.eq.${friendId},addressee_id.eq.${userId})`,
     );
   if (error) throw new Error(error.message);
+}
+
+/** Subscribe to incoming friend requests for `userId` (inserts/updates
+ *  where they're the addressee), to refresh a pending-requests badge.
+ *  Broad channel; caller re-fetches counts. */
+export function subscribeToFriendRequests(
+  userId: string,
+  onChange: () => void,
+): () => void {
+  const supabase = browserClient();
+  const channel: RealtimeChannel = supabase
+    .channel(`friend-requests:${userId}:${crypto.randomUUID()}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "friendships",
+        filter: `addressee_id=eq.${userId}`,
+      },
+      () => onChange(),
+    )
+    .subscribe();
+  return () => {
+    supabase.removeChannel(channel);
+  };
 }
 
 /** Mutual friends between two users */

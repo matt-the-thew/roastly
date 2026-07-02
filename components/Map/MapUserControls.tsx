@@ -7,9 +7,19 @@ import { browserClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { CiLocationArrow1 } from "react-icons/ci";
+import { IoChatbubbleEllipsesOutline, IoPeopleOutline } from "react-icons/io5";
 
 export default function MapUserControls() {
-  const { user, profile, feedVisible } = useMapContext();
+  const {
+    user,
+    profile,
+    feedVisible,
+    triggerGeolocate,
+    unreadTotal,
+    openMessages,
+    pendingRequestCount,
+    openFriends,
+  } = useMapContext();
   const router = useRouter();
 
   async function signOut() {
@@ -44,6 +54,30 @@ export default function MapUserControls() {
               className="hover:opacity-80"
             />
           </Link>
+          <button
+            onClick={openMessages}
+            className="relative text-gray-500 hover:text-foreground cursor-pointer"
+            aria-label="Messages"
+          >
+            <IoChatbubbleEllipsesOutline className="text-lg" />
+            {unreadTotal > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 min-w-4 h-4 px-1 rounded-full bg-primary text-white text-[10px] font-mono flex items-center justify-center">
+                {unreadTotal > 9 ? "9+" : unreadTotal}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={openFriends}
+            className="relative text-gray-500 hover:text-foreground cursor-pointer"
+            aria-label="Friends"
+          >
+            <IoPeopleOutline className="text-lg" />
+            {pendingRequestCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 min-w-4 h-4 px-1 rounded-full bg-primary text-white text-[10px] font-mono flex items-center justify-center">
+                {pendingRequestCount > 9 ? "9+" : pendingRequestCount}
+              </span>
+            )}
+          </button>
           <Link
             href="/settings"
             className="text-xs font-mono text-gray-500 hover:text-foreground"
@@ -67,12 +101,13 @@ export default function MapUserControls() {
           Sign in
         </Link>
       )}
-      <div
+      <button
+        onClick={triggerGeolocate}
         className="w-8 h-8 bg-background rounded-lg flex
         justify-center items-center hover:bg-primary cursor-pointer hover:text-white duration-200"
       >
         <CiLocationArrow1 className="w-[80%] h-[70%]" />
-      </div>
+      </button>
     </div>
   );
 }

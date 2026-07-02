@@ -48,3 +48,8 @@ body {
   padding: 1.5rem;
   margin-top: 4rem;
 }
+
+/* Geolocate control is triggered via MapUserControls instead of its native button */
+.mapboxgl-ctrl-top-right .mapboxgl-ctrl-group {
+  display: none;
+}

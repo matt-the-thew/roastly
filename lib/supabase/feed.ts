@@ -47,12 +47,22 @@ export async function getSocialFeed(
   //   cafes: { name: string }[] | null;
   // };
 
-  return (data ?? []).map((row: any) => ({
-    id: row.id,
-    user_id: row.user_id,
-    cafe_id: row.cafe_id,
-    cafe_name: row.cafes?.[0]?.name ?? "Unknown cafe",
-    created_at: row.created_at,
-    profile: row.profile?.[0] ?? null,
-  }));
+  return (data ?? []).map((row: any) => {
+    // PostgREST embeds a to-one relation as an object, but can surface it as a
+    // single-element array depending on how the relationship is inferred.
+    // Normalize both shapes. (Previously this read `row.profile` — the wrong
+    // key — so every feed entry's profile silently resolved to null.)
+    const profileRel = Array.isArray(row.profiles)
+      ? row.profiles[0]
+      : row.profiles;
+    const cafeRel = Array.isArray(row.cafes) ? row.cafes[0] : row.cafes;
+    return {
+      id: row.id,
+      user_id: row.user_id,
+      cafe_id: row.cafe_id,
+      cafe_name: cafeRel?.name ?? "Unknown cafe",
+      created_at: row.created_at,
+      profile: profileRel ?? null,
+    };
+  });
 }

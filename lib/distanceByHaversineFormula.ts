@@ -24,7 +24,7 @@ export function distanceByHaversine(pointsObj: CoordinatesType[]): number {
   // where φ is latitude, λ is longitude, R is earth radius
   const R = 3959; // mi
   const φ1 = (pointsObj[0].lat * Math.PI) / 180; // φ, λ in radians
-  const φ2 = (pointsObj[0].lat * Math.PI) / 180;
+  const φ2 = (pointsObj[1].lat * Math.PI) / 180;
   const Δφ = ((pointsObj[1].lat - pointsObj[0].lat) * Math.PI) / 180;
   const Δλ = ((pointsObj[1].lon - pointsObj[0].lon) * Math.PI) / 180;
 

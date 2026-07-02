@@ -1,10 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import {
-  getLikeCount,
-  getLikersForCafe,
-  type LikeWithProfile,
-} from "@/lib/supabase/likes";
+import { useMapContext } from "@/lib/MapContext";
+import { getLikersForCafe, type LikeWithProfile } from "@/lib/supabase/likes";
 import UserAvatar from "../Social/UserAvatar";
 import Image from "next/image";
 
@@ -20,12 +17,16 @@ export default function MarkerContent({
   friendIds,
 }: Props) {
   const [hovered, setHovered] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
   const [friendLikers, setFriendLikers] = useState<LikeWithProfile[]>([]);
 
+  // Set up dynamic resizing
+  const map = useMapContext();
+  const [markerZoom, setMarkerZoom] = useState(100);
+  const likeCount = map.likeCounts[cafeId] ?? 0;
+
   useEffect(() => {
-    getLikeCount(cafeId).then(setLikeCount);
-  }, [cafeId]);
+    if (map.zoomLevel) setMarkerZoom(map.zoomLevel * 7);
+  }, [map.zoomLevel]);
 
   useEffect(() => {
     if (!hovered || friendIds.length === 0) return;
@@ -42,18 +43,10 @@ export default function MarkerContent({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Marker pin icon*/}
-      <div className="w-9 h-9 bg-primary rounded-2xl border-3 border-background flex items-center justify-center cursor-pointer">
-        {/*<div className="bg-primary w-12 h-12 z-2 rounded-2xl">*/}
-        {/*Keeping pin tag for simple revert if needed */}
-        {/*<Image
-          src={"/icons/pushpin-icon.svg"}
-          height={35}
-          width={35}
-          alt="A red pushpin, facing down."
-          className="w-50 h-auto drop-shadow-slate-950 drop-shadow-xs"
-        ></Image>*/}
-        {/*</div>*/}
+      <div
+        className={`size-12 bg-primary rounded-full border-3 border-background flex items-center justify-center cursor-pointer`}
+        style={{ scale: markerZoom / 110 }}
+      >
         <Image
           src={"/icons/coffee_mug_rating_present.webp"}
           alt="A cartoon coffee cup."
@@ -64,7 +57,7 @@ export default function MarkerContent({
 
       {/* Hover popup */}
       {hovered && (
-        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 bg-background border border-gray-200 rounded-xl shadow-lg p-3 flex flex-col gap-1.5 min-w-35 z-50 pointer-events-none">
+        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 -translate-y-4 bg-background border border-gray-200 rounded-xl shadow-lg p-3 flex flex-col gap-1.5 min-w-35 z-50 pointer-events-none">
           <p className="font-bold text-sm whitespace-nowrap">{cafeName}</p>
           <div className="flex items-center gap-2">
             <span className="text-primary text-sm">♥</span>
