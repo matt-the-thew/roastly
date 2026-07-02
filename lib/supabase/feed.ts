@@ -36,18 +36,19 @@ export async function getSocialFeed(
     .order("created_at", { ascending: false })
     .limit(limit);
 
-  // type LikeRow = {
-  //   id: string;
-  //   user_id: string;
-  //   cafe_id: string;
-  //   created_at: string;
-  //   profile:
-  //     | Pick<Profile, "id" | "username" | "display_name" | "avatar_url">[]
-  //     | null;
-  //   cafes: { name: string }[] | null;
-  // };
+  type LikeRow = {
+    id: string;
+    user_id: string;
+    cafe_id: string;
+    created_at: string;
+    profiles:
+      | Pick<Profile, "id" | "username" | "display_name" | "avatar_url">
+      | Pick<Profile, "id" | "username" | "display_name" | "avatar_url">[]
+      | null;
+    cafes: { name: string } | { name: string }[] | null;
+  };
 
-  return (data ?? []).map((row: any) => {
+  return (data ?? []).map((row: LikeRow) => {
     // PostgREST embeds a to-one relation as an object, but can surface it as a
     // single-element array depending on how the relationship is inferred.
     // Normalize both shapes. (Previously this read `row.profile` — the wrong
@@ -62,7 +63,7 @@ export async function getSocialFeed(
       cafe_id: row.cafe_id,
       cafe_name: cafeRel?.name ?? "Unknown cafe",
       created_at: row.created_at,
-      profile: profileRel ?? null,
+      profile: profileRel!,
     };
   });
 }

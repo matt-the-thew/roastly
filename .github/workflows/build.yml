@@ -1,0 +1,38 @@
+name: Build Check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: development
+      NEXT_PUBLIC_ROASTLY_SUPABASE_URL: "https://placeholder.supabase.co"
+      NEXT_PUBLIC_ROASTLY_SUPABASE_PUBLISHABLE_KEY: "placeholder_publishable_key"
+      NEXT_PUBLIC_ROASTLY_SUPABASE_ANON_KEY: "placeholder_anon_key"
+      NEXT_PUBLIC_ROASTLY_SITE_URL: "http://localhost:3000"
+      NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: "placeholder_mapbox_token"
+      SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET: "placeholder_google_secret"
+      SUPABASE_SERVICE_ROLE_KEY: "placeholder_service_role_key"
+      RESEND_EMAIL_KEY: "re_placeholder_key"
+      BETA_KEY_JWT_SECRET: "placeholder_jwt_secret"
+      BETA_KEY_HMAC_SECRET: "placeholder_hmac_secret"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Test
+        run: pnpm test
+      - name: Build
+        run: pnpm build

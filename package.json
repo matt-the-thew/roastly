@@ -329,7 +329,8 @@
     "db:pull:staging": "bash -c 'source .env.local && supabase db pull --db-url \"$SUPABASE_DB_URL_STAGING\"'",
     "db:dump:staging": "bash -c 'source .env.local && supabase db dump --db-url \"$SUPABASE_DB_URL_STAGING\" -f remote_schema_staging.sql'",
     "db:dump:prod": "bash -c 'source .env.local && supabase db dump --db-url \"$SUPABASE_DB_URL_PROD\" -f remote_schema_prod.sql'",
-    "db:diff": "supabase db diff --use-migra"
+    "db:diff": "supabase db diff --use-migra",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "Matthew Morton <mmortondeveloper@gmail.com>",
@@ -354,6 +355,7 @@
     "eslint": "^9.39.4",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^14.0.0",
+    "husky": "^9.1.7",
     "jsdom": "^28.1.0",
     "playwright": "^1.60.0",
     "react-lorem-ipsum": "^1.4.10",

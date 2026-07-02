@@ -26,6 +26,15 @@ export default defineConfig([
       "no-debugger": "off",
       "react/react-in-jsx-scope": "off",
       "react/no-unescaped-entities": "off",
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.name=/^(createClient|createBrowserClient|createServerClient)$/]:not(:function *)",
+          message:
+            "Don't construct a Supabase client outside a function body (module scope or class field initializer). Next.js evaluates route modules during build-time page data collection, before env vars are guaranteed to be available — eager construction breaks the Vercel build. Wrap it in a function/getter instead.",
+        },
+      ],
     },
   },
 ]);
