@@ -14,7 +14,6 @@ import toast from "react-hot-toast";
 
 export default function Onboarding() {
   const router = useRouter();
-  const supabase = browserClient();
   const [userId, setUserId] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
@@ -25,6 +24,7 @@ export default function Onboarding() {
 
   useEffect(() => {
     // Redundant check for authorization, after proxy check on intial req
+    const supabase = browserClient();
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) {
         router.replace("/auth/login");

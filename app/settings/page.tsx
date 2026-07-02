@@ -14,7 +14,6 @@ import toast from "react-hot-toast";
 
 export default function Settings() {
   const router = useRouter();
-  const supabase = browserClient();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -26,6 +25,7 @@ export default function Settings() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   useEffect(() => {
+    const supabase = browserClient();
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) {
         router.replace("/auth/login");
@@ -75,6 +75,7 @@ export default function Settings() {
     if (!file || !profile) return;
     setUploadingAvatar(true);
     try {
+      const supabase = browserClient();
       const ext = file.name.split(".").pop();
       const path = `avatars/${profile.id}.${ext}`;
       const { error: uploadError } = await supabase.storage
@@ -94,6 +95,7 @@ export default function Settings() {
   }
 
   async function handleChangePassword() {
+    const supabase = browserClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -105,6 +107,7 @@ export default function Settings() {
   async function handleDeleteAccount() {
     if (!confirm("Delete your account? This cannot be undone.")) return;
     // Deletion handled server-side; sign out and inform user
+    const supabase = browserClient();
     await supabase.auth.signOut();
     toast(
       "Account deletion requested. Contact support to complete removal.",
