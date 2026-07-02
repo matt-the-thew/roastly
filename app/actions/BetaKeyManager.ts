@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { createHmac } from "crypto";
-import { supabaseSRClient } from "@/lib/supabase/serviceRoleClient";
+import { getSupabaseSRClient } from "@/lib/supabase/serviceRoleClient";
 /* Server-only, handles beta-key encryption secrets */
 import "server-only";
 
@@ -58,7 +58,7 @@ export class BetaKeyManager {
       .update(rawBetaKey.toUpperCase())
       .digest("hex");
 
-    const { data, error } = await supabaseSRClient
+    const { data, error } = await getSupabaseSRClient()
       .from("beta_keys")
       // tentatively set used_at
       .update({ used_at: new Date().toISOString() })
