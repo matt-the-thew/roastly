@@ -58,6 +58,8 @@ export class BetaKeyManager {
       .update(rawBetaKey.toUpperCase())
       .digest("hex");
 
+    console.log("[BetaKeyManager]: searching DB for hash:", hash);
+
     const { data, error } = await getSupabaseSRClient()
       .from("beta_keys")
       // tentatively set used_at
