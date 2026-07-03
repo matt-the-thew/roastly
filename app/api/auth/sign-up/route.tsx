@@ -4,9 +4,6 @@ import { type NextRequest, NextResponse } from "next/server";
 import { LoginService } from "@/app/actions/LoginService";
 import { BetaKeyManager } from "@/app/actions/BetaKeyManager";
 
-const loginService = new LoginService();
-const keyManager = new BetaKeyManager();
-
 /**
  * Handles form submission from /auth/sign-up/ account creation form.
  * Tests JWT to see if user is signing up with a validated beta key.
@@ -15,6 +12,9 @@ const keyManager = new BetaKeyManager();
  * creation, or if a user is created, but no session is instantialized.
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const loginService = new LoginService();
+  const keyManager = new BetaKeyManager();
+
   const data = await request.json();
   const { email, password } = data;
   /* Verify user JWT exists in request*/
