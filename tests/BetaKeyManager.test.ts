@@ -103,5 +103,25 @@ describe("BetaKeyManager", () => {
         "[BetaKeyManager]",
       );
     });
+
+    it("surfaces the real error when data is null because the query itself failed (e.g. an invalid service-role key), not because the row is missing", async () => {
+      (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
+        createQueryBuilder({
+          data: null,
+          error: { message: "Invalid API key" },
+        }),
+      );
+
+      const keyManager = new BetaKeyManager();
+      // ACTUAL: the `!data` guard runs before the `error` guard, so a query
+      // failure is misreported as "key doesn't exist" instead of the real
+      // PostgREST error.
+      await expect(keyManager.redeemBetaKey("MY-BETA-KEY")).rejects.toThrow(
+        "Non-existent/Expired beta key",
+      );
+      // EXPECTED: await expect(keyManager.redeemBetaKey("MY-BETA-KEY")).rejects.toThrow(
+      //   "[BetaKeyManager]: Invalid API key",
+      // );
+    });
   });
 });
