@@ -11,10 +11,20 @@ let client: SupabaseClient | undefined;
  */
 export function getSupabaseSRClient(): SupabaseClient {
   if (!client) {
-    client = createClient(
-      process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_URL!,
-      process.env.ROASLTY_SUPABASE_ANON_KEY!,
-    );
+    const url = process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_URL;
+    const secretKey = process.env.ROASTLY_SUPABASE_SECRET_KEY;
+
+    if (!url)
+      throw new Error(
+        "NEXT_PUBLIC_ROASTLY_SUPABASE_URL is not set — cannot create service-role client.",
+      );
+    if (!secretKey)
+      throw new Error(
+        "ROASTLY_SUPABASE_SECRET_KEY is not set — cannot create service-role client. " +
+          "This must be a Supabase secret key (sb_secret_…); a publishable/anon key will be blocked by RLS.",
+      );
+
+    client = createClient(url, secretKey);
   }
   return client;
 }
