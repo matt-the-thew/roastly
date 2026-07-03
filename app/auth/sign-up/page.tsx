@@ -35,17 +35,24 @@ export default function SignUpPage() {
         body: JSON.stringify(formDataObject),
       });
 
-      const data = await response.json();
       setLoading(false);
 
+      /*Only parse JSON when the server actually sent JSON. A 404/500 often
+        returns an HTML error page, which would otherwise crash JSON.parse
+        with an opaque "Unexpected token '<'" error.*/
+      const isJson = response.headers
+        .get("content-type")
+        ?.includes("application/json");
+      const data = isJson ? await response.json() : null;
+
       if (!response.ok) {
-        setLoading(false);
         throw new Error(
-          data.error || "[Beta Key Verification Error]: Unable to fetch.",
+          data?.error ||
+            `[Beta Key Verification Error]: Request failed (${response.status} ${response.statusText}).`,
         );
       }
 
-      if (data.sign_up_authorization_token) {
+      if (data?.sign_up_authorization_token) {
         setvalidatedBetaUser(data.sign_up_authorization_token);
       }
     } catch (err) {
@@ -80,21 +87,27 @@ export default function SignUpPage() {
     const formDataObject = Object.fromEntries(formData.entries());
 
     try {
-      const response = await fetch("api/auth/sign-up", {
+      const response = await fetch("/api/auth/sign-up", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formDataObject),
       });
-
-      const data = await response.json();
       setLoading(false);
 
+      /*Only attempt to parse JSON when the server actually sent JSON.
+        A 404/500 often returns an HTML error page, and JSON.parse on
+        "<!DOCTYPE ..." throws an opaque "Unexpected token '<'" error.*/
+      const isJson = response.headers
+        .get("content-type")
+        ?.includes("application/json");
+      const data = isJson ? await response.json() : null;
+
       if (!response.ok) {
-        setLoading(false);
         throw new Error(
-          data.error || "[Account Creation Error]: Unable to fetch.",
+          data?.error ||
+            `[Account Creation Error]: Request failed (${response.status} ${response.statusText}).`,
         );
       }
     } catch (err) {
