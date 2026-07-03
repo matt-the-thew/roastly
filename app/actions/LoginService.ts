@@ -24,10 +24,7 @@ export class LoginService {
    * @returns {void}
    */
   async signInAsDev() {
-    if (
-      process.env.NODE_ENV === "development" &&
-      process.env.DEV_LOGIN === "true"
-    ) {
+    if (process.env.DEV_LOGIN === "true") {
       const {
         data: { session },
       } = await this.supabase.auth.getSession();
