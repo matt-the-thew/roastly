@@ -66,7 +66,7 @@ export class BetaKeyManager {
       // leave used_by null, since no account yet exists
       .is("used_by", null)
       .select("id")
-      .single();
+      .maybeSingle();
 
     if (error) throw new Error(`[BetaKeyManager]: ${error.message}`);
     if (!data)
