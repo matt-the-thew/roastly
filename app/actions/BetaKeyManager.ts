@@ -68,9 +68,9 @@ export class BetaKeyManager {
       .select("id")
       .single();
 
+    if (error) throw new Error(`[BetaKeyManager]: ${error.message}`);
     if (!data)
       throw new Error("[BetaKeyManager]: Non-existent/Expired beta key");
-    if (error) throw new Error(`[BetaKeyManager]: ${error}`);
 
     return (await this._createJWT(data)) as string;
   }

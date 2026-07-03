@@ -113,15 +113,12 @@ describe("BetaKeyManager", () => {
       );
 
       const keyManager = new BetaKeyManager();
-      // ACTUAL: the `!data` guard runs before the `error` guard, so a query
-      // failure is misreported as "key doesn't exist" instead of the real
-      // PostgREST error.
       await expect(keyManager.redeemBetaKey("MY-BETA-KEY")).rejects.toThrow(
-        "Non-existent/Expired beta key",
+        "[BetaKeyManager]: Invalid API key",
       );
-      // EXPECTED: await expect(keyManager.redeemBetaKey("MY-BETA-KEY")).rejects.toThrow(
-      //   "[BetaKeyManager]: Invalid API key",
-      // );
+      // ACTUAL (pre-fix): the `!data` guard ran before the `error` guard, so
+      // this query failure was misreported as "Non-existent/Expired beta key"
+      // instead of the real PostgREST error.
     });
   });
 });
