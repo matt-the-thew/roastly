@@ -9,12 +9,33 @@ let client: SupabaseClient | undefined;
  * modules during build-time page data collection, before env vars are
  * guaranteed to be available.
  */
-export function getSupabaseSRClient(): SupabaseClient {
+export function getSupabaseSRClient(): SupabaseClient | undefined {
   if (!client) {
-    client = createClient(
-      process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    );
+    const url = process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_URL;
+    const secretKey = process.env.ROASTLY_SUPABASE_SECRET_KEY;
+
+    if (!url)
+      throw new Error(
+        "NEXT_PUBLIC_ROASTLY_SUPABASE_URL is not set — cannot create service-role client.",
+      );
+    if (!secretKey)
+      throw new Error(
+        "ROASTLY_SUPABASE_SECRET_KEY is not set — cannot create service-role client. " +
+          "This must be a Supabase secret key (sb_secret_…); a publishable/anon key will be blocked by RLS.",
+      );
+
+    try {
+      client = createClient(url, secretKey);
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error("[serviceRoleClient]:", err.message);
+      } else {
+        console.error(
+          "[serviceRoleClient]: An unknown error occurred while creating a supabase client. Check that environment variables are accurate.",
+        );
+      }
+    }
   }
-  return client;
+  if (client) return client;
+  else return undefined;
 }

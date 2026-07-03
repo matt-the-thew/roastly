@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import toast from "react-hot-toast";
 import { FormEvent, useState } from "react";
 
 export default function SignUpPage() {
@@ -54,12 +55,15 @@ export default function SignUpPage() {
 
       if (data?.sign_up_authorization_token) {
         setvalidatedBetaUser(data.sign_up_authorization_token);
+        toast.success("Beta Key validated. Welcome to Roastly.");
       }
     } catch (err) {
       setLoading(false);
       if (err instanceof Error) {
+        toast.error("There was a problem verifying your key.");
         throw new Error(`[Beta Key Verification Error]: ${err}`);
       } else {
+        toast.error("There was a problem verifying your key.");
         throw new Error(
           `[Beta Key Verification Error]: An unknown error occurred: ${err}`,
         );

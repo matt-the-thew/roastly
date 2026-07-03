@@ -26,6 +26,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
   } catch (err) {
     if (err instanceof Error) {
+      console.error("[verify-beta]", err.message);
       return NextResponse.json({ error: err.message }, { status: 401 });
     } else {
       console.error("An unexpected error occurred:", err);
