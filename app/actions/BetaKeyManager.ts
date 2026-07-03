@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
-import { createHmac } from "crypto";
 import { getSupabaseSRClient } from "@/lib/supabase/serviceRoleClient";
+import { hashBetaKey } from "@/lib/betaKeyHash";
 /* Server-only, handles beta-key encryption secrets */
 import "server-only";
 
@@ -53,12 +53,8 @@ export class BetaKeyManager {
    * @throws Will throw Error when beta key is Non-Existent/Expired.
    */
   async redeemBetaKey(rawBetaKey: string): Promise<string> {
-    // create salted hash for secrecy in transit
-    const hash = createHmac("sha256", process.env.BETA_KEY_HMAC_SECRET!)
-      .update(rawBetaKey.toUpperCase())
-      .digest("hex");
-
-    console.log("[BetaKeyManager]: searching DB for hash:", hash);
+    // hash via the shared helper so this always agrees with the seeder
+    const hash = hashBetaKey(rawBetaKey, process.env.BETA_KEY_HMAC_SECRET!);
 
     const supabase = getSupabaseSRClient();
     if (!supabase) {
@@ -77,9 +73,29 @@ export class BetaKeyManager {
       .select("id")
       .maybeSingle();
 
+    // A genuine query failure (bad service-role key, RLS, etc.) must be
+    // surfaced before the no-row branch, or it gets misreported as "not found".
     if (error) throw new Error(`[BetaKeyManager]: ${error.message}`);
-    if (!data)
-      throw new Error("[BetaKeyManager]: Non-existent/Expired beta key");
+
+    // `data` is null when the conditional UPDATE matched zero rows. That has
+    // two very different causes — disambiguate so the error is actionable
+    // instead of the old catch-all "Non-existent/Expired beta key".
+    if (!data) {
+      const { data: existing, error: lookupError } = await supabase
+        .from("beta_keys")
+        .select("id, used_by")
+        .eq("key_hash", hash)
+        .maybeSingle();
+
+      if (lookupError)
+        throw new Error(`[BetaKeyManager]: ${lookupError.message}`);
+      if (!existing)
+        throw new Error(
+          "[BetaKeyManager]: Beta key not found — no matching key_hash in the database",
+        );
+      // row exists but the UPDATE was filtered out, i.e. used_by is set
+      throw new Error("[BetaKeyManager]: Beta key has already been redeemed");
+    }
 
     return (await this._createJWT(data)) as string;
   }

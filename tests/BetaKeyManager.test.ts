@@ -15,6 +15,9 @@ describe("BetaKeyManager", () => {
     vi.clearAllMocks();
     vi.stubEnv("BETA_KEY_JWT_SECRET", JWT_SECRET);
     vi.stubEnv("BETA_KEY_HMAC_SECRET", HMAC_SECRET);
+    // the service-role client now guards on these before createClient()
+    vi.stubEnv("NEXT_PUBLIC_ROASTLY_SUPABASE_URL", "http://localhost:54321");
+    vi.stubEnv("ROASTLY_SUPABASE_SECRET_KEY", "sb_secret_test");
   });
 
   afterEach(() => {
@@ -77,14 +80,33 @@ describe("BetaKeyManager", () => {
       await expect(keyManager.validateJWT(token)).resolves.toBe(true);
     });
 
-    it("throws when the beta key is not found", async () => {
+    it("throws 'not found' when no row matches the key_hash", async () => {
+      // both the UPDATE and the disambiguating SELECT return no row
       (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
         createQueryBuilder({ data: null, error: null }),
       );
 
       const keyManager = new BetaKeyManager();
       await expect(keyManager.redeemBetaKey("BAD-KEY")).rejects.toThrow(
-        "Non-existent/Expired beta key",
+        "Beta key not found",
+      );
+    });
+
+    it("throws 'already redeemed' when the row exists but the UPDATE matched nothing", async () => {
+      // UPDATE (first `from`) matches zero rows, then the SELECT (second
+      // `from`) finds the row with used_by set -> already redeemed
+      (mockSupabaseClient.from as ReturnType<typeof vi.fn>)
+        .mockReturnValueOnce(createQueryBuilder({ data: null, error: null }))
+        .mockReturnValueOnce(
+          createQueryBuilder({
+            data: { id: "row-uuid-123", used_by: "some-user-uuid" },
+            error: null,
+          }),
+        );
+
+      const keyManager = new BetaKeyManager();
+      await expect(keyManager.redeemBetaKey("USED-KEY")).rejects.toThrow(
+        "already been redeemed",
       );
     });
 
