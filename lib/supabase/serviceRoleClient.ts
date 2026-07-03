@@ -13,7 +13,7 @@ export function getSupabaseSRClient(): SupabaseClient {
   if (!client) {
     client = createClient(
       process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      process.env.ROASLTY_SUPABASE_ANON_KEY!,
     );
   }
   return client;
