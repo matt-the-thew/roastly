@@ -60,7 +60,14 @@ export class BetaKeyManager {
 
     console.log("[BetaKeyManager]: searching DB for hash:", hash);
 
-    const { data, error } = await getSupabaseSRClient()
+    const supabase = getSupabaseSRClient();
+    if (!supabase) {
+      throw new Error(
+        "[BetaKeyManager]: unable to initialize supabase client",
+      );
+    }
+
+    const { data, error } = await supabase
       .from("beta_keys")
       // tentatively set used_at
       .update({ used_at: new Date().toISOString() })
