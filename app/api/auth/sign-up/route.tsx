@@ -21,40 +21,41 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const userJWT = data.beta_redeem;
     if (!userJWT) {
-      return NextResponse.json({
-        status: 401,
-        error: "No authorization token found.",
-      });
+      return NextResponse.json(
+        { error: "No authorization token found." },
+        { status: 401 },
+      );
     }
     /*Validate user JWT before allowing sign up*/
     const valid: boolean = await keyManager.validateJWT(userJWT);
     if (!valid) {
-      return NextResponse.json({
-        status: 401,
-        error: "Invalid authorization token.",
-      });
+      return NextResponse.json(
+        { error: "Invalid authorization token." },
+        { status: 401 },
+      );
     }
     /*If JWT is explicitly valid, call sign up method*/
     if (valid) {
       await loginService.signUpWithEmailAndPassword(email, password);
-      return NextResponse.json({
-        status: 200,
-        message: "User sign-up completed. Welcome to Roastly!",
-      });
+      return NextResponse.json(
+        { message: "User sign-up completed. Welcome to Roastly!" },
+        { status: 200 },
+      );
     }
   } catch (err) {
     if (err instanceof Error) {
-      return NextResponse.json({
-        status: 400,
-        error: `An unknown error occurred: ${err.message}`,
-      });
+      console.error(`[AUTH/SIGN-UP]: ${err.message}`);
+      return NextResponse.json(
+        { error: `An unknown error occurred: ${err.message}` },
+        { status: 400 },
+      );
     } else {
       console.error("An unexpected error occurred:", err);
     }
   }
   /*Fail by default*/
-  return NextResponse.json({
-    status: 400,
-    error: "Something went wrong.",
-  });
+  return NextResponse.json(
+    { error: "Something went wrong." },
+    { status: 400 },
+  );
 }

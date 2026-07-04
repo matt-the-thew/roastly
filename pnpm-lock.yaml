@@ -782,6 +782,9 @@ importers:
       stable-hash:
         specifier: ^0.0.5
         version: 0.0.5
+      standardwebhooks:
+        specifier: ^1.0.0
+        version: 1.0.0
       stop-iteration-iterator:
         specifier: ^1.1.0
         version: 1.1.0

@@ -3,8 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
+  const router = useRouter();
   /*Set in-memory variable for whether or not user has valid beta key.
     If this is true, the create account dialog is displayed. The JWT
     is still checked by api/auth/sign-up, and if invalid, the user can't
@@ -114,6 +116,12 @@ export default function SignUpPage() {
             `[Account Creation Error]: Request failed (${response.status} ${response.statusText}).`,
         );
       }
+
+      /*Sign-up succeeded — Supabase has sent a confirmation email. Send the
+        user to the verify-email page, passing their address so it can tell
+        them where the link was sent and poll for confirmation.*/
+      const email = String(formDataObject.email ?? "");
+      router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err) {
       setLoading(false);
       if (err instanceof Error) {

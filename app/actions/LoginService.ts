@@ -2,7 +2,7 @@ import { browserClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import {
   type OAuthResponse,
-  type UserResponse,
+  type User,
 } from "@supabase/supabase-js";
 
 export class LoginService {
@@ -126,8 +126,8 @@ export class LoginService {
   async signUpWithEmailAndPassword(
     email: string,
     password: string,
-  ): Promise<UserResponse> {
-    const { error } = await this.supabase.auth.signUp({
+  ): Promise<User> {
+    const { data, error } = await this.supabase.auth.signUp({
       email: email,
       password: password,
       options: {
@@ -136,12 +136,14 @@ export class LoginService {
     });
 
     if (error) {
-      throw new Error(`Error creating account: ${error}`);
+      throw new Error(`Error creating account: ${error.message}`);
     }
-    const userResponse = await this.supabase.auth.getUser();
-    if (!userResponse.data.user)
-      throw new Error("[Sign Up Error]: No user detected after sign up.");
+    /*With email confirmation enabled, signUp returns the created user but
+      NO session — so we read the user straight off the signUp response
+      rather than calling getUser(), which requires an active session.*/
+    if (!data.user)
+      throw new Error("[Sign Up Error]: No user returned from sign up.");
 
-    return userResponse;
+    return data.user;
   }
 }

@@ -1,12 +1,38 @@
 "use server";
 import { type NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { Webhook } from "standardwebhooks";
 import { EmailTemplate } from "@/components/EmailTemplate";
 
 /**
  * Creates Resend client.
  */
 const resend = new Resend(process.env.RESEND_EMAIL_KEY);
+
+/**
+ * Verifies a Supabase Send Email Hook request against the shared signing
+ * secret (Standard Webhooks spec). The secret Supabase gives you looks like
+ * `v1,whsec_<base64>`; the standardwebhooks lib wants it without the `v1,`.
+ * Store the FULL value (including `v1,whsec_`) in SEND_EMAIL_HOOK_SECRET.
+ *
+ * @param rawBody - The exact, unparsed request body (bytes matter for HMAC).
+ * @param request - Incoming request, for its webhook-* headers.
+ * @returns The verified, parsed hook payload.
+ * @throws If the secret is unset or the signature/timestamp is invalid.
+ */
+function verifyHook(rawBody: string, request: NextRequest): unknown {
+  const secret = process.env.SEND_EMAIL_HOOK_SECRET;
+  if (!secret) {
+    throw new Error("SEND_EMAIL_HOOK_SECRET is not set.");
+  }
+
+  const wh = new Webhook(secret.replace(/^v1,/, ""));
+  return wh.verify(rawBody, {
+    "webhook-id": request.headers.get("webhook-id") ?? "",
+    "webhook-timestamp": request.headers.get("webhook-timestamp") ?? "",
+    "webhook-signature": request.headers.get("webhook-signature") ?? "",
+  });
+}
 
 interface SendEmailHookPayload {
   user: {
@@ -55,12 +81,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
    */
   let payload: SendEmailHookPayload;
 
+  /*Read the RAW body first — the webhook signature is an HMAC over the exact
+    bytes, so parsing before verifying would break the check. verifyHook both
+    authenticates the caller (proves it's Supabase) and returns the parsed
+    payload, so we don't JSON.parse separately.*/
   try {
-    payload = (await request.json()) as SendEmailHookPayload;
-  } catch {
+    const rawBody = await request.text();
+    payload = verifyHook(rawBody, request) as SendEmailHookPayload;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "unknown error";
+    console.error(`[send-email]: hook verification failed: ${message}`);
     return NextResponse.json(
-      { error: "Invalid JSON body" },
-      { status: 400 },
+      { error: "Unauthorized: invalid webhook signature." },
+      { status: 401 },
     );
   }
 
