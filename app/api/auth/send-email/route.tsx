@@ -114,13 +114,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
    */
   const { user, email_data } = payload;
 
-  if (
-    !user?.email ||
-    !email_data?.token_hash ||
-    !email_data?.redirect_to
-  ) {
+  if (!user?.email || !email_data?.token_hash || !email_data?.redirect_to) {
+    // This branch used to be silent, which made a 400 here indistinguishable
+    // from the sign-up route's catch-block 400. Log exactly which fields are
+    // missing plus the payload's top-level shape so a malformed/unexpected
+    // hook payload is diagnosable from the logs rather than guessed at.
+    const missing = [
+      !user?.email && "user.email",
+      !email_data?.token_hash && "email_data.token_hash",
+      !email_data?.redirect_to && "email_data.redirect_to",
+    ].filter(Boolean);
+    console.error(
+      `[send-email]: Missing required fields: ${missing.join(", ")}. ` +
+        `payload keys=[${Object.keys(payload ?? {}).join(", ")}], ` +
+        `email_data keys=[${Object.keys(email_data ?? {}).join(", ")}]`,
+    );
     return NextResponse.json(
-      { error: "Missing required fields" },
+      { error: `Missing required fields: ${missing.join(", ")}` },
       { status: 400 },
     );
   }
@@ -130,7 +140,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   confirmUrl.searchParams.set("type", email_data.email_action_type);
 
   const { error } = await resend.emails.send({
-    from: "Roastly <noreply@roastly.app>",
+    from: "Roastly <no-reply@mail.roastly.dev>",
     to: user.email,
     subject: getSubject(email_data.email_action_type),
     react: (
