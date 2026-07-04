@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import {
   type OAuthResponse,
   type User,
+  type SupabaseClient,
 } from "@supabase/supabase-js";
 
 export class LoginService {
@@ -13,9 +14,22 @@ export class LoginService {
    * execute.
    */
 
-  private _supabase?: ReturnType<typeof browserClient>;
+  private _supabase?: SupabaseClient;
 
-  private get supabase(): ReturnType<typeof browserClient> {
+  /**
+   * @param supabase - Optional pre-built Supabase client that decides which
+   * runtime this instance persists sessions to. **Server route handlers must
+   * pass `await serverClient()`** (from `lib/supabase/server.ts`) so the
+   * session is written to the response cookies. Client components can omit
+   * this and get the cookie-syncing browser client by default. Passing a
+   * plain `createClient` here would persist to `localStorage` and be
+   * invisible to the middleware — don't.
+   */
+  constructor(supabase?: SupabaseClient) {
+    this._supabase = supabase;
+  }
+
+  private get supabase(): SupabaseClient {
     return (this._supabase ??= browserClient());
   }
 
@@ -44,10 +58,7 @@ export class LoginService {
    * @param password {string} - plaintext password
    * @returns {NextResponse} - Redirect to homepage
    */
-  async signInWithEmail(
-    email: string,
-    password: string,
-  ): Promise<boolean> {
+  async signInWithEmail(email: string, password: string): Promise<boolean> {
     // sends data to supabase auth
     const { error } = await this.supabase.auth.signInWithPassword({
       email,

@@ -3,6 +3,7 @@ import "server-only";
 import { type NextRequest, NextResponse } from "next/server";
 import { LoginService } from "@/app/actions/LoginService";
 import { BetaKeyManager } from "@/app/actions/BetaKeyManager";
+import { serverClient } from "@/lib/supabase/server";
 
 /**
  * Handles form submission from /auth/sign-up/ account creation form.
@@ -12,7 +13,10 @@ import { BetaKeyManager } from "@/app/actions/BetaKeyManager";
  * creation, or if a user is created, but no session is instantialized.
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const loginService = new LoginService();
+  // Cookie-aware client so any session established during sign-up is written
+  // to the response cookies (harmless when email confirmation defers the
+  // session, correct when it does not).
+  const loginService = new LoginService(await serverClient());
   const keyManager = new BetaKeyManager();
 
   const data = await request.json();

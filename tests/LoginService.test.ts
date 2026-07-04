@@ -190,14 +190,11 @@ describe("LoginService", () => {
       });
 
       it("resolves when signUp succeeds", async () => {
+        // With email confirmation enabled, signUp returns the created user on
+        // its own response (no session); the user is read straight off it.
         (
           mockSupabaseClient.auth.signUp as ReturnType<typeof vi.fn>
-        ).mockResolvedValue({ error: null });
-        (
-          mockSupabaseClient.auth.getUser as ReturnType<typeof vi.fn>
-        ).mockReturnValue(
-          Promise.resolve({ data: { user: { id: "u" } } }),
-        );
+        ).mockResolvedValue({ data: { user: { id: "u" } }, error: null });
 
         const service = new LoginService();
         await expect(
@@ -209,15 +206,12 @@ describe("LoginService", () => {
       it("throws when signUp succeeds but no user is present afterward", async () => {
         (
           mockSupabaseClient.auth.signUp as ReturnType<typeof vi.fn>
-        ).mockResolvedValue({ error: null });
-        (
-          mockSupabaseClient.auth.getUser as ReturnType<typeof vi.fn>
-        ).mockResolvedValue({ data: { user: null } });
+        ).mockResolvedValue({ data: { user: null }, error: null });
 
         const service = new LoginService();
         await expect(
           service.signUpWithEmailAndPassword("a@b.com", "pw"),
-        ).rejects.toThrow("No user detected after sign up");
+        ).rejects.toThrow("No user returned from sign up");
       });
     });
   });
