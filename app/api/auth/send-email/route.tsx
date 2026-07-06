@@ -26,8 +26,10 @@ function verifyHook(rawBody: string, request: NextRequest): unknown {
     throw new Error("SEND_EMAIL_HOOK_SECRET is not set.");
   }
 
-  const wh = new Webhook(secret.replace(/^v1,/, ""));
-  return wh.verify(rawBody, {
+  // Strips the "v1," prefix from the passed secret, the webhook lib
+  // strips the remaining prefix, "whsec_".
+  const webhookObj = new Webhook(secret.replace(/^v1,/, ""));
+  return webhookObj.verify(rawBody, {
     "webhook-id": request.headers.get("webhook-id") ?? "",
     "webhook-timestamp": request.headers.get("webhook-timestamp") ?? "",
     "webhook-signature": request.headers.get("webhook-signature") ?? "",
