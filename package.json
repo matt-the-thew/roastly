@@ -6,6 +6,7 @@
     "@emotion/react": "^11.14.0",
     "@mapbox/mapbox-gl-style-spec": "^14.22.0",
     "@phosphor-icons/react": "^2.1.10",
+    "@react-email/render": "^2.0.10",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.103.3",
     "@types/mapbox-gl": "^3.5.0",

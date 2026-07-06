@@ -83,12 +83,18 @@ export default function SignUpPage() {
     event: FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     event.preventDefault();
+    // loading value with toast popup
+    toast.loading("Creating account...");
+    // stateful value read by submit button component
     setLoading(true);
     /*Get formData from form element submission event */
     const formData = new FormData(event.currentTarget);
     /*Append in-memory JWT from react state.*/
-    if (!validatedBetaUser)
+    if (!validatedBetaUser) {
+      toast.error("Enter a valid beta key.");
       throw new Error("[Account Creation Error]: Unauthorized.");
+    }
+
     formData.append("beta_redeem", validatedBetaUser);
     const formDataObject = Object.fromEntries(formData.entries());
 
@@ -111,6 +117,9 @@ export default function SignUpPage() {
       const data = isJson ? await response.json() : null;
 
       if (!response.ok) {
+        // log error message to user with toast
+        toast.error("There was a problem creating your account.");
+        // log error message to console
         throw new Error(
           data?.error ||
             `[Account Creation Error]: Request failed (${response.status} ${response.statusText}).`,
@@ -125,11 +134,14 @@ export default function SignUpPage() {
     } catch (err) {
       setLoading(false);
       if (err instanceof Error) {
+        toast.error("There was a problem creating your account.");
         throw new Error(`[Account Creation Error]: ${err.message}`);
+      } else {
+        toast.error("There was a problem creating your account.");
+        throw new Error(
+          `[Account Creation Error]: An unknown error occurred, ${err}`,
+        );
       }
-      throw new Error(
-        `[Account Creation Error]: An unknown error occurred, ${err}`,
-      );
     }
   };
 
