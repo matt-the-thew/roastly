@@ -35,6 +35,7 @@ function verifyHook(rawBody: string, request: NextRequest): unknown {
   // TEMP diagnostics for "No matching signature found" — localizes whether the
   // failure is a malformed/short secret, a missing signature header, or an
   // empty body. Logs only shape, no secret material. Remove once resolved.
+
   //  console.log(
   //    `[send-email][diag] secretLen=${secret.length} ` +
   //      `prefix=${JSON.stringify(secret.slice(0, 9))} ` +
