@@ -35,9 +35,7 @@ async function verifyToken(request: NextRequest) {
       type: type,
     });
     if (!error) return;
-    throw new Error(
-      `[AUTH/CONFIRM]: error verifying otp: ${error.message}`,
-    );
+    throw new Error(`[AUTH/CONFIRM]: error verifying otp: ${error.message}`);
   } else {
     throw new Error("[AUTH/CONFIRM]: No token or token_hash found");
   }
@@ -55,30 +53,23 @@ export async function GET(request: NextRequest) {
     await verifyToken(request);
   } catch (err: unknown) {
     if (err instanceof Error) {
-      console.error(
-        `[AUTH/CONFIRM]: Error verifying token: ${err.message}`,
-      );
+      console.error(`[AUTH/CONFIRM]: Error verifying token: ${err.message}`);
       redirect("/auth/login");
     }
   }
 
-  // Redirect new users to onboarding if they have no profile yet
+  // Check if user exists, and if so send them to confirmed-email screen
   const supabase = await serverClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if (!profile) {
-      redirect("/onboarding");
-    }
+    redirect(
+      `${process.env.NEXT_PUBLIC_ROASTLY_SITE_URL}/auth/confirmed-email`,
+    );
   }
 
+  // defaults to sending user to the homepage
   redirect("/dashboard/homepage");
 }
