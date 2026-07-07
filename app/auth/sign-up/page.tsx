@@ -84,7 +84,6 @@ export default function SignUpPage() {
   ): Promise<void> => {
     event.preventDefault();
     // loading value with toast popup
-    toast.loading("Creating account...");
     // stateful value read by submit button component
     setLoading(true);
     /*Get formData from form element submission event */
@@ -143,6 +142,7 @@ export default function SignUpPage() {
         );
       }
     }
+    toast.success("Account created successfully!");
   };
 
   return (
