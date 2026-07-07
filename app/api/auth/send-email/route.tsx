@@ -21,7 +21,9 @@ const resend = new Resend(process.env.RESEND_EMAIL_KEY);
  * @throws If the secret is unset or the signature/timestamp is invalid.
  */
 function verifyHook(rawBody: string, request: NextRequest): unknown {
-  const secret = process.env.SEND_EMAIL_HOOK_SECRET;
+  // `.trim()` defends against a trailing newline/space in the Vercel env value,
+  // which would corrupt the decoded key and cause a signature mismatch.
+  const secret = process.env.SEND_EMAIL_HOOK_SECRET?.trim();
   if (!secret) {
     throw new Error("SEND_EMAIL_HOOK_SECRET is not set.");
   }
@@ -29,6 +31,19 @@ function verifyHook(rawBody: string, request: NextRequest): unknown {
   // Strips the "v1," prefix from the passed secret, the webhook lib
   // strips the remaining prefix, "whsec_".
   const webhookObj = new Webhook(secret.replace(/^v1,/, ""));
+
+  // TEMP diagnostics for "No matching signature found" — localizes whether the
+  // failure is a malformed/short secret, a missing signature header, or an
+  // empty body. Logs only shape, no secret material. Remove once resolved.
+  console.log(
+    `[send-email][diag] secretLen=${secret.length} ` +
+      `prefix=${JSON.stringify(secret.slice(0, 9))} ` +
+      `idHdr=${!!request.headers.get("webhook-id")} ` +
+      `tsHdr=${!!request.headers.get("webhook-timestamp")} ` +
+      `sigHdr=${!!request.headers.get("webhook-signature")} ` +
+      `bodyLen=${rawBody.length}`,
+  );
+
   return webhookObj.verify(rawBody, {
     "webhook-id": request.headers.get("webhook-id") ?? "",
     "webhook-timestamp": request.headers.get("webhook-timestamp") ?? "",
