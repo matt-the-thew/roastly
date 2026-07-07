@@ -10,11 +10,6 @@ function HomePage() {
       <div className="flex flex-col h-full w-full">
         <MapUserControls />
         <MapComponent>
-          {/*
-            TODO: Position the Map UI over the MapComponent with absolute positioning
-                  This is how Mapbox intends for the map to be used; it expects to own the whole element
-                  Better practice.
-            */}
           <MapOverlay />
         </MapComponent>
       </div>

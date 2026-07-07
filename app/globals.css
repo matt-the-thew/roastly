@@ -43,7 +43,6 @@ body {
   }
 }
 
-/* TODO: Move map control away from "FRIEND ACTIVITY" bar...*/
 .mapboxgl-ctrl-top-right {
   padding: 1.5rem;
   margin-top: 4rem;

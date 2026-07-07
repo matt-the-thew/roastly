@@ -39,6 +39,10 @@ export default async function proxy(
     else return false;
   };
 
+  /**
+   * Checks is reuqest url is trying to access onboarding,
+   * @returns {boolean}
+   */
   const isOnboardingRoute = () => reqUrl.startsWith("/auth/onboarding");
 
   // 1. Not logged in -> guard protected routes
@@ -50,9 +54,7 @@ export default async function proxy(
   if (user) {
     // 2a. Redirect away from auth pages
     if (isAuthRoute()) {
-      return NextResponse.redirect(
-        new URL("/dashboard/homepage", request.url),
-      );
+      return NextResponse.redirect(new URL("/dashboard/homepage", request.url));
     }
 
     // 2b. Onboarding gate — only on protected routes, not onboarding itself
