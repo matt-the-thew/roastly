@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { browserClient } from "@/lib/supabase/client";
 import {
   createProfile,
-  getProfile,
   isUsernameAvailable,
   getInitials,
   getAvatarColor,
@@ -40,10 +39,26 @@ export default function Onboarding() {
     });
   }, []);
 
+  /**
+   * checks username length and composition, calling setUserNameError
+   * if the following parameters are not met. If there is a userNameError,
+   * this is picked up by {handleSubmit}, which will not allow creation as
+   * a result.
+   *
+   * Parameters:
+   *  - Username must be at least 3 characters long
+   *  - Username can be lowercase letters, numbers, and underscores only.
+   *
+   * This final parameter is to make each username URL-safe, for dynamic route
+   * creation.
+   */
   async function checkUsername(value: string) {
     setUsername(value);
     setUsernameError("");
-    if (value.length < 3) return;
+    if (value.length < 3) {
+      setUsernameError("Username must be at least 3 characters long");
+      return;
+    }
     if (!/^[a-z0-9_]+$/.test(value)) {
       setUsernameError("Lowercase letters, numbers, and underscores only");
       return;
@@ -67,9 +82,7 @@ export default function Onboarding() {
       toast.success("Profile created!");
       router.push("/dashboard/homepage");
     } catch (err: unknown) {
-      toast.error(
-        err instanceof Error ? err.message : "Something went wrong",
-      );
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setSubmitting(false);
     }
@@ -88,9 +101,7 @@ export default function Onboarding() {
           height={49.594}
           className="w-40"
         />
-        <h1 className="font-display text-2xl font-bold">
-          Set up your profile
-        </h1>
+        <h1 className="font-display text-2xl font-bold">Set up your profile</h1>
 
         {/* Avatar preview */}
         <div
@@ -103,10 +114,7 @@ export default function Onboarding() {
           You can upload a real photo in Settings later.
         </p>
 
-        <form
-          onSubmit={handleSubmit}
-          className="w-full flex flex-col gap-4"
-        >
+        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <label className="text-sm font-mono text-gray-500">
               Display name
@@ -138,14 +146,10 @@ export default function Onboarding() {
               <p className="text-xs text-gray-400 font-mono">Checking…</p>
             )}
             {usernameError && (
-              <p className="text-xs text-red-400 font-mono">
-                {usernameError}
-              </p>
+              <p className="text-xs text-red-400 font-mono">{usernameError}</p>
             )}
             {!usernameError && username.length >= 3 && !checking && (
-              <p className="text-xs text-green-500 font-mono">
-                Available!
-              </p>
+              <p className="text-xs text-green-500 font-mono">Available!</p>
             )}
           </div>
 
