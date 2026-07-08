@@ -18,8 +18,14 @@ function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
   const [confirmed, setConfirmed] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
+    /*Only poll when the visitor is actually mid-verification. The sign-up flow
+      always arrives with ?email=..., so a bare visit to this URL renders the
+      static message without ever opening a polling loop against Supabase.*/
+    if (!email) return;
+
     const supabase = browserClient();
     let cancelled = false;
 
@@ -45,10 +51,26 @@ function VerifyEmailContent() {
       router.replace(profile ? "/dashboard/homepage" : "/onboarding");
     }
 
+    /*Cap the polling so an abandoned tab can't hit the auth endpoint forever.
+      At one poll per 3s, 100 polls is ~5 minutes of *visible* time, after which
+      we stop and prompt the user instead of looping indefinitely.*/
+    const MAX_POLLS = 100;
+    let polls = 0;
+
     /*Poll every few seconds for a confirmed session. getUser() reads the
       session from the shared auth cookie, so this catches confirmations made
       in another tab of the same browser.*/
     const interval = setInterval(async () => {
+      /*Skip work while the tab is backgrounded — no point polling an unseen
+        page, and it keeps the cap measured in real user-facing time.*/
+      if (document.hidden) return;
+
+      if (++polls > MAX_POLLS) {
+        clearInterval(interval);
+        if (!cancelled) setTimedOut(true);
+        return;
+      }
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -73,7 +95,7 @@ function VerifyEmailContent() {
       clearInterval(interval);
       subscription.unsubscribe();
     };
-  }, [router]);
+  }, [router, email]);
 
   return (
     <div className="pt-[10%]">
@@ -107,7 +129,9 @@ function VerifyEmailContent() {
           <p className="text-sm text-gray-400 w-[80%]">
             {confirmed
               ? "Email confirmed — taking you in…"
-              : "Waiting for confirmation… you can keep this page open."}
+              : timedOut
+                ? "Still waiting? Check your inbox, or head back and sign in again."
+                : "Waiting for confirmation… you can keep this page open."}
           </p>
         </div>
 

@@ -18,8 +18,20 @@ import { type SupabaseClient } from "@supabase/supabase-js";
  * @returns {SupabaseClient}
  */
 export function browserClient(): SupabaseClient {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_PUBLISHABLE_KEY!,
-  );
+  let client: SupabaseClient;
+  try {
+    client = createBrowserClient(
+      process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_PUBLISHABLE_KEY!,
+    );
+  } catch (err) {
+    if (err instanceof Error) {
+      throw new Error(`[lib/supabase/client.ts]: ${err.message}`);
+    } else {
+      throw new Error(
+        "[lib/supabase/client.ts]: Error creating supabase client. An unknown error occured.",
+      );
+    }
+  }
+  return client;
 }

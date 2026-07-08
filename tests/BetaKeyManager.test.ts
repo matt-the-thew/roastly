@@ -42,8 +42,8 @@ describe("BetaKeyManager", () => {
       const token = await keyManager._createJWT({ id: "some-uuid" });
       // flip the last character to invalidate the signature
       const tampered = token.slice(0, -1) + (token.at(-1) === "a" ? "b" : "a");
-      await expect(keyManager.validateJWT(tampered)).resolves.toBe(false);
-      await expect(keyManager.validateJWT("not.a.jwt")).resolves.toBe(false);
+      await expect(keyManager.validateJWT(tampered)).resolves.toEqual(false);
+      await expect(keyManager.validateJWT("not.a.jwt")).resolves.toEqual(false);
     });
 
     it("rejects a validly-signed token that lacks purpose:beta_redeem", async () => {

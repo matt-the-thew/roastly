@@ -1,16 +1,22 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { JwtPayload } from "@supabase/supabase-js";
+import { JwtPayload, type SupabaseClient } from "@supabase/supabase-js";
 
 /** Handles creation and lifecycle of user sessions
  * @param supabaseUrl - The Supabase project url.
  * @param supabasePublishableKey - The Supabase project publishable key.
  * @property user - JWT claims for the user, if the user exists.
  * Properties listed on [Supabase's JWT Docs](https://supabase.com/docs/guides/auth/jwt-fields)
+ * @property supabase - The request-bound server client. Only available after
+ * `updateSession` has run; use it for any further per-request queries (e.g. the
+ * onboarding profile lookup) so they share the same cookie context.
+ * @property response - The response carrying any refreshed auth cookies. Return
+ * it (or copy its cookies onto a redirect) so the refreshed session sticks.
  */
 export class SessionHandler {
   user: JwtPayload | undefined;
-  request: NextRequest | undefined;
+  supabase: SupabaseClient | undefined;
+  response: NextResponse | undefined;
 
   /** The
    * @constructor
@@ -24,55 +30,55 @@ export class SessionHandler {
   }
 
   /**
-   * Accesses local cookies to set/refresh JWTs.
+   * Reads the request cookies to load/refresh the user's session. Binds the
+   * server client's cookie adapters to the `NextRequest`/`NextResponse` — the
+   * only cookie wiring that works inside middleware (`next/headers` is not
+   * available there).
    * @param request - The user's request.
-   * @returns The user's request, updated with JWTs modified by Supabase.
+   * @returns The response, updated with any JWT cookies refreshed by Supabase.
    */
-  async updateSession(request: NextRequest): Promise<NextResponse | void> {
-    try {
-      /*Create a new server client, and pass cookies from it as Supabase
-        recommends. The parameter-object mess below is THEIR recommended
-        best practice, I did not write this code.*/
-      const supabaseServerClient = createServerClient(
-        this.supabaseUrl,
-        this.supabasePublishableKey,
-        {
-          cookies: {
-            getAll() {
-              return request.cookies.getAll();
-            },
-            setAll(cookiesToSet) {
-              cookiesToSet.forEach(({ name, value }) =>
-                request.cookies.set(name, value),
-              );
-              const supabaseResponse = NextResponse.next({
-                request,
-              });
-              cookiesToSet.forEach(({ name, value, options }) =>
-                supabaseResponse.cookies.set(name, value, options),
-              );
-            },
+  async updateSession(request: NextRequest): Promise<NextResponse | undefined> {
+    // Seed the response before creating the client; `setAll` re-creates it so
+    // refreshed cookies land on both the forwarded request and the response.
+    let response = NextResponse.next({ request });
+
+    const supabase = createServerClient(
+      this.supabaseUrl,
+      this.supabasePublishableKey,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) =>
+              request.cookies.set(name, value),
+            );
+            response = NextResponse.next({ request });
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options),
+            );
           },
         },
-      );
+      },
+    );
 
-      /**
-       * Amended request from supabaseServerClient.
-       */
-      const supabaseResponse: NextResponse = NextResponse.next(
-        this.request,
-      );
-
-      const { data } = await supabaseServerClient.auth.getClaims();
+    try {
+      const { data } = await supabase.auth.getClaims();
       this.user = data?.claims;
-
-      return supabaseResponse;
-    } catch (error) {
-      if (error) {
+      this.supabase = supabase;
+      this.response = response;
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error(`[SessionHandler]: ${err.message}`);
+        return undefined;
+      } else {
         console.error(
-          `[SessionHandler]: an unknown error occurred ${error}`,
+          "[SessionHandler]: Unable to call auth.getClaims; an unknown error occurred.",
         );
+        return undefined;
       }
     }
+    return response;
   }
 }
