@@ -1,12 +1,56 @@
 "use server";
 import { type NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { Webhook } from "standardwebhooks";
 import { EmailTemplate } from "@/components/EmailTemplate";
 
 /**
  * Creates Resend client.
  */
 const resend = new Resend(process.env.RESEND_EMAIL_KEY);
+
+/**
+ * Verifies a Supabase Send Email Hook request against the shared signing
+ * secret (Standard Webhooks spec). The secret Supabase gives you looks like
+ * `v1,whsec_<base64>`; the standardwebhooks lib wants it without the `v1,`.
+ * Store the FULL value (including `v1,whsec_`) in SEND_EMAIL_HOOK_SECRET.
+ *
+ * @param rawBody - The exact, unparsed request body (bytes matter for HMAC).
+ * @param request - Incoming request, for its webhook-* headers.
+ * @returns The verified, parsed hook payload.
+ * @throws If the secret is unset or the signature/timestamp is invalid.
+ */
+function verifyHook(rawBody: string, request: NextRequest): unknown {
+  // `.trim()` defends against a trailing newline/space in the Vercel env value,
+  // which would corrupt the decoded key and cause a signature mismatch.
+  const secret = process.env.SEND_EMAIL_HOOK_SECRET?.trim();
+  if (!secret) {
+    throw new Error("SEND_EMAIL_HOOK_SECRET is not set.");
+  }
+
+  // Strips the "v1," prefix from the passed secret, the webhook lib
+  // strips the remaining prefix, "whsec_".
+  const webhookObj = new Webhook(secret.replace(/^v1,/, ""));
+
+  // TEMP diagnostics for "No matching signature found" — localizes whether the
+  // failure is a malformed/short secret, a missing signature header, or an
+  // empty body. Logs only shape, no secret material. Remove once resolved.
+
+  //  console.log(
+  //    `[send-email][diag] secretLen=${secret.length} ` +
+  //      `prefix=${JSON.stringify(secret.slice(0, 9))} ` +
+  //      `idHdr=${!!request.headers.get("webhook-id")} ` +
+  //      `tsHdr=${!!request.headers.get("webhook-timestamp")} ` +
+  //      `sigHdr=${!!request.headers.get("webhook-signature")} ` +
+  //      `bodyLen=${rawBody.length}`,
+  //  );
+
+  return webhookObj.verify(rawBody, {
+    "webhook-id": request.headers.get("webhook-id") ?? "",
+    "webhook-timestamp": request.headers.get("webhook-timestamp") ?? "",
+    "webhook-signature": request.headers.get("webhook-signature") ?? "",
+  });
+}
 
 interface SendEmailHookPayload {
   user: {
@@ -55,12 +99,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
    */
   let payload: SendEmailHookPayload;
 
+  /*Read the RAW body first — the webhook signature is an HMAC over the exact
+    bytes, so parsing before verifying would break the check. verifyHook both
+    authenticates the caller (proves it's Supabase) and returns the parsed
+    payload, so we don't JSON.parse separately.*/
   try {
-    payload = (await request.json()) as SendEmailHookPayload;
-  } catch {
+    const rawBody = await request.text();
+    payload = verifyHook(rawBody, request) as SendEmailHookPayload;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "unknown error";
+    console.error(`[send-email]: hook verification failed: ${message}`);
     return NextResponse.json(
-      { error: "Invalid JSON body" },
-      { status: 400 },
+      { error: "Unauthorized: invalid webhook signature." },
+      { status: 401 },
     );
   }
 
@@ -81,13 +132,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
    */
   const { user, email_data } = payload;
 
-  if (
-    !user?.email ||
-    !email_data?.token_hash ||
-    !email_data?.redirect_to
-  ) {
+  if (!user?.email || !email_data?.token_hash || !email_data?.redirect_to) {
+    // This branch used to be silent, which made a 400 here indistinguishable
+    // from the sign-up route's catch-block 400. Log exactly which fields are
+    // missing plus the payload's top-level shape so a malformed/unexpected
+    // hook payload is diagnosable from the logs rather than guessed at.
+    const missing = [
+      !user?.email && "user.email",
+      !email_data?.token_hash && "email_data.token_hash",
+      !email_data?.redirect_to && "email_data.redirect_to",
+    ].filter(Boolean);
+    console.error(
+      `[send-email]: Missing required fields: ${missing.join(", ")}. ` +
+        `payload keys=[${Object.keys(payload ?? {}).join(", ")}], ` +
+        `email_data keys=[${Object.keys(email_data ?? {}).join(", ")}]`,
+    );
     return NextResponse.json(
-      { error: "Missing required fields" },
+      { error: `Missing required fields: ${missing.join(", ")}` },
       { status: 400 },
     );
   }
@@ -97,7 +158,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   confirmUrl.searchParams.set("type", email_data.email_action_type);
 
   const { error } = await resend.emails.send({
-    from: "Roastly <noreply@roastly.app>",
+    from: "Roastly <no-reply@mail.roastly.dev>",
     to: user.email,
     subject: getSubject(email_data.email_action_type),
     react: (

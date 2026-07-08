@@ -1,1 +1,4 @@
+pnpm test
+tsc --noEmit
+pnpm lint
 pnpm build

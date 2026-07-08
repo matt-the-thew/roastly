@@ -1,88 +1,91 @@
 import { NextRequest, NextResponse } from "next/server";
-import { serverClient } from "./lib/supabase/server";
+import { RedirectService } from "./app/actions/RedirectService";
+import { SessionHandler } from "./lib/supabase/sessionhandler";
 
-const PROTECTED_ROUTES: string[] = ["/dashboard", "/settings"];
-const AUTH_ROUTES: string[] = ["/auth/login", "/auth/signup"];
+/* REDIRECTS:
+ * If a user session exists, the user is onboarded, and the user tries to access:
+ * ["/auth/login", "/auth/sign-up", "/verify-email", "/confirmed-email"], contained in
+ * AUTH_ROUTES, send them to "/dashboard/homepage".
+ *
+ * If a user session exists, and the user is not onboarded, and they try to access
+ * ANY route, redirect them to "/onboarding".
+ *
+ * If a user session does not exist, and the user tries to access any one of the protected
+ * routes in PROTECTED_ROUTES, send them to "/auth/login".
+ *
+ * Route variables are fed into app/actions/RedirectService.ts from lib/protectedRoutes.ts
+ */
 
 /**
- * Executes before any request is completed. Handles protected routes.
+ * Executes before any request is completed. Handles redirection logic for protected routes,
+ * as well as defining what protected routes are.
  * @param request
  * @returns {NextResponse | undefined}
  */
 export default async function proxy(
   request: NextRequest,
 ): Promise<NextResponse | undefined> {
-  console.log("[middleware]", request.nextUrl.pathname);
-  const supabase = await serverClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const reqUrl = request.nextUrl.pathname;
+  // clone the request url and mutate the pathname property for redirects
+  const requestUrl = request.nextUrl.clone();
+  const rs = new RedirectService(requestUrl.pathname, requestUrl);
 
-  /**
-   * Checks if request url is trying to access a protected route
-   * See {@link PROTECTED_ROUTES}
-   * @returns {boolean}
-   */
-  const isProtectedRoute = (): boolean => {
-    if (PROTECTED_ROUTES.some((r) => reqUrl.startsWith(r))) return true;
-    else return false;
-  };
+  // Load/refresh the session from the request cookies. This is the ONLY
+  // Supabase client wiring that works in middleware — bound to the NextRequest,
+  // not the browser (`document.cookie`) or server-component (`next/headers`)
+  // cookie stores. `sessionResponse` carries any refreshed auth cookies.
+  const handler = new SessionHandler(
+    process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_ROASTLY_SUPABASE_PUBLISHABLE_KEY!,
+  );
+  const sessionResponse = await handler.updateSession(request);
+  const userId = handler.user?.sub;
+  const supabase = handler.supabase!;
 
-  /**
-   * Checks if request url is trying to access a login/signup route
-   * See {@link AUTH_ROUTES}
-   * @returns {boolean}
-   */
-  const isAuthRoute = (): boolean => {
-    if (AUTH_ROUTES.some((r) => reqUrl.startsWith(r))) return true;
-    else return false;
-  };
+  //TODO: Add beta key gate on all protected routes
 
-  const isOnboardingRoute = () => reqUrl.startsWith("/auth/onboarding");
-
-  // 1. Not logged in -> guard protected routes
-  if (!user && isProtectedRoute()) {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
-  }
-
-  // 2. Logged in -> run user-specific checks
-  if (user) {
-    // 2a. Redirect away from auth pages
-    if (isAuthRoute()) {
-      return NextResponse.redirect(
-        new URL("/dashboard/homepage", request.url),
-      );
-    }
-
-    // 2b. Onboarding gate — only on protected routes, not onboarding itself
-    if (isProtectedRoute() && !isOnboardingRoute()) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (!profile) {
-        return NextResponse.redirect(new URL("/onboarding", request.url));
+  // Protect auth routes: an onboarded, logged-in user shouldn't see login/signup.
+  if (rs.isAuthRoute()) {
+    if (userId) {
+      const onboarded = await rs.isOnboarded(supabase, userId);
+      // if user isn't onboarded, send them to onboarding
+      if (!onboarded) {
+        return rs.onboardingRedirect(sessionResponse);
       }
+      // finally, if onboarded user session exists send to homepage
+      return rs.homepageRedirect(sessionResponse);
     }
-
-    // 2c. Beta key gate — only on protected routes
-    // if (isProtectedRoute()) {
-    //   const { data: used_by } = await supabase
-    //     .from("beta_keys")
-    //     .select("used_by")
-    //     .eq("id", user.id)
-    //     .maybeSingle();
-
-    //   if (!used_by) {
-    //     return NextResponse.redirect(new URL("/auth/login", request.url));
-    //   }
-    // }
   }
 
-  return NextResponse.next();
+  if (rs.isProtectedRoute()) {
+    if (!userId) {
+      // if no user session exists, send to login
+      return rs.loginRedirect(sessionResponse);
+    }
+    // if a user session exists, check if user is onboarded
+    const onboarded = await rs.isOnboarded(supabase, userId);
+    if (!onboarded) {
+      // if user is not onboarded, send to onboarding
+      return rs.onboardingRedirect(sessionResponse);
+    }
+  }
+
+  // 2c. Beta key gate — only on protected routes
+  // if (isProtectedRoute()) {
+  //   const { data: used_by } = await supabase
+  //     .from("beta_keys")
+  //     .select("used_by")
+  //     .eq("id", user.id)
+  //     .maybeSingle();
+
+  //   if (!used_by) {
+  //     return NextResponse.redirect(new URL("/auth/login", request.url));
+  //   }
+  // }
+  // }
+
+  // Pass through, returning the session-carrying response so any refreshed auth
+  // cookies are written back to the browser.
+  return sessionResponse;
 }
 
 /* NextJS proxy instructions to ignore execution on requests to included

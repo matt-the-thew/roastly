@@ -15,6 +15,9 @@ describe("BetaKeyManager", () => {
     vi.clearAllMocks();
     vi.stubEnv("BETA_KEY_JWT_SECRET", JWT_SECRET);
     vi.stubEnv("BETA_KEY_HMAC_SECRET", HMAC_SECRET);
+    // the service-role client now guards on these before createClient()
+    vi.stubEnv("NEXT_PUBLIC_ROASTLY_SUPABASE_URL", "http://localhost:54321");
+    vi.stubEnv("ROASTLY_SUPABASE_SECRET_KEY", "sb_secret_test");
   });
 
   afterEach(() => {
@@ -39,8 +42,8 @@ describe("BetaKeyManager", () => {
       const token = await keyManager._createJWT({ id: "some-uuid" });
       // flip the last character to invalidate the signature
       const tampered = token.slice(0, -1) + (token.at(-1) === "a" ? "b" : "a");
-      await expect(keyManager.validateJWT(tampered)).resolves.toBe(false);
-      await expect(keyManager.validateJWT("not.a.jwt")).resolves.toBe(false);
+      await expect(keyManager.validateJWT(tampered)).resolves.toEqual(false);
+      await expect(keyManager.validateJWT("not.a.jwt")).resolves.toEqual(false);
     });
 
     it("rejects a validly-signed token that lacks purpose:beta_redeem", async () => {
@@ -77,14 +80,33 @@ describe("BetaKeyManager", () => {
       await expect(keyManager.validateJWT(token)).resolves.toBe(true);
     });
 
-    it("throws when the beta key is not found", async () => {
+    it("throws 'not found' when no row matches the key_hash", async () => {
+      // both the UPDATE and the disambiguating SELECT return no row
       (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
         createQueryBuilder({ data: null, error: null }),
       );
 
       const keyManager = new BetaKeyManager();
       await expect(keyManager.redeemBetaKey("BAD-KEY")).rejects.toThrow(
-        "Non-existent/Expired beta key",
+        "Beta key not found",
+      );
+    });
+
+    it("throws 'already redeemed' when the row exists but the UPDATE matched nothing", async () => {
+      // UPDATE (first `from`) matches zero rows, then the SELECT (second
+      // `from`) finds the row with used_by set -> already redeemed
+      (mockSupabaseClient.from as ReturnType<typeof vi.fn>)
+        .mockReturnValueOnce(createQueryBuilder({ data: null, error: null }))
+        .mockReturnValueOnce(
+          createQueryBuilder({
+            data: { id: "row-uuid-123", used_by: "some-user-uuid" },
+            error: null,
+          }),
+        );
+
+      const keyManager = new BetaKeyManager();
+      await expect(keyManager.redeemBetaKey("USED-KEY")).rejects.toThrow(
+        "already been redeemed",
       );
     });
 
@@ -102,6 +124,23 @@ describe("BetaKeyManager", () => {
       await expect(keyManager.redeemBetaKey("MY-BETA-KEY")).rejects.toThrow(
         "[BetaKeyManager]",
       );
+    });
+
+    it("surfaces the real error when data is null because the query itself failed (e.g. an invalid service-role key), not because the row is missing", async () => {
+      (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
+        createQueryBuilder({
+          data: null,
+          error: { message: "Invalid API key" },
+        }),
+      );
+
+      const keyManager = new BetaKeyManager();
+      await expect(keyManager.redeemBetaKey("MY-BETA-KEY")).rejects.toThrow(
+        "[BetaKeyManager]: Invalid API key",
+      );
+      // ACTUAL (pre-fix): the `!data` guard ran before the `error` guard, so
+      // this query failure was misreported as "Non-existent/Expired beta key"
+      // instead of the real PostgREST error.
     });
   });
 });

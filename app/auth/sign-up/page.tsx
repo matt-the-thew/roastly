@@ -1,9 +1,12 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import toast from "react-hot-toast";
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
+  const router = useRouter();
   /*Set in-memory variable for whether or not user has valid beta key.
     If this is true, the create account dialog is displayed. The JWT
     is still checked by api/auth/sign-up, and if invalid, the user can't
@@ -35,24 +38,34 @@ export default function SignUpPage() {
         body: JSON.stringify(formDataObject),
       });
 
-      const data = await response.json();
       setLoading(false);
 
+      /*Only parse JSON when the server actually sent JSON. A 404/500 often
+        returns an HTML error page, which would otherwise crash JSON.parse
+        with an opaque "Unexpected token '<'" error.*/
+      const isJson = response.headers
+        .get("content-type")
+        ?.includes("application/json");
+      const data = isJson ? await response.json() : null;
+
       if (!response.ok) {
-        setLoading(false);
         throw new Error(
-          data.error || "[Beta Key Verification Error]: Unable to fetch.",
+          data?.error ||
+            `[Beta Key Verification Error]: Request failed (${response.status} ${response.statusText}).`,
         );
       }
 
-      if (data.sign_up_authorization_token) {
+      if (data?.sign_up_authorization_token) {
         setvalidatedBetaUser(data.sign_up_authorization_token);
+        toast.success("Beta Key validated. Welcome to Roastly.");
       }
     } catch (err) {
       setLoading(false);
       if (err instanceof Error) {
+        toast.error("There was a problem verifying your key.");
         throw new Error(`[Beta Key Verification Error]: ${err}`);
       } else {
+        toast.error("There was a problem verifying your key.");
         throw new Error(
           `[Beta Key Verification Error]: An unknown error occurred: ${err}`,
         );
@@ -70,42 +83,66 @@ export default function SignUpPage() {
     event: FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     event.preventDefault();
+    // loading value with toast popup
+    // stateful value read by submit button component
     setLoading(true);
     /*Get formData from form element submission event */
     const formData = new FormData(event.currentTarget);
     /*Append in-memory JWT from react state.*/
-    if (!validatedBetaUser)
+    if (!validatedBetaUser) {
+      toast.error("Enter a valid beta key.");
       throw new Error("[Account Creation Error]: Unauthorized.");
+    }
+
     formData.append("beta_redeem", validatedBetaUser);
     const formDataObject = Object.fromEntries(formData.entries());
 
     try {
-      const response = await fetch("api/auth/sign-up", {
+      const response = await fetch("/api/auth/sign-up", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formDataObject),
       });
-
-      const data = await response.json();
       setLoading(false);
 
+      /*Only attempt to parse JSON when the server actually sent JSON.
+        A 404/500 often returns an HTML error page, and JSON.parse on
+        "<!DOCTYPE ..." throws an opaque "Unexpected token '<'" error.*/
+      const isJson = response.headers
+        .get("content-type")
+        ?.includes("application/json");
+      const data = isJson ? await response.json() : null;
+
       if (!response.ok) {
-        setLoading(false);
+        // log error message to user with toast
+        toast.error("There was a problem creating your account.");
+        // log error message to console
         throw new Error(
-          data.error || "[Account Creation Error]: Unable to fetch.",
+          data?.error ||
+            `[Account Creation Error]: Request failed (${response.status} ${response.statusText}).`,
         );
       }
+
+      /*Sign-up succeeded — Supabase has sent a confirmation email. Send the
+        user to the verify-email page, passing their address so it can tell
+        them where the link was sent and poll for confirmation.*/
+      const email = String(formDataObject.email ?? "");
+      router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err) {
       setLoading(false);
       if (err instanceof Error) {
+        toast.error("There was a problem creating your account.");
         throw new Error(`[Account Creation Error]: ${err.message}`);
+      } else {
+        toast.error("There was a problem creating your account.");
+        throw new Error(
+          `[Account Creation Error]: An unknown error occurred, ${err}`,
+        );
       }
-      throw new Error(
-        `[Account Creation Error]: An unknown error occurred, ${err}`,
-      );
     }
+    toast.success("Account created successfully!");
   };
 
   return (

@@ -2,7 +2,8 @@ import { browserClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import {
   type OAuthResponse,
-  type UserResponse,
+  type User,
+  type SupabaseClient,
 } from "@supabase/supabase-js";
 
 export class LoginService {
@@ -13,9 +14,22 @@ export class LoginService {
    * execute.
    */
 
-  private _supabase?: ReturnType<typeof browserClient>;
+  private _supabase?: SupabaseClient;
 
-  private get supabase(): ReturnType<typeof browserClient> {
+  /**
+   * @param supabase - Optional pre-built Supabase client that decides which
+   * runtime this instance persists sessions to. **Server route handlers must
+   * pass `await serverClient()`** (from `lib/supabase/server.ts`) so the
+   * session is written to the response cookies. Client components can omit
+   * this and get the cookie-syncing browser client by default. Passing a
+   * plain `createClient` here would persist to `localStorage` and be
+   * invisible to the middleware — don't.
+   */
+  constructor(supabase?: SupabaseClient) {
+    this._supabase = supabase;
+  }
+
+  private get supabase(): SupabaseClient {
     return (this._supabase ??= browserClient());
   }
 
@@ -24,10 +38,7 @@ export class LoginService {
    * @returns {void}
    */
   async signInAsDev() {
-    if (
-      process.env.NODE_ENV === "development" &&
-      process.env.DEV_LOGIN === "true"
-    ) {
+    if (process.env.DEV_LOGIN === "true") {
       const {
         data: { session },
       } = await this.supabase.auth.getSession();
@@ -47,10 +58,7 @@ export class LoginService {
    * @param password {string} - plaintext password
    * @returns {NextResponse} - Redirect to homepage
    */
-  async signInWithEmail(
-    email: string,
-    password: string,
-  ): Promise<boolean> {
+  async signInWithEmail(email: string, password: string): Promise<boolean> {
     // sends data to supabase auth
     const { error } = await this.supabase.auth.signInWithPassword({
       email,
@@ -129,8 +137,8 @@ export class LoginService {
   async signUpWithEmailAndPassword(
     email: string,
     password: string,
-  ): Promise<UserResponse> {
-    const { error } = await this.supabase.auth.signUp({
+  ): Promise<User> {
+    const { data, error } = await this.supabase.auth.signUp({
       email: email,
       password: password,
       options: {
@@ -139,12 +147,14 @@ export class LoginService {
     });
 
     if (error) {
-      throw new Error(`Error creating account: ${error}`);
+      throw new Error(`Error creating account: ${error.message}`);
     }
-    const userResponse = await this.supabase.auth.getUser();
-    if (!userResponse.data.user)
-      throw new Error("[Sign Up Error]: No user detected after sign up.");
+    /*With email confirmation enabled, signUp returns the created user but
+      NO session — so we read the user straight off the signUp response
+      rather than calling getUser(), which requires an active session.*/
+    if (!data.user)
+      throw new Error("[Sign Up Error]: No user returned from sign up.");
 
-    return userResponse;
+    return data.user;
   }
 }
