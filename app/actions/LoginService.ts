@@ -1,10 +1,69 @@
 import { browserClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import {
+  type AuthError,
   type OAuthResponse,
   type User,
   type SupabaseClient,
 } from "@supabase/supabase-js";
+
+/**
+ * Error thrown by {@link LoginService.signUpWithEmailAndPassword} that carries
+ * enough context for the API layer to answer the client honestly instead of
+ * masking every failure as a generic 400. `message` stays log-oriented (and
+ * keeps the `Error creating account` prefix the tests assert on); `userMessage`
+ * is a friendly, user-facing string; `status` is Supabase's own HTTP status so
+ * a `weak_password` 422 reaches the browser as a 422, not a 400.
+ */
+export class SignUpError extends Error {
+  readonly status: number;
+  readonly userMessage: string;
+  readonly code?: string;
+
+  constructor(
+    message: string,
+    opts: { status: number; userMessage: string; code?: string },
+  ) {
+    super(message);
+    this.name = "SignUpError";
+    this.status = opts.status;
+    this.userMessage = opts.userMessage;
+    this.code = opts.code;
+  }
+}
+
+/**
+ * Translates a Supabase {@link AuthError} into a friendly, specific message for
+ * end users. Falls back to Supabase's own message for cases we don't special-
+ * case, so nothing is ever swallowed. Keyed on the stable `error.code` rather
+ * than the (localised, changeable) message text.
+ * @param error - The Supabase auth error.
+ * @returns {string} - A user-facing message.
+ */
+export function friendlyAuthMessage(error: AuthError): string {
+  switch (error.code) {
+    case "weak_password":
+      return (
+        "Your password must be at least 8 characters and include a lowercase " +
+        "letter, an uppercase letter, a number, and a symbol."
+      );
+    case "user_already_exists":
+    case "email_exists":
+      return "An account with this email already exists. Try logging in instead.";
+    case "over_email_send_rate_limit":
+    case "over_request_rate_limit":
+      return "Too many attempts. Please wait a minute and try again.";
+    case "signup_disabled":
+      return "Sign-ups are currently disabled. Please try again later.";
+    case "email_address_invalid":
+    case "validation_failed":
+      return "Please enter a valid email address.";
+    default:
+      return (
+        error.message || "There was a problem creating your account."
+      );
+  }
+}
 
 export class LoginService {
   /**
@@ -147,7 +206,11 @@ export class LoginService {
     });
 
     if (error) {
-      throw new Error(`Error creating account: ${error.message}`);
+      throw new SignUpError(`Error creating account: ${error.message}`, {
+        status: error.status ?? 400,
+        userMessage: friendlyAuthMessage(error),
+        code: error.code,
+      });
     }
     /*With email confirmation enabled, signUp returns the created user but
       NO session — so we read the user straight off the signUp response

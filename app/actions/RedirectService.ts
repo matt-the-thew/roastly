@@ -1,6 +1,10 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { PROTECTED_ROUTES, AUTH_ROUTES } from "@/lib/protectedRoutes";
+import {
+  PROTECTED_ROUTES,
+  AUTH_ROUTES,
+  CONFIRMATION_ROUTES,
+} from "@/lib/protectedRoutes";
 import { NextURL } from "next/dist/server/web/next-url";
 
 /**
@@ -77,6 +81,19 @@ export class RedirectService {
     } else {
       return false;
     }
+  }
+
+  /**
+   * Checks if the request is for an informational email-confirmation screen
+   * (see {@link CONFIRMATION_ROUTES}). These are exempt from the auth-route
+   * redirect so a just-confirmed, not-yet-onboarded user can actually see the
+   * "email verified" / "check your email" pages instead of being bounced.
+   * @returns {boolean}
+   */
+  isConfirmationRoute(): boolean {
+    return CONFIRMATION_ROUTES.some((route: string): boolean =>
+      this.requestPath.startsWith(route),
+    );
   }
 
   /**

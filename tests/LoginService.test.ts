@@ -4,7 +4,11 @@ vi.mock("react-hot-toast", () => ({
   default: { promise: vi.fn(), error: vi.fn(), success: vi.fn() },
 }));
 
-import { LoginService } from "@/app/actions/LoginService";
+import {
+  LoginService,
+  SignUpError,
+  friendlyAuthMessage,
+} from "@/app/actions/LoginService";
 import {
   mockSupabaseClient,
   createQueryBuilder,
@@ -212,6 +216,70 @@ describe("LoginService", () => {
         await expect(
           service.signUpWithEmailAndPassword("a@b.com", "pw"),
         ).rejects.toThrow("No user returned from sign up");
+      });
+
+      it("throws a SignUpError carrying Supabase's status and code", async () => {
+        (
+          mockSupabaseClient.auth.signUp as ReturnType<typeof vi.fn>
+        ).mockResolvedValue({
+          error: {
+            message: "raw supabase message",
+            code: "weak_password",
+            status: 422,
+          },
+        });
+
+        const service = new LoginService();
+        const promise = service.signUpWithEmailAndPassword("a@b.com", "weak");
+        await expect(promise).rejects.toBeInstanceOf(SignUpError);
+        await expect(promise).rejects.toMatchObject({
+          status: 422,
+          code: "weak_password",
+        });
+      });
+
+      it("defaults SignUpError status to 400 when Supabase omits one", async () => {
+        (
+          mockSupabaseClient.auth.signUp as ReturnType<typeof vi.fn>
+        ).mockResolvedValue({ error: { message: "taken" } });
+
+        const service = new LoginService();
+        const promise = service.signUpWithEmailAndPassword("a@b.com", "pw");
+        await expect(promise).rejects.toMatchObject({
+          status: 400,
+          userMessage: "taken",
+        });
+      });
+    });
+
+    describe("friendlyAuthMessage", () => {
+      type AuthErrorLike = Parameters<typeof friendlyAuthMessage>[0];
+
+      it("maps weak_password to the character-class requirements", () => {
+        const msg = friendlyAuthMessage({
+          code: "weak_password",
+          message: "raw",
+        } as AuthErrorLike);
+        expect(msg).toMatch(/uppercase/i);
+        expect(msg).toMatch(/symbol/i);
+      });
+
+      it("maps an existing-user code to a login hint", () => {
+        expect(
+          friendlyAuthMessage({
+            code: "user_already_exists",
+            message: "x",
+          } as AuthErrorLike),
+        ).toMatch(/already exists/i);
+      });
+
+      it("falls back to Supabase's own message for unknown codes", () => {
+        expect(
+          friendlyAuthMessage({
+            code: "some_future_code",
+            message: "a very specific reason",
+          } as AuthErrorLike),
+        ).toBe("a very specific reason");
       });
     });
   });

@@ -16,8 +16,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { status: 400 },
     );
   try {
-    const auth_jwt_token: string =
-      await keyManager.redeemBetaKey(rawToken);
+    const auth_jwt_token: string = await keyManager.redeemBetaKey(rawToken);
     /*Send 200 OK with signed JWT on successful key redemption */
     return NextResponse.json({
       status: 200,
@@ -33,8 +32,5 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
   }
   /*Fail by default, if no conditions are met*/
-  return NextResponse.json(
-    { error: "Something went wrong." },
-    { status: 400 },
-  );
+  return NextResponse.json({ error: "Something went wrong." }, { status: 400 });
 }

@@ -1,8 +1,9 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { FormEvent } from "react";
+import { FormEvent, useEffect } from "react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { LoginService } from "@/app/actions/LoginService";
 import { useRouter } from "next/navigation";
 
@@ -10,6 +11,21 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const loginService = new LoginService();
+
+  /*Surface a failed email-confirmation redirect (from /api/auth/confirm) as a
+    toast instead of dropping the user on a bare login form with no explanation.
+    Read from window.location rather than useSearchParams to avoid forcing a
+    Suspense boundary around this page; the toast `id` keeps React's dev-mode
+    double-invoke from stacking two copies.*/
+  useEffect(() => {
+    const error = new URLSearchParams(window.location.search).get("error");
+    if (error === "confirmation_failed") {
+      toast.error(
+        "Your confirmation link was invalid or expired. Please sign in, or sign up again to get a new link.",
+        { id: "confirmation_failed" },
+      );
+    }
+  }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

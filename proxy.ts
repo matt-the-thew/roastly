@@ -43,6 +43,16 @@ export default async function proxy(
 
   //TODO: Add beta key gate on all protected routes
 
+  // The email-confirmation screens (verify-email, confirmed-email) are
+  // informational and must render regardless of session/onboarding state. In
+  // particular the confirmation link opens confirmed-email in a *second* tab
+  // for a just-confirmed, not-yet-onboarded user — without this exemption the
+  // auth-route block below would bounce that tab to /onboarding, recreating the
+  // double-onboarding race the confirmed-email page exists to prevent.
+  if (rs.isConfirmationRoute()) {
+    return sessionResponse;
+  }
+
   // Protect auth routes: an onboarded, logged-in user shouldn't see login/signup.
   if (rs.isAuthRoute()) {
     if (userId) {
