@@ -52,10 +52,14 @@ export async function GET(request: NextRequest) {
   try {
     await verifyToken(request);
   } catch (err: unknown) {
-    if (err instanceof Error) {
-      console.error(`[AUTH/CONFIRM]: Error verifying token: ${err.message}`);
-      redirect("/auth/login");
-    }
+    // Log the real reason verbosely so a failed confirmation is diagnosable
+    // from the Vercel logs, and always redirect to login with a marker so the
+    // failure isn't silent (the login page surfaces `?error=confirmation_failed`
+    // as a toast). Handles non-Error throws too, so we never fall through to
+    // the success path below on a failed verify.
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`[AUTH/CONFIRM]: token verification failed: ${message}`);
+    redirect("/auth/login?error=confirmation_failed");
   }
 
   // Check if user exists, and if so send them to confirmed-email screen

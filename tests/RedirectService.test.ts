@@ -22,6 +22,57 @@ describe("RedirectService", () => {
     }
   });
 
+  it("identifies requests to email-confirmation routes", () => {
+    // dummyConfirmationRoutes matches CONFIRMATION_ROUTES in /lib/protectedRoutes.ts.
+    // These are a subset of the auth routes but are exempt from the middleware's
+    // auth-route redirect, so they must be reported by isConfirmationRoute().
+    const dummyConfirmationRoutes = [
+      ["https://test.com/auth/verify-email", "/auth/verify-email"],
+      ["https://test.com/auth/confirmed-email", "/auth/confirmed-email"],
+    ];
+    for (let i = 0; i < dummyConfirmationRoutes.length; i++) {
+      const dummyRedirectService = new RedirectService(
+        dummyConfirmationRoutes[i][1],
+        new NextURL(dummyConfirmationRoutes[i][0]),
+      );
+
+      expect(dummyRedirectService.isConfirmationRoute()).toBeTruthy();
+    }
+  });
+
+  it("does not treat the login or sign-up forms as confirmation routes", () => {
+    const nonConfirmationAuthRoutes = [
+      ["https://test.com/auth/login", "/auth/login"],
+      ["https://test.com/auth/sign-up", "/auth/sign-up"],
+    ];
+    for (let i = 0; i < nonConfirmationAuthRoutes.length; i++) {
+      const dummyRedirectService = new RedirectService(
+        nonConfirmationAuthRoutes[i][1],
+        new NextURL(nonConfirmationAuthRoutes[i][0]),
+      );
+
+      expect(dummyRedirectService.isConfirmationRoute()).toBeFalsy();
+    }
+  });
+
+  it("identifies the onboarding page as the onboarding route", () => {
+    // Regression: /onboarding must report as the onboarding route so the
+    // middleware's "not onboarded -> redirect to onboarding" rule has a base
+    // case and doesn't redirect /onboarding onto itself (ERR_TOO_MANY_REDIRECTS).
+    // The route is /onboarding, NOT /auth/onboarding.
+    const onboarding = new RedirectService(
+      "/onboarding",
+      new NextURL("https://test.com/onboarding"),
+    );
+    expect(onboarding.isOnboardingRoute()).toBeTruthy();
+
+    const notOnboarding = new RedirectService(
+      "/dashboard",
+      new NextURL("https://test.com/dashboard"),
+    );
+    expect(notOnboarding.isOnboardingRoute()).toBeFalsy();
+  });
+
   it("identifies requests to protected routes", () => {
     // dummyProtectedRoutes matches the route signatures in PROTECTED_ROUTES in /lib/protectedRoutes.ts
     const dummyProtectedRoutes = [

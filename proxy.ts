@@ -39,9 +39,29 @@ export default async function proxy(
   );
   const sessionResponse = await handler.updateSession(request);
   const userId = handler.user?.sub;
-  const supabase = handler.supabase!;
+  const supabase = handler.supabase;
+
+  // `updateSession` returns without a client only when `getClaims` *threw* — a
+  // transient failure such as not being able to reach the JWKS endpoint (an
+  // invalid session is handled inside the handler, not here). Without a client
+  // we can't make session-aware routing decisions, so fail open and pass the
+  // request through rather than crash middleware for every route. The page's
+  // own server/client auth checks still gate access.
+  if (!supabase) {
+    return sessionResponse ?? NextResponse.next({ request });
+  }
 
   //TODO: Add beta key gate on all protected routes
+
+  // The email-confirmation screens (verify-email, confirmed-email) are
+  // informational and must render regardless of session/onboarding state. In
+  // particular the confirmation link opens confirmed-email in a *second* tab
+  // for a just-confirmed, not-yet-onboarded user — without this exemption the
+  // auth-route block below would bounce that tab to /onboarding, recreating the
+  // double-onboarding race the confirmed-email page exists to prevent.
+  if (rs.isConfirmationRoute()) {
+    return sessionResponse;
+  }
 
   // Protect auth routes: an onboarded, logged-in user shouldn't see login/signup.
   if (rs.isAuthRoute()) {
@@ -63,8 +83,12 @@ export default async function proxy(
     }
     // if a user session exists, check if user is onboarded
     const onboarded = await rs.isOnboarded(supabase, userId);
-    if (!onboarded) {
-      // if user is not onboarded, send to onboarding
+    // Send an un-onboarded user to onboarding — but NOT when they are already
+    // ON /onboarding. /onboarding is itself a protected route, so without this
+    // base case the redirect targets the same page it fired from and loops
+    // forever (ERR_TOO_MANY_REDIRECTS). A logged-in, profileless user must be
+    // allowed to render /onboarding so they can create their profile.
+    if (!onboarded && !rs.isOnboardingRoute()) {
       return rs.onboardingRedirect(sessionResponse);
     }
   }

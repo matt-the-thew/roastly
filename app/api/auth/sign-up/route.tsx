@@ -1,7 +1,7 @@
 "use server";
 import "server-only";
 import { type NextRequest, NextResponse } from "next/server";
-import { LoginService } from "@/app/actions/LoginService";
+import { LoginService, SignUpError } from "@/app/actions/LoginService";
 import { BetaKeyManager } from "@/app/actions/BetaKeyManager";
 import { serverClient } from "@/lib/supabase/server";
 
@@ -47,19 +47,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
   } catch (err) {
+    // A SignUpError carries Supabase's real status + a user-facing message, so
+    // a weak-password 422 reaches the client AS a 422 with an actionable
+    // reason instead of being flattened into a generic 400. This is the fix
+    // for the "sign-up fails silently" symptom.
+    if (err instanceof SignUpError) {
+      console.error(
+        `[AUTH/SIGN-UP]: ${err.message} (code=${err.code ?? "n/a"}, status=${err.status})`,
+      );
+      return NextResponse.json(
+        { error: err.userMessage },
+        { status: err.status },
+      );
+    }
     if (err instanceof Error) {
       console.error(`[AUTH/SIGN-UP]: ${err.message}`);
       return NextResponse.json(
-        { error: `An unknown error occurred: ${err.message}` },
+        { error: `An unexpected error occurred: ${err.message}` },
         { status: 400 },
       );
-    } else {
-      console.error("An unexpected error occurred:", err);
     }
+    console.error("[AUTH/SIGN-UP]: An unexpected non-error was thrown:", err);
   }
   /*Fail by default*/
-  return NextResponse.json(
-    { error: "Something went wrong." },
-    { status: 400 },
-  );
+  return NextResponse.json({ error: "Something went wrong." }, { status: 500 });
 }

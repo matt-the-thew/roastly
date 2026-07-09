@@ -64,8 +64,33 @@ export class SessionHandler {
     );
 
     try {
-      const { data } = await supabase.auth.getClaims();
-      this.user = data?.claims;
+      const { data, error } = await supabase.auth.getClaims();
+
+      // A present `error` (rather than a thrown exception) means the request
+      // carried a session that could NOT be validated — a signature that
+      // doesn't match the project's current JWKS (rotated signing key, or a
+      // token minted by a *different* Supabase project), or a refresh token
+      // that's expired/revoked and can't be exchanged. `getClaims` reports
+      // these by returning `{ data: null, error }`, NOT by throwing, so the
+      // catch block below never sees them.
+      //
+      // Left alone, the browser keeps re-sending the same poisoned cookie on
+      // every request, `getClaims` fails again, and the user is wedged into a
+      // permanent "logged out but can't recover" state (the stale-cookie
+      // lockup). A genuinely anonymous request — no auth cookie at all —
+      // returns no error and is untouched. So on a validation error we delete
+      // the Supabase auth cookies, returning the client to a clean anonymous
+      // state from which it can sign in again.
+      if (error) {
+        console.warn(
+          `[SessionHandler]: clearing invalid session cookies — ${error.message}`,
+        );
+        this.clearAuthCookies(request, response);
+        this.user = undefined;
+      } else {
+        this.user = data?.claims;
+      }
+
       this.supabase = supabase;
       this.response = response;
     } catch (err) {
@@ -80,5 +105,28 @@ export class SessionHandler {
       }
     }
     return response;
+  }
+
+  /**
+   * Deletes every Supabase auth cookie from the response so the browser stops
+   * re-sending an unusable session. `@supabase/ssr` names its cookies
+   * `sb-<project-ref>-auth-token` and splits large ones into numbered chunks
+   * (`…auth-token.0`, `…auth-token.1`, …); it also writes a
+   * `…auth-token-code-verifier` during the PKCE flow. All share the `sb-`
+   * prefix, so clearing every `sb-` cookie present on the request reliably
+   * removes the whole (possibly chunked) session — a browser-side delete can
+   * miss chunks written with server-side cookie options.
+   *
+   * The deletions are copied onto any redirect by `RedirectService.buildRedirect`,
+   * so they survive a login/onboarding bounce in the same request.
+   * @param request - The incoming request whose cookies we're clearing.
+   * @param response - The response the `Set-Cookie` deletions are written to.
+   */
+  private clearAuthCookies(request: NextRequest, response: NextResponse): void {
+    for (const { name } of request.cookies.getAll()) {
+      if (name.startsWith("sb-")) {
+        response.cookies.delete(name);
+      }
+    }
   }
 }

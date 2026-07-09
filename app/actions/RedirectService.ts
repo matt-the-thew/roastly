@@ -1,6 +1,10 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { PROTECTED_ROUTES, AUTH_ROUTES } from "@/lib/protectedRoutes";
+import {
+  PROTECTED_ROUTES,
+  AUTH_ROUTES,
+  CONFIRMATION_ROUTES,
+} from "@/lib/protectedRoutes";
 import { NextURL } from "next/dist/server/web/next-url";
 
 /**
@@ -80,12 +84,29 @@ export class RedirectService {
   }
 
   /**
-   * Checks is reuqest url is trying to access onboarding,
+   * Checks if the request is for an informational email-confirmation screen
+   * (see {@link CONFIRMATION_ROUTES}). These are exempt from the auth-route
+   * redirect so a just-confirmed, not-yet-onboarded user can actually see the
+   * "email verified" / "check your email" pages instead of being bounced.
+   * @returns {boolean}
+   */
+  isConfirmationRoute(): boolean {
+    return CONFIRMATION_ROUTES.some((route: string): boolean =>
+      this.requestPath.startsWith(route),
+    );
+  }
+
+  /**
+   * Checks if the request is for the onboarding page itself. Used to give the
+   * "not onboarded → redirect to onboarding" rule a base case: without it, a
+   * logged-in-but-profileless user requesting `/onboarding` is redirected to
+   * `/onboarding` forever (ERR_TOO_MANY_REDIRECTS). The route is `/onboarding`
+   * (a top-level page), NOT `/auth/onboarding` — the previous path never
+   * matched, so the guard was dead.
    * @returns {boolean}
    */
   isOnboardingRoute(): boolean {
-    if (this.requestPath.startsWith("/auth/onboarding")) return true;
-    else return false;
+    return this.requestPath.startsWith("/onboarding");
   }
 
   /**

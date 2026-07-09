@@ -108,11 +108,18 @@ export default function Settings() {
     if (!confirm("Delete your account? This cannot be undone.")) return;
     // Deletion handled server-side; sign out and inform user
     const supabase = browserClient();
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut({ scope: "local" });
+    } catch (err) {
+      console.error("[handleDeleteAccount signOut]:", err);
+    }
+    // Clear any server-written cookie chunks the browser client can't match.
+    await fetch("/api/auth/sign-out", { method: "POST" }).catch(() => {});
     toast(
       "Account deletion requested. Contact support to complete removal.",
     );
     router.push("/");
+    router.refresh();
   }
 
   if (!profile) {

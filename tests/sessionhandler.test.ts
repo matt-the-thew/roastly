@@ -75,6 +75,30 @@ describe("SessionHandler", () => {
     expect(response).toBeUndefined();
   });
 
+  it("clears sb-* auth cookies and leaves user undefined when getClaims returns a validation error", async () => {
+    // getClaims reports an unverifiable session by *returning* an error, not by
+    // throwing — the stale-cookie lockup happens when that error is ignored and
+    // the poisoned cookie is never cleared.
+    (
+      mockSupabaseClient.auth as unknown as {
+        getClaims: ReturnType<typeof vi.fn>;
+      }
+    ).getClaims = vi.fn().mockResolvedValue({
+      data: null,
+      error: { message: "Invalid JWT signature" },
+    });
+
+    const handler = new SessionHandler("https://proj.supabase.co", "pub-key");
+    const response = await handler.updateSession(makeRequest());
+
+    // user is not populated from an invalid session...
+    expect(handler.user).toBeUndefined();
+    // ...and the sb- cookie carried on the request is deleted on the response
+    // so the browser stops re-sending it.
+    expect(response).toBeDefined();
+    expect(response!.cookies.get("sb-token")?.value).toBe("");
+  });
+
   it("wires cookie getAll/setAll callbacks that read from and write to the request", async () => {
     (
       mockSupabaseClient.auth as unknown as {

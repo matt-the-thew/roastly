@@ -4,6 +4,10 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  validatePassword,
+  formatMissingRequirements,
+} from "@/lib/validatePassword";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -83,17 +87,32 @@ export default function SignUpPage() {
     event: FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     event.preventDefault();
-    // loading value with toast popup
-    // stateful value read by submit button component
-    setLoading(true);
+
     /*Get formData from form element submission event */
     const formData = new FormData(event.currentTarget);
-    /*Append in-memory JWT from react state.*/
+
+    /*Require a validated beta key. Its JWT is re-checked server-side too, so
+      this is just fast feedback — bail without a network round-trip.*/
     if (!validatedBetaUser) {
       toast.error("Enter a valid beta key.");
-      throw new Error("[Account Creation Error]: Unauthorized.");
+      return;
     }
 
+    /*Validate the password client-side first so the user gets immediate,
+      specific guidance ("needs an uppercase letter and a symbol") instead of a
+      silent failure. Supabase still has the final say — any server-side
+      rejection is surfaced verbatim in the !response.ok branch below.*/
+    const password = String(formData.get("password") ?? "");
+    const { valid, missing } = validatePassword(password);
+    if (!valid) {
+      toast.error(`Your password needs ${formatMissingRequirements(missing)}.`);
+      return;
+    }
+
+    // loading value read by the submit button component
+    setLoading(true);
+
+    /*Append in-memory JWT from react state.*/
     formData.append("beta_redeem", validatedBetaUser);
     const formDataObject = Object.fromEntries(formData.entries());
 
@@ -105,7 +124,6 @@ export default function SignUpPage() {
         },
         body: JSON.stringify(formDataObject),
       });
-      setLoading(false);
 
       /*Only attempt to parse JSON when the server actually sent JSON.
         A 404/500 often returns an HTML error page, and JSON.parse on
@@ -116,33 +134,34 @@ export default function SignUpPage() {
       const data = isJson ? await response.json() : null;
 
       if (!response.ok) {
-        // log error message to user with toast
-        toast.error("There was a problem creating your account.");
-        // log error message to console
-        throw new Error(
+        /*Surface the server's specific reason (e.g. Supabase's weak-password
+          message or "email already exists") rather than a fixed generic
+          string. This is the verbose feedback the form was missing.*/
+        const message =
           data?.error ||
-            `[Account Creation Error]: Request failed (${response.status} ${response.statusText}).`,
-        );
+          `Sign-up failed (${response.status} ${response.statusText}).`;
+        toast.error(message);
+        console.error(`[Account Creation Error]: ${message}`);
+        return;
       }
 
       /*Sign-up succeeded — Supabase has sent a confirmation email. Send the
         user to the verify-email page, passing their address so it can tell
         them where the link was sent and poll for confirmation.*/
       const email = String(formDataObject.email ?? "");
+      toast.success("Account created — check your email to confirm.");
       router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err) {
+      /*A throw here is a transport failure (network/DNS/CORS), not an
+        application error — those arrive as !response.ok above.*/
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(
+        "Couldn't reach the server. Check your connection and try again.",
+      );
+      console.error(`[Account Creation Error]: ${message}`);
+    } finally {
       setLoading(false);
-      if (err instanceof Error) {
-        toast.error("There was a problem creating your account.");
-        throw new Error(`[Account Creation Error]: ${err.message}`);
-      } else {
-        toast.error("There was a problem creating your account.");
-        throw new Error(
-          `[Account Creation Error]: An unknown error occurred, ${err}`,
-        );
-      }
     }
-    toast.success("Account created successfully!");
   };
 
   return (
