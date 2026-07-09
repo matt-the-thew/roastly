@@ -55,6 +55,24 @@ describe("RedirectService", () => {
     }
   });
 
+  it("identifies the onboarding page as the onboarding route", () => {
+    // Regression: /onboarding must report as the onboarding route so the
+    // middleware's "not onboarded -> redirect to onboarding" rule has a base
+    // case and doesn't redirect /onboarding onto itself (ERR_TOO_MANY_REDIRECTS).
+    // The route is /onboarding, NOT /auth/onboarding.
+    const onboarding = new RedirectService(
+      "/onboarding",
+      new NextURL("https://test.com/onboarding"),
+    );
+    expect(onboarding.isOnboardingRoute()).toBeTruthy();
+
+    const notOnboarding = new RedirectService(
+      "/dashboard",
+      new NextURL("https://test.com/dashboard"),
+    );
+    expect(notOnboarding.isOnboardingRoute()).toBeFalsy();
+  });
+
   it("identifies requests to protected routes", () => {
     // dummyProtectedRoutes matches the route signatures in PROTECTED_ROUTES in /lib/protectedRoutes.ts
     const dummyProtectedRoutes = [

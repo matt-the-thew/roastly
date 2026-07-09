@@ -97,12 +97,16 @@ export class RedirectService {
   }
 
   /**
-   * Checks is reuqest url is trying to access onboarding,
+   * Checks if the request is for the onboarding page itself. Used to give the
+   * "not onboarded → redirect to onboarding" rule a base case: without it, a
+   * logged-in-but-profileless user requesting `/onboarding` is redirected to
+   * `/onboarding` forever (ERR_TOO_MANY_REDIRECTS). The route is `/onboarding`
+   * (a top-level page), NOT `/auth/onboarding` — the previous path never
+   * matched, so the guard was dead.
    * @returns {boolean}
    */
   isOnboardingRoute(): boolean {
-    if (this.requestPath.startsWith("/auth/onboarding")) return true;
-    else return false;
+    return this.requestPath.startsWith("/onboarding");
   }
 
   /**

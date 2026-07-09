@@ -73,8 +73,12 @@ export default async function proxy(
     }
     // if a user session exists, check if user is onboarded
     const onboarded = await rs.isOnboarded(supabase, userId);
-    if (!onboarded) {
-      // if user is not onboarded, send to onboarding
+    // Send an un-onboarded user to onboarding — but NOT when they are already
+    // ON /onboarding. /onboarding is itself a protected route, so without this
+    // base case the redirect targets the same page it fired from and loops
+    // forever (ERR_TOO_MANY_REDIRECTS). A logged-in, profileless user must be
+    // allowed to render /onboarding so they can create their profile.
+    if (!onboarded && !rs.isOnboardingRoute()) {
       return rs.onboardingRedirect(sessionResponse);
     }
   }
