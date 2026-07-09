@@ -39,7 +39,17 @@ export default async function proxy(
   );
   const sessionResponse = await handler.updateSession(request);
   const userId = handler.user?.sub;
-  const supabase = handler.supabase!;
+  const supabase = handler.supabase;
+
+  // `updateSession` returns without a client only when `getClaims` *threw* — a
+  // transient failure such as not being able to reach the JWKS endpoint (an
+  // invalid session is handled inside the handler, not here). Without a client
+  // we can't make session-aware routing decisions, so fail open and pass the
+  // request through rather than crash middleware for every route. The page's
+  // own server/client auth checks still gate access.
+  if (!supabase) {
+    return sessionResponse ?? NextResponse.next({ request });
+  }
 
   //TODO: Add beta key gate on all protected routes
 

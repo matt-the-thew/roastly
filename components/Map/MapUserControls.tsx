@@ -24,9 +24,24 @@ export default function MapUserControls() {
 
   async function signOut() {
     const supabase = browserClient();
-    await supabase.auth.signOut();
-    toast.success("Signed out");
-    router.push("/");
+    try {
+      // `local` scope skips the network revoke that can hang or throw when the
+      // session is already invalid — the button must always sign the user out
+      // and navigate, even from a broken session. This also fires SIGNED_OUT so
+      // MapContext resets `user`/`profile` immediately.
+      await supabase.auth.signOut({ scope: "local" });
+    } catch (err) {
+      console.error("[signOut]:", err);
+    } finally {
+      // Belt-and-suspenders: clear any server-written cookie chunks the browser
+      // client can't see or match on its own.
+      await fetch("/api/auth/sign-out", { method: "POST" }).catch(() => {});
+      toast.success("Signed out");
+      router.push("/");
+      // Drop the cached RSC/router state tied to the old session so nothing
+      // authed lingers after navigating.
+      router.refresh();
+    }
   }
 
   return (
