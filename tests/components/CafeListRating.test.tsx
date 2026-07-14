@@ -42,9 +42,7 @@ describe("Cafe rating", () => {
         expect(screen.getAllByAltText(emptyAltText).length).toBe(
           numberEmptyCups,
         );
-        expect(screen.getAllByAltText(fullAltText).length).toBe(
-          numberFullCups,
-        );
+        expect(screen.getAllByAltText(fullAltText).length).toBe(numberFullCups);
       },
     );
 
@@ -55,12 +53,8 @@ describe("Cafe rating", () => {
     });
     it("shows correct message when no rating exists", () => {
       render(<CafeListRating />);
-      expect(
-        screen.queryAllByDisplayValue("Not yet rated."),
-      ).toBeDefined();
-      expect(
-        screen.queryAllByDisplayValue("Rate this cafe."),
-      ).toBeDefined();
+      expect(screen.queryAllByDisplayValue("Not yet rated.")).toBeDefined();
+      expect(screen.queryAllByDisplayValue("Rate this cafe.")).toBeDefined();
     });
   });
 });

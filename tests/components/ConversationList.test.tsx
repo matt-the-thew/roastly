@@ -31,7 +31,9 @@ function setContext(overrides: Record<string, unknown> = {}) {
   });
 }
 
-function convo(overrides: Partial<ConversationSummary> = {}): ConversationSummary {
+function convo(
+  overrides: Partial<ConversationSummary> = {},
+): ConversationSummary {
   return {
     id: "c-1",
     other: {

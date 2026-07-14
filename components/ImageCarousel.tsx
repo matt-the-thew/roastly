@@ -6,7 +6,13 @@ export interface Props {
   images?: string[];
 }
 
-function PaginationDots({ count, current }: { count: number; current: number }) {
+function PaginationDots({
+  count,
+  current,
+}: {
+  count: number;
+  current: number;
+}) {
   return (
     <div className="flex gap-0.5 p-2">
       {Array.from({ length: count }).map((_, i) => (

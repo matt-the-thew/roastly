@@ -40,9 +40,7 @@ describe("getFriends", () => {
   });
 
   it("returns [] when both queries return null data", async () => {
-    fromMock.mockReturnValue(
-      createQueryBuilder({ data: null, error: null }),
-    );
+    fromMock.mockReturnValue(createQueryBuilder({ data: null, error: null }));
     const result = await friends.getFriends("me");
     expect(result).toEqual([]);
   });
@@ -91,10 +89,7 @@ describe("getIncomingRequests", () => {
     expect(fromMock).toHaveBeenCalledWith("friendships");
     expect(builder.eq).toHaveBeenCalledWith("addressee_id", "me");
     expect(builder.eq).toHaveBeenCalledWith("status", "pending");
-    expect(builder.gt).toHaveBeenCalledWith(
-      "expires_at",
-      expect.any(String),
-    );
+    expect(builder.gt).toHaveBeenCalledWith("expires_at", expect.any(String));
     expect(result).toEqual(rows);
   });
 

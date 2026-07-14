@@ -33,9 +33,7 @@ describe("LikeButton", () => {
       baseContext,
     );
     (likes.getUserLike as ReturnType<typeof vi.fn>).mockResolvedValue(false);
-    (likes.toggleLike as ReturnType<typeof vi.fn>).mockResolvedValue(
-      undefined,
-    );
+    (likes.toggleLike as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
   });
 
   afterEach(() => {

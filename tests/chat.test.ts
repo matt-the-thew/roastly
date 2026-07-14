@@ -38,9 +38,7 @@ describe("getConversations", () => {
   });
 
   it("returns [] when convos is empty", async () => {
-    fromMock.mockReturnValueOnce(
-      createQueryBuilder({ data: [], error: null }),
-    );
+    fromMock.mockReturnValueOnce(createQueryBuilder({ data: [], error: null }));
     expect(await chat.getConversations("me")).toEqual([]);
   });
 
@@ -78,13 +76,9 @@ describe("getConversations", () => {
         } as unknown as { data: unknown; error: unknown }),
       )
       // 4) c2 last message => null (no message)
-      .mockReturnValueOnce(
-        createQueryBuilder({ data: null, error: null }),
-      )
+      .mockReturnValueOnce(createQueryBuilder({ data: null, error: null }))
       // 5) c2 unread count => undefined
-      .mockReturnValueOnce(
-        createQueryBuilder({ data: null, error: null }),
-      );
+      .mockReturnValueOnce(createQueryBuilder({ data: null, error: null }));
 
     const result = await chat.getConversations("me");
 
@@ -300,9 +294,7 @@ describe("subscribeToInbox", () => {
     const onChange = vi.fn();
     const unsub = chat.subscribeToInbox(onChange);
 
-    expect(channelMock).toHaveBeenCalledWith(
-      expect.stringMatching(/^inbox:/),
-    );
+    expect(channelMock).toHaveBeenCalledWith(expect.stringMatching(/^inbox:/));
 
     const channel = channelMock.mock.results[0].value;
     const onFn = channel.on as ReturnType<typeof vi.fn>;

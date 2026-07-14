@@ -8,7 +8,8 @@ const SEARCH_DEBOUNCE_MS = 150;
 const MAX_SUGGESTIONS = 6;
 
 function matchesQuery(location: Location, query: string): boolean {
-  const haystack = `${location.name} ${location.description ?? ""} ${location.vibe ?? ""}`.toLowerCase();
+  const haystack =
+    `${location.name} ${location.description ?? ""} ${location.vibe ?? ""}`.toLowerCase();
   return haystack.includes(query);
 }
 
@@ -42,7 +43,9 @@ export default function CafeList() {
 
   const filteredLocations = useMemo(() => {
     if (!debouncedQuery) return locations;
-    return locations.filter((location) => matchesQuery(location, debouncedQuery));
+    return locations.filter((location) =>
+      matchesQuery(location, debouncedQuery),
+    );
   }, [locations, debouncedQuery]);
 
   const suggestions = useMemo(() => {

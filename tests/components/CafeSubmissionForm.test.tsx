@@ -44,7 +44,9 @@ describe("CafeSubmissionForm", () => {
 
   it("allows typing into the text inputs and textarea", () => {
     render(<CafeSubmissionForm />);
-    const cafeName = screen.getByPlaceholderText("Cafe Name") as HTMLInputElement;
+    const cafeName = screen.getByPlaceholderText(
+      "Cafe Name",
+    ) as HTMLInputElement;
     fireEvent.change(cafeName, { target: { value: "Blue Bottle" } });
     expect(cafeName.value).toBe("Blue Bottle");
 

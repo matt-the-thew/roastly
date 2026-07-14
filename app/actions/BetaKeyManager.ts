@@ -19,9 +19,7 @@ type BetaKeyTableRow = {
  */
 export class BetaKeyManager {
   // jose requires Uint8Array input for signature
-  REDEMPTION_SECRET = new TextEncoder().encode(
-    process.env.BETA_KEY_JWT_SECRET,
-  );
+  REDEMPTION_SECRET = new TextEncoder().encode(process.env.BETA_KEY_JWT_SECRET);
 
   /**
    * Creates and signs JWT to authorize sign up
@@ -58,9 +56,7 @@ export class BetaKeyManager {
 
     const supabase = getSupabaseSRClient();
     if (!supabase) {
-      throw new Error(
-        "[BetaKeyManager]: unable to initialize supabase client",
-      );
+      throw new Error("[BetaKeyManager]: unable to initialize supabase client");
     }
 
     const { data, error } = await supabase

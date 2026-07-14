@@ -1,11 +1,4 @@
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  beforeAll,
-} from "vitest";
+import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import ChatThread from "@/components/Chat/ChatThread";
 import * as chat from "@/lib/supabase/chat";
@@ -82,7 +75,9 @@ beforeEach(() => {
   vi.clearAllMocks();
   setContext();
   getMessagesMock.mockResolvedValue([]);
-  sendMessageMock.mockResolvedValue(msg({ id: "sent-1", sender_id: "me-1", body: "yo" }));
+  sendMessageMock.mockResolvedValue(
+    msg({ id: "sent-1", sender_id: "me-1", body: "yo" }),
+  );
   markReadMock.mockResolvedValue(undefined);
   subscribeMock.mockReturnValue(() => {});
 });
@@ -190,7 +185,9 @@ describe("ChatThread", () => {
   it("typing updates the draft and sending appends the message", async () => {
     render(<ChatThread />);
     await flushMicrotasks();
-    const textarea = screen.getByPlaceholderText("Message…") as HTMLTextAreaElement;
+    const textarea = screen.getByPlaceholderText(
+      "Message…",
+    ) as HTMLTextAreaElement;
     fireEvent.change(textarea, { target: { value: "yo" } });
     expect(textarea.value).toBe("yo");
 
@@ -209,7 +206,9 @@ describe("ChatThread", () => {
       cb = callback;
       return () => {};
     });
-    sendMessageMock.mockResolvedValue(msg({ id: "dup-1", sender_id: "me-1", body: "hey" }));
+    sendMessageMock.mockResolvedValue(
+      msg({ id: "dup-1", sender_id: "me-1", body: "hey" }),
+    );
     render(<ChatThread />);
     await flushMicrotasks();
 
@@ -265,7 +264,9 @@ describe("ChatThread", () => {
     sendMessageMock.mockRejectedValue(new Error("not friends anymore"));
     render(<ChatThread />);
     await flushMicrotasks();
-    const textarea = screen.getByPlaceholderText("Message…") as HTMLTextAreaElement;
+    const textarea = screen.getByPlaceholderText(
+      "Message…",
+    ) as HTMLTextAreaElement;
     fireEvent.change(textarea, { target: { value: "blocked" } });
     await act(async () => {
       fireEvent.click(screen.getByLabelText("Send"));
@@ -282,7 +283,9 @@ describe("ChatThread", () => {
     sendMessageMock.mockRejectedValue(new Error("network down"));
     render(<ChatThread />);
     await flushMicrotasks();
-    const textarea = screen.getByPlaceholderText("Message…") as HTMLTextAreaElement;
+    const textarea = screen.getByPlaceholderText(
+      "Message…",
+    ) as HTMLTextAreaElement;
     fireEvent.change(textarea, { target: { value: "oops" } });
     await act(async () => {
       fireEvent.click(screen.getByLabelText("Send"));

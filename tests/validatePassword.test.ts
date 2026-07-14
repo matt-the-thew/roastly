@@ -39,7 +39,9 @@ describe("validatePassword", () => {
   it("flags a too-short password with the length requirement", () => {
     const result = validatePassword("Ab1!");
     expect(result.valid).toBe(false);
-    expect(result.missing).toContain(`at least ${PASSWORD_MIN_LENGTH} characters`);
+    expect(result.missing).toContain(
+      `at least ${PASSWORD_MIN_LENGTH} characters`,
+    );
   });
 
   it("does not count a bare space as a symbol", () => {
