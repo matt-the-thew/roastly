@@ -11,11 +11,7 @@ interface Props {
   friendIds: string[];
 }
 
-export default function MarkerContent({
-  cafeId,
-  cafeName,
-  friendIds,
-}: Props) {
+export default function MarkerContent({ cafeId, cafeName, friendIds }: Props) {
   const [hovered, setHovered] = useState(false);
   const [friendLikers, setFriendLikers] = useState<LikeWithProfile[]>([]);
 
@@ -61,9 +57,7 @@ export default function MarkerContent({
           <p className="font-bold text-sm whitespace-nowrap">{cafeName}</p>
           <div className="flex items-center gap-2">
             <span className="text-primary text-sm">♥</span>
-            <span className="font-mono text-xs text-gray-500">
-              {likeCount}
-            </span>
+            <span className="font-mono text-xs text-gray-500">{likeCount}</span>
             {friendLikers.length > 0 && (
               <div className="flex -space-x-1 ml-1">
                 {friendLikers.map((l) => (

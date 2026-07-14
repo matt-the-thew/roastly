@@ -13,9 +13,7 @@ export interface Location {
 
 export async function fetchLocations() {
   const supabase = browserClient();
-  const { data, error } = await supabase
-    .from("cafe_list_view")
-    .select(`*`);
+  const { data, error } = await supabase.from("cafe_list_view").select(`*`);
 
   if (error) {
     console.log(error.message);

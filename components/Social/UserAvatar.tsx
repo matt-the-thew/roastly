@@ -9,7 +9,13 @@ interface Props {
   className?: string;
 }
 
-export default function UserAvatar({ displayName, username, avatarUrl, size = 32, className = "" }: Props) {
+export default function UserAvatar({
+  displayName,
+  username,
+  avatarUrl,
+  size = 32,
+  className = "",
+}: Props) {
   const initials = getInitials(displayName || username);
   const color = getAvatarColor(username);
 
@@ -29,7 +35,12 @@ export default function UserAvatar({ displayName, username, avatarUrl, size = 32
   return (
     <div
       className={`rounded-full flex items-center justify-center font-bold text-white select-none ${className}`}
-      style={{ width: size, height: size, backgroundColor: color, fontSize: size * 0.35 }}
+      style={{
+        width: size,
+        height: size,
+        backgroundColor: color,
+        fontSize: size * 0.35,
+      }}
     >
       {initials}
     </div>

@@ -87,10 +87,7 @@ interface MapContextValue {
   unreadTotal: number;
   refreshUnread: () => Promise<void>;
   openMessages: () => void;
-  openConversation: (
-    id: string,
-    other: ActiveConversation["other"],
-  ) => void;
+  openConversation: (id: string, other: ActiveConversation["other"]) => void;
   openChatWith: (other: ActiveConversation["other"]) => Promise<void>;
   // friends state
   pendingRequestCount: number;
@@ -110,8 +107,9 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   // contained within any of these regions can be served without a query.
   const [loadedRegions, setLoadedRegions] = useState<BoundingBox[]>([]);
   const [isLoadingCafes, setIsLoadingCafes] = useState(false);
-  const [selectedLocation, setSelectedLocation] =
-    useState<Location | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
+    null,
+  );
   const [selectedCity, setSelectedCity] = useState("Los Angeles");
   const [overlayView, setOverlayView] = useState<OverlayView>("cafeList");
   const [sidebarVisible, setSidebarVisible] = useState(true);
@@ -293,10 +291,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setSidebarVisible(true);
   }
 
-  function openConversation(
-    id: string,
-    other: ActiveConversation["other"],
-  ) {
+  function openConversation(id: string, other: ActiveConversation["other"]) {
     setActiveConversation({ id, other });
     setOverlayView("chatThread");
     setSidebarVisible(true);
@@ -369,7 +364,6 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
 
 export function useMapContext(): MapContextValue {
   const ctx = useContext(MapContext);
-  if (!ctx)
-    throw new Error("useMapContext must be used within MapProvider");
+  if (!ctx) throw new Error("useMapContext must be used within MapProvider");
   return ctx;
 }

@@ -43,7 +43,12 @@ function setContext(locations: Location[]) {
 }
 
 const baseLocations: Location[] = [
-  loc({ id: 1, name: "Blue Bottle", description: "cozy pour over", vibe: "calm" }),
+  loc({
+    id: 1,
+    name: "Blue Bottle",
+    description: "cozy pour over",
+    vibe: "calm",
+  }),
   loc({ id: 2, name: "Stumptown", description: "roastery", vibe: "loud" }),
   loc({ id: 3, name: "Nullsville", description: null, vibe: null }),
 ];
@@ -71,7 +76,9 @@ describe("CafeList", () => {
     expect(screen.getAllByTestId("cafe-entry")).toHaveLength(3);
     // no debounced query -> no suggestions even on focus
     fireEvent.focus(screen.getByPlaceholderText("Search cafes..."));
-    expect(screen.queryByText("Blue Bottle", { selector: "div.cursor-pointer" })).toBeNull();
+    expect(
+      screen.queryByText("Blue Bottle", { selector: "div.cursor-pointer" }),
+    ).toBeNull();
   });
 
   it("filters by name after the debounce", async () => {

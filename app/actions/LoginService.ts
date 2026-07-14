@@ -59,9 +59,7 @@ export function friendlyAuthMessage(error: AuthError): string {
     case "validation_failed":
       return "Please enter a valid email address.";
     default:
-      return (
-        error.message || "There was a problem creating your account."
-      );
+      return error.message || "There was a problem creating your account.";
   }
 }
 

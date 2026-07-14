@@ -68,9 +68,7 @@ export default function Settings() {
     }
   }
 
-  async function handleAvatarUpload(
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) {
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !profile) return;
     setUploadingAvatar(true);
@@ -115,9 +113,7 @@ export default function Settings() {
     }
     // Clear any server-written cookie chunks the browser client can't match.
     await fetch("/api/auth/sign-out", { method: "POST" }).catch(() => {});
-    toast(
-      "Account deletion requested. Contact support to complete removal.",
-    );
+    toast("Account deletion requested. Contact support to complete removal.");
     router.push("/");
     router.refresh();
   }
@@ -203,9 +199,7 @@ export default function Settings() {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-mono text-gray-500">
-              Username
-            </label>
+            <label className="text-sm font-mono text-gray-500">Username</label>
             <input
               className="border border-gray-200 rounded-md p-2 bg-gray-50 text-gray-400 cursor-not-allowed"
               value={profile.username}
@@ -228,9 +222,7 @@ export default function Settings() {
 
           <div className="flex items-center justify-between border border-gray-200 rounded-md p-3">
             <div>
-              <p className="font-mono text-sm font-bold">
-                Private account
-              </p>
+              <p className="font-mono text-sm font-bold">Private account</p>
               <p className="font-mono text-xs text-gray-400">
                 Only friends can see your full profile and activity
               </p>
@@ -262,8 +254,7 @@ export default function Settings() {
           </h2>
           <div className="flex items-center gap-3 border border-gray-200 rounded-md p-3">
             <span className="font-mono text-xl tracking-widest font-bold">
-              {profile.friend_code.slice(0, 3)}-
-              {profile.friend_code.slice(3)}
+              {profile.friend_code.slice(0, 3)}-{profile.friend_code.slice(3)}
             </span>
             <button
               onClick={() => {

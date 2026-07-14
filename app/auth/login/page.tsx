@@ -122,10 +122,7 @@ export default function Login() {
         </form>
 
         <div className="flex gap-4 text-sm font-mono">
-          <Link
-            href="/auth/sign-up"
-            className="hover:underline text-primary"
-          >
+          <Link href="/auth/sign-up" className="hover:underline text-primary">
             Create account
           </Link>
           <span className="text-gray-300">|</span>

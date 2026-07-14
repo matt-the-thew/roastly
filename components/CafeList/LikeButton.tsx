@@ -68,9 +68,10 @@ export default function LikeButton({ cafeId }: Props) {
     <button
       onClick={handleToggle}
       className={`flex items-center gap-2 px-4 py-2 rounded-full border font-mono text-sm transition-colors duration-150 cursor-pointer
-        ${liked
-          ? "bg-primary border-primary text-white"
-          : "border-gray-200 text-gray-500 hover:border-primary hover:text-primary"
+        ${
+          liked
+            ? "bg-primary border-primary text-white"
+            : "border-gray-200 text-gray-500 hover:border-primary hover:text-primary"
         }`}
     >
       <span className="text-base leading-none">{liked ? "♥" : "♡"}</span>

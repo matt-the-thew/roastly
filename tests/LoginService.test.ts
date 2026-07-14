@@ -26,18 +26,14 @@ describe("LoginService", () => {
   describe("signInWithEmail", () => {
     it("returns true when signInWithPassword succeeds", async () => {
       (
-        mockSupabaseClient.auth.signInWithPassword as ReturnType<
-          typeof vi.fn
-        >
+        mockSupabaseClient.auth.signInWithPassword as ReturnType<typeof vi.fn>
       ).mockResolvedValue({ error: null });
 
       const service = new LoginService();
       const result = await service.signInWithEmail("a@b.com", "pw");
 
       expect(result).toBe(true);
-      expect(
-        mockSupabaseClient.auth.signInWithPassword,
-      ).toHaveBeenCalledWith({
+      expect(mockSupabaseClient.auth.signInWithPassword).toHaveBeenCalledWith({
         email: "a@b.com",
         password: "pw",
       });
@@ -45,9 +41,7 @@ describe("LoginService", () => {
 
     it("returns false when signInWithPassword errors", async () => {
       (
-        mockSupabaseClient.auth.signInWithPassword as ReturnType<
-          typeof vi.fn
-        >
+        mockSupabaseClient.auth.signInWithPassword as ReturnType<typeof vi.fn>
       ).mockResolvedValue({ error: { message: "bad creds" } });
 
       const service = new LoginService();
@@ -64,9 +58,7 @@ describe("LoginService", () => {
         mockSupabaseClient.auth.getSession as ReturnType<typeof vi.fn>
       ).mockResolvedValue({ data: { session: null } });
       (
-        mockSupabaseClient.auth.signInAnonymously as ReturnType<
-          typeof vi.fn
-        >
+        mockSupabaseClient.auth.signInAnonymously as ReturnType<typeof vi.fn>
       ).mockResolvedValue({ data: {}, error: null });
 
       const service = new LoginService();
@@ -85,9 +77,7 @@ describe("LoginService", () => {
       const service = new LoginService();
       await service.signInAsDev();
 
-      expect(
-        mockSupabaseClient.auth.signInAnonymously,
-      ).not.toHaveBeenCalled();
+      expect(mockSupabaseClient.auth.signInAnonymously).not.toHaveBeenCalled();
     });
 
     describe("checkNewUser", () => {
@@ -104,9 +94,7 @@ describe("LoginService", () => {
         (
           mockSupabaseClient.auth.getUser as ReturnType<typeof vi.fn>
         ).mockResolvedValue({ data: { user: { id: "user-1" } } });
-        (
-          mockSupabaseClient.from as ReturnType<typeof vi.fn>
-        ).mockReturnValue(
+        (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
           createQueryBuilder({ data: { id: "user-1" }, error: null }),
         );
 
@@ -118,9 +106,9 @@ describe("LoginService", () => {
         (
           mockSupabaseClient.auth.getUser as ReturnType<typeof vi.fn>
         ).mockResolvedValue({ data: { user: { id: "user-1" } } });
-        (
-          mockSupabaseClient.from as ReturnType<typeof vi.fn>
-        ).mockReturnValue(createQueryBuilder({ data: null, error: null }));
+        (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
+          createQueryBuilder({ data: null, error: null }),
+        );
 
         const service = new LoginService();
         await expect(service.checkNewUser()).resolves.toBe(false);
@@ -130,9 +118,7 @@ describe("LoginService", () => {
         (
           mockSupabaseClient.auth.getUser as ReturnType<typeof vi.fn>
         ).mockResolvedValue({ data: { user: { id: "user-1" } } });
-        (
-          mockSupabaseClient.from as ReturnType<typeof vi.fn>
-        ).mockReturnValue(
+        (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
           createQueryBuilder({
             data: null,
             error: { message: "db down" },
@@ -140,9 +126,7 @@ describe("LoginService", () => {
         );
 
         const service = new LoginService();
-        await expect(service.checkNewUser()).rejects.toThrow(
-          "LOGIN_SERVICE",
-        );
+        await expect(service.checkNewUser()).rejects.toThrow("LOGIN_SERVICE");
       });
     });
 
@@ -154,9 +138,7 @@ describe("LoginService", () => {
           error: null,
         });
         (
-          mockSupabaseClient.auth.signInWithOAuth as ReturnType<
-            typeof vi.fn
-          >
+          mockSupabaseClient.auth.signInWithOAuth as ReturnType<typeof vi.fn>
         ).mockReturnValue(oauthPromise);
         (toast.promise as ReturnType<typeof vi.fn>).mockImplementation(
           (p: Promise<unknown>) => p,
@@ -165,9 +147,7 @@ describe("LoginService", () => {
         const service = new LoginService();
         await service.signInWithGoogle();
 
-        expect(
-          mockSupabaseClient.auth.signInWithOAuth,
-        ).toHaveBeenCalledWith(
+        expect(mockSupabaseClient.auth.signInWithOAuth).toHaveBeenCalledWith(
           expect.objectContaining({ provider: "google" }),
         );
         expect(toast.promise).toHaveBeenCalledWith(

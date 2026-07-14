@@ -53,11 +53,7 @@ describe("getLikeCounts", () => {
   });
 
   it("counts rows per cafe_id, zero-initializing all requested ids", async () => {
-    const rows = [
-      { cafe_id: "c1" },
-      { cafe_id: "c1" },
-      { cafe_id: "c2" },
-    ];
+    const rows = [{ cafe_id: "c1" }, { cafe_id: "c1" }, { cafe_id: "c2" }];
     const builder = createQueryBuilder({ data: rows, error: null });
     fromMock.mockReturnValue(builder);
 

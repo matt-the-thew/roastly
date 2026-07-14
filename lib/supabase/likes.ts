@@ -59,9 +59,7 @@ export async function getUserLike(
 }
 
 /** All cafes a user has liked (for profile page) */
-export async function getUserLikedCafeIds(
-  userId: string,
-): Promise<string[]> {
+export async function getUserLikedCafeIds(userId: string): Promise<string[]> {
   const supabase = browserClient();
   const { data } = await supabase
     .from("likes")

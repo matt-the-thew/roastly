@@ -83,9 +83,7 @@ export async function updateProfile(
   if (error) throw new Error(error.message);
 }
 
-export async function isUsernameAvailable(
-  username: string,
-): Promise<boolean> {
+export async function isUsernameAvailable(username: string): Promise<boolean> {
   const supabase = browserClient();
   const { data } = await supabase
     .from("profiles")

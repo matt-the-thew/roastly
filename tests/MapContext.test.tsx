@@ -1,11 +1,4 @@
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-} from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, act, waitFor } from "@testing-library/react";
 import type { User } from "@supabase/supabase-js";
 import type { BoundingBox } from "@/lib/boundingBox";
@@ -459,9 +452,7 @@ describe("deep link (?message=)", () => {
       } as never;
     });
     await renderProvider();
-    await waitFor(() =>
-      expect(mGetProfile).toHaveBeenCalledWith("ghost"),
-    );
+    await waitFor(() => expect(mGetProfile).toHaveBeenCalledWith("ghost"));
     expect(mGetOrCreate).not.toHaveBeenCalled();
     expect(ctx.overlayView).toBe("cafeList");
     // Param still stripped.

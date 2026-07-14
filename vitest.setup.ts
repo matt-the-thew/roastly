@@ -45,18 +45,16 @@ vi.mock("@/lib/supabase/client", async () => {
 // UserResponse, SupabaseClient, ...) are erased at compile time, so re-exporting
 // just the runtime factories is enough.
 vi.mock("@supabase/supabase-js", async () => {
-  const { mockSupabaseClient } = await import(
-    "@/__mocks__/supabase/supabaseClient"
-  );
+  const { mockSupabaseClient } =
+    await import("@/__mocks__/supabase/supabaseClient");
   return {
     createClient: vi.fn(() => mockSupabaseClient),
   };
 });
 
 vi.mock("@supabase/ssr", async () => {
-  const { mockSupabaseClient } = await import(
-    "@/__mocks__/supabase/supabaseClient"
-  );
+  const { mockSupabaseClient } =
+    await import("@/__mocks__/supabase/supabaseClient");
   return {
     createBrowserClient: vi.fn(() => mockSupabaseClient),
     createServerClient: vi.fn(() => mockSupabaseClient),

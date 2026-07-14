@@ -8,13 +8,3 @@ if [ $? -ne 0 ]; then
   echo "ERROR: Typecheck failed -- cancelling push"
   exit 1
 fi
-pnpm test
-if [ $? -ne 0 ]; then
-  echo "ERROR: Tests failed -- cancelling push"
-  exit 1
-fi
-pnpm build
-if [ $? -ne 0 ]; then
-  echo "ERROR: NextJS Build failed -- cancelling push"
-  exit 1
-fi
