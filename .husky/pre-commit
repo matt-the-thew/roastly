@@ -1,2 +1,10 @@
-pnpm format
-pnpm tsc --noEmit
+pnpm lint-staged
+if [ $? -ne 0 ]; then
+  echo "ERROR: Formatter failed -- cancelling push. Run \"pnpm format\""
+  exit 1
+fi
+tsc --noEmit
+if [ $? -ne 0 ]; then
+  echo "ERROR: Typecheck failed -- cancelling push"
+  exit 1
+fi
