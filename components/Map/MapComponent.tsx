@@ -65,7 +65,9 @@ export default function MapComponent({ children }: Props) {
 
   // Fly to city when selectedCity changes
   useEffect(() => {
-    const coords = CITY_COORDS[selectedCity];
+    const coords: [number, number] | undefined = selectedCity
+      ? CITY_COORDS[selectedCity]
+      : undefined;
     if (coords) {
       mapRef.current?.flyTo({
         center: coords,
@@ -118,8 +120,8 @@ export default function MapComponent({ children }: Props) {
       ref={mapRef}
       mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
       initialViewState={{
-        longitude: -118.7617,
-        latitude: 34.1533,
+        longitude: CITY_COORDS["Los Angeles"][0],
+        latitude: CITY_COORDS["Los Angeles"][1],
         zoom: 12,
       }}
       style={{ width: "100%", height: "100%" }}

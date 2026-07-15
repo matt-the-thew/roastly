@@ -56,7 +56,7 @@ export default function LoadCafesHereButton({ bounds, onLoaded }: Props) {
       <button
         type="button"
         disabled
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 rounded-full bg-gray-300 px-4 py-2 text-sm font-medium text-gray-600 shadow-md cursor-not-allowed"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 rounded-full bg-red-400 px-4 py-2 text-sm font-medium text-gray-600 shadow-md cursor-not-allowed"
       >
         Try again in {secondsLeft}s
       </button>
@@ -68,7 +68,7 @@ export default function LoadCafesHereButton({ bounds, onLoaded }: Props) {
       type="button"
       onClick={handleClick}
       disabled={isLoadingCafes}
-      className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow-md hover:bg-gray-50 disabled:opacity-60"
+      className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 rounded-full bg-primary px-4 py-2 text-sm font-medium text-gray-50 shadow-md hover:underline disabled:opacity-60 cursor-pointer"
     >
       {isLoadingCafes ? "Loading cafes…" : "Load cafes here"}
     </button>
