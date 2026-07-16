@@ -22,9 +22,7 @@ describe("Button", () => {
 
   it("does not throw when clicked without a handler", () => {
     render(<Button>NoHandler</Button>);
-    expect(() =>
-      fireEvent.click(screen.getByRole("button")),
-    ).not.toThrow();
+    expect(() => fireEvent.click(screen.getByRole("button"))).not.toThrow();
   });
 
   it("applies standard variant styling by default", () => {

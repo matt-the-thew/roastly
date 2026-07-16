@@ -109,12 +109,9 @@ export async function getOrCreateConversation(
   otherId: string,
 ): Promise<Conversation> {
   const supabase = browserClient();
-  const { data, error } = await supabase.rpc(
-    "get_or_create_conversation",
-    {
-      other_id: otherId,
-    },
-  );
+  const { data, error } = await supabase.rpc("get_or_create_conversation", {
+    other_id: otherId,
+  });
   if (error) throw new Error(error.message);
   return data as Conversation;
 }

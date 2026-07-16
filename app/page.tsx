@@ -42,10 +42,9 @@ export default function LandingPage() {
                 Curated daily, just for you.
               </p>
               <p className="px-25 mt-4 text-lg leading-6.5 font-mono">
-                Everyone deserves great coffee, and great coffee deserves
-                to be shared. Celebrate the best cafes in your community,
-                and all the people who love them just as much as you
-                do.{" "}
+                Everyone deserves great coffee, and great coffee deserves to be
+                shared. Celebrate the best cafes in your community, and all the
+                people who love them just as much as you do.{" "}
               </p>
             </div>
           </section>

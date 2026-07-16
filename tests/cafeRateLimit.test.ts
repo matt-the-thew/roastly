@@ -1,8 +1,5 @@
 import { describe, it, expect, beforeEach, beforeAll, afterAll } from "vitest";
-import {
-  registerLoadCafesClick,
-  getJailStatus,
-} from "@/lib/cafeRateLimit";
+import { registerLoadCafesClick, getJailStatus } from "@/lib/cafeRateLimit";
 
 const STORAGE_KEY = "roastly:load-cafes-clicks";
 const WINDOW_MS = 60 * 1000;
@@ -44,9 +41,11 @@ describe("cafeRateLimit", () => {
     hadLocalStorage = "localStorage" in globalThis;
     originalLocalStorage = (globalThis as { localStorage?: Storage })
       .localStorage;
-    if (typeof (globalThis as { localStorage?: Storage }).localStorage !==
-      "object" ||
-      (globalThis as { localStorage?: Storage }).localStorage == null) {
+    if (
+      typeof (globalThis as { localStorage?: Storage }).localStorage !==
+        "object" ||
+      (globalThis as { localStorage?: Storage }).localStorage == null
+    ) {
       (globalThis as { localStorage?: Storage }).localStorage =
         new MemoryStorage();
     }

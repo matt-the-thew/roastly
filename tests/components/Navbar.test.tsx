@@ -10,8 +10,6 @@ describe("Navbar", () => {
 
   it("should load the Roastly logo", () => {
     render(<Navbar />);
-    expect(
-      screen.findByRole("img", { name: "Roastly Logo" }),
-    ).toBeDefined();
+    expect(screen.findByRole("img", { name: "Roastly Logo" })).toBeDefined();
   });
 });

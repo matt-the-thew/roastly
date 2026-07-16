@@ -55,9 +55,7 @@ export default function MapOverlay() {
         {!sidebarVisible && (
           <IoIosArrowForward className="text-xl animate-pulse" />
         )}
-        {sidebarVisible && (
-          <IoIosArrowBack className="text-xl animate-pulse" />
-        )}
+        {sidebarVisible && <IoIosArrowBack className="text-xl animate-pulse" />}
       </button>
 
       {/* Right sidebar: social feed */}

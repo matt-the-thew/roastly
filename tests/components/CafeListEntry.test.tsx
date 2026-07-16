@@ -51,12 +51,21 @@ describe("CafeListEntry", () => {
 
   it("shows a fallback prompt when no description is passed", () => {
     render(<CafeListEntry title="Cafe" location={location} />);
-    expect(screen.getByText(/trouble finding this cafe's description/i)).toBeDefined();
+    expect(
+      screen.getByText(/trouble finding this cafe's description/i),
+    ).toBeDefined();
     expect(screen.getByText("Tell us about it.")).toBeDefined();
   });
 
   it("renders the rating when a rating is provided", () => {
-    render(<CafeListEntry title="Cafe" rating={4} reviewCount={12} location={location} />);
+    render(
+      <CafeListEntry
+        title="Cafe"
+        rating={4}
+        reviewCount={12}
+        location={location}
+      />,
+    );
     // CafeListRating shows the review count in parentheses when rated
     expect(screen.getByText("(12)")).toBeDefined();
   });

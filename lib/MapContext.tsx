@@ -30,6 +30,14 @@ import {
 
 const LIKE_COUNT_REFRESH_MS = 5 * 60 * 1000;
 
+// Keep at least this many cafes in the working set after a load. In sparse
+// areas the padded viewport may hold fewer, so we widen the query box until
+// the floor is met.
+const MIN_CAFES_PER_LOAD = 10;
+// Cap how far we widen, so a genuinely empty region can't spiral into
+// ever-larger (and ever more expensive) queries chasing cafes that aren't there.
+const MAX_LOAD_EXPANSIONS = 4;
+
 export type OverlayView =
   | "cafeList"
   | "cafeDetails"
@@ -62,7 +70,7 @@ interface MapContextValue {
   loadCafesInBounds: (bounds: BoundingBox) => Promise<void>;
   selectedLocation: Location | null;
   setSelectedLocation: (location: Location | null) => void;
-  selectedCity: string;
+  selectedCity: string | null;
   setSelectedCity: (city: string) => void;
   overlayView: OverlayView;
   setOverlayView: (view: OverlayView) => void;
@@ -87,10 +95,7 @@ interface MapContextValue {
   unreadTotal: number;
   refreshUnread: () => Promise<void>;
   openMessages: () => void;
-  openConversation: (
-    id: string,
-    other: ActiveConversation["other"],
-  ) => void;
+  openConversation: (id: string, other: ActiveConversation["other"]) => void;
   openChatWith: (other: ActiveConversation["other"]) => Promise<void>;
   // friends state
   pendingRequestCount: number;
@@ -110,9 +115,10 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   // contained within any of these regions can be served without a query.
   const [loadedRegions, setLoadedRegions] = useState<BoundingBox[]>([]);
   const [isLoadingCafes, setIsLoadingCafes] = useState(false);
-  const [selectedLocation, setSelectedLocation] =
-    useState<Location | null>(null);
-  const [selectedCity, setSelectedCity] = useState("Los Angeles");
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
+    null,
+  );
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [overlayView, setOverlayView] = useState<OverlayView>("cafeList");
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [feedVisible, setFeedVisible] = useState(false);
@@ -185,22 +191,29 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     [loadedRegions],
   );
 
-  // Fetches cafes within a buffered perimeter around `bounds` and merges
-  // them into the in-memory cache, so panning back into this area later
-  // is served from memory instead of re-querying Supabase.
+  // Loads the cafes for a viewport, flushing the previous working set. Starts
+  // from `bounds` padded by the standard prefetch buffer, then keeps widening
+  // the box until it holds at least MIN_CAFES_PER_LOAD cafes (or we hit the
+  // expansion cap). The resulting cafes replace `locations`, and the single
+  // region actually covered replaces `loadedRegions` — so pressing "Load cafes
+  // here" refreshes the map rather than accumulating markers indefinitely.
   const loadCafesInBounds = useCallback(async (bounds: BoundingBox) => {
     setIsLoadingCafes(true);
     try {
-      const buffered = expandBounds(bounds);
-      const fetched = await fetchLocationsInBounds(buffered);
-      setLocations((prev) => {
-        const byId = new Map(prev.map((l) => [l.id, l]));
-        for (const location of fetched) {
-          byId.set(location.id, location);
-        }
-        return Array.from(byId.values());
-      });
-      setLoadedRegions((prev) => [...prev, buffered]);
+      let region = expandBounds(bounds);
+      let fetched = await fetchLocationsInBounds(region);
+      // Each expansion re-queries the widened box, which is a superset of the
+      // previous one, so the final result already contains everything found.
+      for (
+        let i = 0;
+        fetched.length < MIN_CAFES_PER_LOAD && i < MAX_LOAD_EXPANSIONS;
+        i++
+      ) {
+        region = expandBounds(region);
+        fetched = await fetchLocationsInBounds(region);
+      }
+      setLocations(fetched);
+      setLoadedRegions([region]);
     } finally {
       setIsLoadingCafes(false);
     }
@@ -293,10 +306,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setSidebarVisible(true);
   }
 
-  function openConversation(
-    id: string,
-    other: ActiveConversation["other"],
-  ) {
+  function openConversation(id: string, other: ActiveConversation["other"]) {
     setActiveConversation({ id, other });
     setOverlayView("chatThread");
     setSidebarVisible(true);
@@ -369,7 +379,6 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
 
 export function useMapContext(): MapContextValue {
   const ctx = useContext(MapContext);
-  if (!ctx)
-    throw new Error("useMapContext must be used within MapProvider");
+  if (!ctx) throw new Error("useMapContext must be used within MapProvider");
   return ctx;
 }

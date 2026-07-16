@@ -7,10 +7,16 @@ const URL = "https://roastly.app/auth/confirm?token=abc123";
 describe("EmailTemplate", () => {
   it("renders the signup heading and body copy", () => {
     const { container } = render(
-      <EmailTemplate confirmUrl={URL} email="jane@example.com" actionType="signup" />,
+      <EmailTemplate
+        confirmUrl={URL}
+        email="jane@example.com"
+        actionType="signup"
+      />,
     );
     expect(container.textContent).toContain("Welcome to Roastly");
-    expect(container.textContent).toContain("the app for discovering and sharing");
+    expect(container.textContent).toContain(
+      "the app for discovering and sharing",
+    );
     // recipient email surfaces in the "For:" line and the footer
     expect(container.textContent).toContain("For: jane@example.com");
     expect(container.textContent).toContain(
@@ -22,7 +28,9 @@ describe("EmailTemplate", () => {
     const { container } = render(
       <EmailTemplate confirmUrl={URL} email="a@b.com" actionType="signup" />,
     );
-    const anchors = Array.from(container.querySelectorAll("a")) as HTMLAnchorElement[];
+    const anchors = Array.from(
+      container.querySelectorAll("a"),
+    ) as HTMLAnchorElement[];
     const hrefs = anchors.map((a) => a.getAttribute("href"));
     expect(hrefs.filter((h) => h === URL).length).toBe(2);
     // the raw url is also shown as visible fallback text
@@ -37,7 +45,11 @@ describe("EmailTemplate", () => {
     "renders the %s heading and matching body text",
     (actionType, heading, bodyFragment) => {
       const { container } = render(
-        <EmailTemplate confirmUrl={URL} email="x@y.com" actionType={actionType} />,
+        <EmailTemplate
+          confirmUrl={URL}
+          email="x@y.com"
+          actionType={actionType}
+        />,
       );
       expect(container.textContent).toContain(heading);
       expect(container.textContent).toContain(bodyFragment);
@@ -46,7 +58,11 @@ describe("EmailTemplate", () => {
 
   it("uses the default heading/body for an unknown action type", () => {
     const { container } = render(
-      <EmailTemplate confirmUrl={URL} email="x@y.com" actionType="something_else" />,
+      <EmailTemplate
+        confirmUrl={URL}
+        email="x@y.com"
+        actionType="something_else"
+      />,
     );
     expect(container.textContent).toContain("Action required");
     expect(container.textContent).toContain(

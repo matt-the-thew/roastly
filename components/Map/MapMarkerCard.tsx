@@ -76,9 +76,7 @@ function positionStyle({ x, y, side }: Position): CSSProperties {
 export default function MapMarkerCard({ mapRef }: Props) {
   const { selectedLocation, setSelectedLocation, userLocation } =
     useMapContext();
-  const [displayLocation, setDisplayLocation] = useState<Location | null>(
-    null,
-  );
+  const [displayLocation, setDisplayLocation] = useState<Location | null>(null);
   const [position, setPosition] = useState<Position | null>(null);
   const [images, setImages] = useState<string[]>([]);
   const [visible, setVisible] = useState(false);

@@ -59,11 +59,63 @@ export function friendlyAuthMessage(error: AuthError): string {
     case "validation_failed":
       return "Please enter a valid email address.";
     default:
-      return (
-        error.message || "There was a problem creating your account."
-      );
+      return error.message || "There was a problem creating your account.";
   }
 }
+
+/**
+ * Translates a Supabase sign-*in* {@link AuthError} into a friendly, specific
+ * message for end users.
+ *
+ * Differs from {@link friendlyAuthMessage} in two deliberate ways:
+ *  1. **No verbatim fallback.** Sign-up echoes Supabase's own message for
+ *     unmapped codes; sign-in must not. Leaking the server's raw error
+ *     vocabulary on an unauthenticated endpoint widens the attack surface by
+ *     making internal states observable, so unknown codes collapse to one
+ *     opaque, generic string.
+ *  2. **No user enumeration.** Supabase already returns a single
+ *     `invalid_credentials` code for both "wrong password" and "no such
+ *     account"; we preserve that ambiguity rather than splitting it, so an
+ *     attacker can't probe which emails are registered.
+ * @param error - The Supabase auth error from `signInWithPassword`.
+ * @returns {string} - A user-facing message, safe to display as-is.
+ */
+export function friendlyLoginMessage(error: AuthError): string {
+  /*Transport failures (Supabase unreachable, DNS/CORS, offline) surface through
+    supabase-js as an AuthRetryableFetchError with no auth `code` and status 0,
+    NOT as a thrown exception — so catch them here rather than letting them fall
+    through to the generic default. This is a connectivity problem, and saying
+    so is more actionable than "try again in a moment".*/
+  if (error.name === "AuthRetryableFetchError" || error.status === 0) {
+    return "Couldn't reach the server. Check your connection and try again.";
+  }
+
+  switch (error.code) {
+    case "invalid_credentials":
+      return "The email or password you entered is incorrect.";
+    case "email_not_confirmed":
+      return "Please confirm your email before signing in — check your inbox for the confirmation link.";
+    case "over_request_rate_limit":
+    case "over_email_send_rate_limit":
+      return "Too many sign-in attempts. Please wait a minute and try again.";
+    case "user_banned":
+      return "This account has been suspended. Contact support if you believe this is a mistake.";
+    case "email_address_invalid":
+    case "validation_failed":
+      return "Please enter a valid email address.";
+    default:
+      return "We couldn't sign you in right now. Please try again in a moment.";
+  }
+}
+
+/**
+ * Outcome of {@link LoginService.signInWithEmail}. A discriminated union so the
+ * caller can branch on `ok` and — on failure — read a display-ready `message`
+ * plus the stable Supabase `code` (used to drive UI affordances such as a
+ * "resend confirmation" link, never rendered verbatim).
+ */
+export type SignInResult =
+  { ok: true } | { ok: false; message: string; code?: string };
 
 export class LoginService {
   /**
@@ -113,25 +165,41 @@ export class LoginService {
   /**
    * Handles login data with email and password, in plaintext. To be used
    * client-side, can't be called in API since supabase is BaaS.
+   *
+   * Returns a {@link SignInResult} rather than a bare boolean so the caller can
+   * tell the user *why* a sign-in failed. The raw Supabase error is logged
+   * (with its code) for debugging but never returned to the browser — only the
+   * sanitised message from {@link friendlyLoginMessage} crosses the boundary.
    * @param email {string} - plaintext email
    * @param password {string} - plaintext password
-   * @returns {NextResponse} - Redirect to homepage
+   * @returns {Promise<SignInResult>} - `{ ok: true }` on success, otherwise a
+   * display-ready message and the Supabase error code.
    */
-  async signInWithEmail(email: string, password: string): Promise<boolean> {
+  async signInWithEmail(
+    email: string,
+    password: string,
+  ): Promise<SignInResult> {
     // sends data to supabase auth
     const { error } = await this.supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    // return error is error signing in
     if (error) {
-      console.error(`[Login_Service]: ${error}`);
-      return false;
-    } else {
-      console.log("[Login_Service]: Logged in successfully!");
-      return true;
+      /*Log the full error server-side/console for diagnostics; surface only a
+        sanitised, code-driven message to the user.*/
+      console.error(
+        `[Login_Service]: ${error.code ?? "unknown"} — ${error.message}`,
+      );
+      return {
+        ok: false,
+        message: friendlyLoginMessage(error),
+        code: error.code,
+      };
     }
+
+    console.log("[Login_Service]: Logged in successfully!");
+    return { ok: true };
   }
 
   /**

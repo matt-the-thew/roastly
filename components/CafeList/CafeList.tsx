@@ -8,13 +8,19 @@ const SEARCH_DEBOUNCE_MS = 150;
 const MAX_SUGGESTIONS = 6;
 
 function matchesQuery(location: Location, query: string): boolean {
-  const haystack = `${location.name} ${location.description ?? ""} ${location.vibe ?? ""}`.toLowerCase();
+  const haystack =
+    `${location.name} ${location.description ?? ""} ${location.vibe ?? ""}`.toLowerCase();
   return haystack.includes(query);
 }
 
 export default function CafeList() {
-  const { locations, setSelectedCity, setOverlayView, setSelectedLocation } =
-    useMapContext();
+  const {
+    locations,
+    selectedCity,
+    setSelectedCity,
+    setOverlayView,
+    setSelectedLocation,
+  } = useMapContext();
   const [searchInput, setSearchInput] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
@@ -42,7 +48,9 @@ export default function CafeList() {
 
   const filteredLocations = useMemo(() => {
     if (!debouncedQuery) return locations;
-    return locations.filter((location) => matchesQuery(location, debouncedQuery));
+    return locations.filter((location) =>
+      matchesQuery(location, debouncedQuery),
+    );
   }, [locations, debouncedQuery]);
 
   const suggestions = useMemo(() => {
@@ -60,7 +68,10 @@ export default function CafeList() {
     <div>
       <div className="flex p-4 w-full">
         <div className="relative grow">
-          <DropdownMenu sendStateData={setSelectedCity} />
+          <DropdownMenu
+            value={selectedCity ?? "Los Angeles"}
+            onChange={setSelectedCity}
+          />
         </div>
         <h1 className="text-sm text-foreground font-mono font-bold p-4 text-right">
           {filteredLocations.length} cafes available

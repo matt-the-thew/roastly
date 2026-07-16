@@ -78,9 +78,7 @@ describe("getPublicUrl", () => {
 
   it("returns the publicUrl from the cafe-images storage bucket", () => {
     const url = getPublicUrl("cafes/c1/photo.jpg");
-    expect(mockSupabaseClient.storage.from).toHaveBeenCalledWith(
-      "cafe-images",
-    );
+    expect(mockSupabaseClient.storage.from).toHaveBeenCalledWith("cafe-images");
     expect(url).toBe("https://mock.storage/cafes/c1/photo.jpg");
   });
 });

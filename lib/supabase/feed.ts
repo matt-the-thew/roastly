@@ -8,10 +8,7 @@ export interface FeedEntry {
   cafe_id: string;
   cafe_name: string;
   created_at: string;
-  profile: Pick<
-    Profile,
-    "id" | "username" | "display_name" | "avatar_url"
-  >;
+  profile: Pick<Profile, "id" | "username" | "display_name" | "avatar_url">;
 }
 
 /**

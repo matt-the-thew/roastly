@@ -77,9 +77,7 @@ describe("CafeDetails", () => {
     mockContext(selectedLocation);
     render(<CafeDetails />);
     await flush();
-    expect(
-      screen.getByRole("heading", { name: "The Roastery" }),
-    ).toBeDefined();
+    expect(screen.getByRole("heading", { name: "The Roastery" })).toBeDefined();
     expect(screen.getByText("A cozy neighborhood cafe")).toBeDefined();
     expect(screen.getByText("About")).toBeDefined();
   });

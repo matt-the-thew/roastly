@@ -27,12 +27,20 @@ export default function FriendAttribution({ cafeId }: Props) {
   const shown = friendLikers.slice(0, 3);
   const extra = friendLikers.length - shown.length;
 
-  const names = shown.map((l) => l.profiles.display_name || l.profiles.username);
+  const names = shown.map(
+    (l) => l.profiles.display_name || l.profiles.username,
+  );
   let label = "";
   if (names.length === 1) {
-    label = extra > 0 ? `${names[0]} and ${extra} other${extra > 1 ? "s" : ""} liked this` : `${names[0]} liked this`;
+    label =
+      extra > 0
+        ? `${names[0]} and ${extra} other${extra > 1 ? "s" : ""} liked this`
+        : `${names[0]} liked this`;
   } else if (names.length === 2) {
-    label = extra > 0 ? `${names[0]}, ${names[1]} and ${extra} other${extra > 1 ? "s" : ""} liked this` : `${names[0]} and ${names[1]} liked this`;
+    label =
+      extra > 0
+        ? `${names[0]}, ${names[1]} and ${extra} other${extra > 1 ? "s" : ""} liked this`
+        : `${names[0]} and ${names[1]} liked this`;
   } else {
     label = `${names[0]}, ${names[1]}, ${names[2]}${extra > 0 ? ` and ${extra} more` : ""} liked this`;
   }

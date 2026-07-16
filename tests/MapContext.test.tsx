@@ -1,11 +1,4 @@
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeEach,
-  afterEach,
-} from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, act, waitFor } from "@testing-library/react";
 import type { User } from "@supabase/supabase-js";
 import type { BoundingBox } from "@/lib/boundingBox";
@@ -67,6 +60,12 @@ const loc = (id: string, over: Partial<Record<string, unknown>> = {}) =>
     vibe: "cozy",
     ...over,
   }) as never;
+
+// A batch of >= MIN_CAFES_PER_LOAD (10) cafes, so a load resolves in a single
+// fetch without the context widening the box to chase the cafe floor.
+const manyLocs = Array.from({ length: 10 }, (_, i) => loc(`m${i}`));
+const idsOf = (list: unknown[]) =>
+  list.map((l) => (l as { id: string }).id).sort();
 
 const other = {
   id: "friend-1",
@@ -299,28 +298,26 @@ describe("social data", () => {
 });
 
 describe("loadCafesInBounds + isRegionLoaded", () => {
-  it("toggles loading, fetches expanded bounds, merges by id, and records regions", async () => {
-    mFetchLocations.mockResolvedValueOnce([loc("a"), loc("b")]);
+  const bounds: BoundingBox = { minLng: 0, minLat: 0, maxLng: 10, maxLat: 10 };
+
+  it("toggles loading, fetches the padded viewport, sets cafes, and records the region", async () => {
+    mFetchLocations.mockResolvedValueOnce(manyLocs);
     await renderProvider();
 
-    const bounds: BoundingBox = {
-      minLng: 0,
-      minLat: 0,
-      maxLng: 10,
-      maxLat: 10,
-    };
     await act(async () => {
       await ctx.loadCafesInBounds(bounds);
     });
 
-    // Expanded bounds (ratio 0.5 => pad by half the span).
+    // Padded viewport (ratio 0.5 => pad by half the span). >= 10 cafes came
+    // back, so the box was not widened — a single fetch at the padded box.
+    expect(mFetchLocations).toHaveBeenCalledTimes(1);
     expect(mFetchLocations).toHaveBeenCalledWith({
       minLng: -5,
       maxLng: 15,
       minLat: -5,
       maxLat: 15,
     });
-    expect(ctx.locations.map((l) => l.id).sort()).toEqual(["a", "b"]);
+    expect(idsOf(ctx.locations)).toEqual(idsOf(manyLocs));
     expect(ctx.isLoadingCafes).toBe(false);
 
     // Contained region is now loaded; a disjoint one is not.
@@ -335,21 +332,78 @@ describe("loadCafesInBounds + isRegionLoaded", () => {
         maxLat: 200,
       }),
     ).toBe(false);
+  });
 
-    // A second fetch with an overlapping id merges (dedupes) rather than dupes.
-    mFetchLocations.mockResolvedValueOnce([
-      loc("b", { name: "Updated B" }),
-      loc("c"),
-    ]);
+  it("flushes the previous working set (cafes + region) on the next load", async () => {
+    mFetchLocations.mockResolvedValueOnce(manyLocs);
+    await renderProvider();
     await act(async () => {
       await ctx.loadCafesInBounds(bounds);
     });
-    const ids = ctx.locations.map((l) => l.id).sort();
-    expect(ids).toEqual(["a", "b", "c"]);
-    const b = ctx.locations.find((l) => l.id === "b") as unknown as {
-      name: string;
-    };
-    expect(b.name).toBe("Updated B");
+    expect(idsOf(ctx.locations)).toEqual(idsOf(manyLocs));
+
+    // A load elsewhere replaces the old cafes and the old cached region.
+    const fresh = Array.from({ length: 10 }, (_, i) => loc(`f${i}`));
+    mFetchLocations.mockResolvedValueOnce(fresh);
+    await act(async () => {
+      await ctx.loadCafesInBounds({
+        minLng: 50,
+        minLat: 50,
+        maxLng: 60,
+        maxLat: 60,
+      });
+    });
+
+    expect(idsOf(ctx.locations)).toEqual(idsOf(fresh));
+    // The first region is no longer cached — only the new region's box is.
+    expect(
+      ctx.isRegionLoaded({ minLng: 1, minLat: 1, maxLng: 9, maxLat: 9 }),
+    ).toBe(false);
+    expect(
+      ctx.isRegionLoaded({ minLng: 51, minLat: 51, maxLng: 59, maxLat: 59 }),
+    ).toBe(true);
+  });
+
+  it("widens the box until it holds at least the minimum number of cafes", async () => {
+    // First padded box is too sparse; the once-widened box clears the floor.
+    mFetchLocations.mockResolvedValueOnce([loc("a"), loc("b")]);
+    mFetchLocations.mockResolvedValueOnce(manyLocs);
+    await renderProvider();
+
+    await act(async () => {
+      await ctx.loadCafesInBounds(bounds);
+    });
+
+    expect(mFetchLocations).toHaveBeenCalledTimes(2);
+    // Padded box first...
+    expect(mFetchLocations).toHaveBeenNthCalledWith(1, {
+      minLng: -5,
+      maxLng: 15,
+      minLat: -5,
+      maxLat: 15,
+    });
+    // ...then widened once more (another 0.5 pad on the 20-wide box => 10/side).
+    expect(mFetchLocations).toHaveBeenNthCalledWith(2, {
+      minLng: -15,
+      maxLng: 25,
+      minLat: -15,
+      maxLat: 25,
+    });
+    expect(idsOf(ctx.locations)).toEqual(idsOf(manyLocs));
+  });
+
+  it("stops widening after the expansion cap and keeps what it found", async () => {
+    // Every fetch stays under the floor, so the loop runs to the cap.
+    mFetchLocations.mockResolvedValue([loc("a")]);
+    await renderProvider();
+
+    await act(async () => {
+      await ctx.loadCafesInBounds(bounds);
+    });
+
+    // 1 initial padded fetch + MAX_LOAD_EXPANSIONS (4) widenings.
+    expect(mFetchLocations).toHaveBeenCalledTimes(5);
+    expect(idsOf(ctx.locations)).toEqual(["a"]);
   });
 });
 
@@ -459,9 +513,7 @@ describe("deep link (?message=)", () => {
       } as never;
     });
     await renderProvider();
-    await waitFor(() =>
-      expect(mGetProfile).toHaveBeenCalledWith("ghost"),
-    );
+    await waitFor(() => expect(mGetProfile).toHaveBeenCalledWith("ghost"));
     expect(mGetOrCreate).not.toHaveBeenCalled();
     expect(ctx.overlayView).toBe("cafeList");
     // Param still stripped.

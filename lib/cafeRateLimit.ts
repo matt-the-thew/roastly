@@ -35,16 +35,16 @@ export interface RateLimitResult {
 
 // Call when the user clicks "Load cafes here". Returns whether the click is
 // allowed; if not, the caller is in jail until `jailedUntil`.
-export function registerLoadCafesClick(now: number = Date.now()): RateLimitResult {
+export function registerLoadCafesClick(
+  now: number = Date.now(),
+): RateLimitResult {
   const state = readState();
 
   if (state.jailUntil && now < state.jailUntil) {
     return { allowed: false, jailedUntil: state.jailUntil };
   }
 
-  const recentClicks = state.clickTimestamps.filter(
-    (t) => now - t < WINDOW_MS,
-  );
+  const recentClicks = state.clickTimestamps.filter((t) => now - t < WINDOW_MS);
 
   if (recentClicks.length >= MAX_CLICKS) {
     const jailUntil = now + JAIL_MS;

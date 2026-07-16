@@ -8,6 +8,7 @@ import {
   LoginService,
   SignUpError,
   friendlyAuthMessage,
+  friendlyLoginMessage,
 } from "@/app/actions/LoginService";
 import {
   mockSupabaseClient,
@@ -24,36 +25,61 @@ describe("LoginService", () => {
   });
 
   describe("signInWithEmail", () => {
-    it("returns true when signInWithPassword succeeds", async () => {
+    it("returns { ok: true } when signInWithPassword succeeds", async () => {
       (
-        mockSupabaseClient.auth.signInWithPassword as ReturnType<
-          typeof vi.fn
-        >
+        mockSupabaseClient.auth.signInWithPassword as ReturnType<typeof vi.fn>
       ).mockResolvedValue({ error: null });
 
       const service = new LoginService();
       const result = await service.signInWithEmail("a@b.com", "pw");
 
-      expect(result).toBe(true);
-      expect(
-        mockSupabaseClient.auth.signInWithPassword,
-      ).toHaveBeenCalledWith({
+      expect(result).toEqual({ ok: true });
+      expect(mockSupabaseClient.auth.signInWithPassword).toHaveBeenCalledWith({
         email: "a@b.com",
         password: "pw",
       });
     });
 
-    it("returns false when signInWithPassword errors", async () => {
+    it("returns a sanitised, code-driven message when signInWithPassword errors", async () => {
       (
-        mockSupabaseClient.auth.signInWithPassword as ReturnType<
-          typeof vi.fn
-        >
-      ).mockResolvedValue({ error: { message: "bad creds" } });
+        mockSupabaseClient.auth.signInWithPassword as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({
+        error: {
+          message: "raw supabase creds message",
+          code: "invalid_credentials",
+        },
+      });
 
       const service = new LoginService();
       const result = await service.signInWithEmail("a@b.com", "wrong");
 
-      expect(result).toBe(false);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.code).toBe("invalid_credentials");
+        // The friendly message is surfaced, never Supabase's raw text.
+        expect(result.message).toMatch(/incorrect/i);
+        expect(result.message).not.toContain("raw supabase creds message");
+      }
+    });
+
+    it("never leaks Supabase's raw message for an unmapped error code", async () => {
+      (
+        mockSupabaseClient.auth.signInWithPassword as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({
+        error: {
+          message: "internal: pg connection refused",
+          code: "some_future_code",
+        },
+      });
+
+      const service = new LoginService();
+      const result = await service.signInWithEmail("a@b.com", "pw");
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.message).not.toContain("pg connection refused");
+        expect(result.message).toMatch(/couldn't sign you in/i);
+      }
     });
   });
 
@@ -64,9 +90,7 @@ describe("LoginService", () => {
         mockSupabaseClient.auth.getSession as ReturnType<typeof vi.fn>
       ).mockResolvedValue({ data: { session: null } });
       (
-        mockSupabaseClient.auth.signInAnonymously as ReturnType<
-          typeof vi.fn
-        >
+        mockSupabaseClient.auth.signInAnonymously as ReturnType<typeof vi.fn>
       ).mockResolvedValue({ data: {}, error: null });
 
       const service = new LoginService();
@@ -85,9 +109,7 @@ describe("LoginService", () => {
       const service = new LoginService();
       await service.signInAsDev();
 
-      expect(
-        mockSupabaseClient.auth.signInAnonymously,
-      ).not.toHaveBeenCalled();
+      expect(mockSupabaseClient.auth.signInAnonymously).not.toHaveBeenCalled();
     });
 
     describe("checkNewUser", () => {
@@ -104,9 +126,7 @@ describe("LoginService", () => {
         (
           mockSupabaseClient.auth.getUser as ReturnType<typeof vi.fn>
         ).mockResolvedValue({ data: { user: { id: "user-1" } } });
-        (
-          mockSupabaseClient.from as ReturnType<typeof vi.fn>
-        ).mockReturnValue(
+        (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
           createQueryBuilder({ data: { id: "user-1" }, error: null }),
         );
 
@@ -118,9 +138,9 @@ describe("LoginService", () => {
         (
           mockSupabaseClient.auth.getUser as ReturnType<typeof vi.fn>
         ).mockResolvedValue({ data: { user: { id: "user-1" } } });
-        (
-          mockSupabaseClient.from as ReturnType<typeof vi.fn>
-        ).mockReturnValue(createQueryBuilder({ data: null, error: null }));
+        (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
+          createQueryBuilder({ data: null, error: null }),
+        );
 
         const service = new LoginService();
         await expect(service.checkNewUser()).resolves.toBe(false);
@@ -130,9 +150,7 @@ describe("LoginService", () => {
         (
           mockSupabaseClient.auth.getUser as ReturnType<typeof vi.fn>
         ).mockResolvedValue({ data: { user: { id: "user-1" } } });
-        (
-          mockSupabaseClient.from as ReturnType<typeof vi.fn>
-        ).mockReturnValue(
+        (mockSupabaseClient.from as ReturnType<typeof vi.fn>).mockReturnValue(
           createQueryBuilder({
             data: null,
             error: { message: "db down" },
@@ -140,9 +158,7 @@ describe("LoginService", () => {
         );
 
         const service = new LoginService();
-        await expect(service.checkNewUser()).rejects.toThrow(
-          "LOGIN_SERVICE",
-        );
+        await expect(service.checkNewUser()).rejects.toThrow("LOGIN_SERVICE");
       });
     });
 
@@ -154,9 +170,7 @@ describe("LoginService", () => {
           error: null,
         });
         (
-          mockSupabaseClient.auth.signInWithOAuth as ReturnType<
-            typeof vi.fn
-          >
+          mockSupabaseClient.auth.signInWithOAuth as ReturnType<typeof vi.fn>
         ).mockReturnValue(oauthPromise);
         (toast.promise as ReturnType<typeof vi.fn>).mockImplementation(
           (p: Promise<unknown>) => p,
@@ -165,9 +179,7 @@ describe("LoginService", () => {
         const service = new LoginService();
         await service.signInWithGoogle();
 
-        expect(
-          mockSupabaseClient.auth.signInWithOAuth,
-        ).toHaveBeenCalledWith(
+        expect(mockSupabaseClient.auth.signInWithOAuth).toHaveBeenCalledWith(
           expect.objectContaining({ provider: "google" }),
         );
         expect(toast.promise).toHaveBeenCalledWith(
@@ -280,6 +292,60 @@ describe("LoginService", () => {
             message: "a very specific reason",
           } as AuthErrorLike),
         ).toBe("a very specific reason");
+      });
+    });
+
+    describe("friendlyLoginMessage", () => {
+      type AuthErrorLike = Parameters<typeof friendlyLoginMessage>[0];
+
+      it("gives one ambiguous message for invalid_credentials (no enumeration)", () => {
+        const msg = friendlyLoginMessage({
+          code: "invalid_credentials",
+          message: "raw",
+        } as AuthErrorLike);
+        expect(msg).toMatch(/email or password/i);
+        // Must not hint whether the account exists.
+        expect(msg).not.toMatch(/no account|not found|doesn't exist/i);
+      });
+
+      it("surfaces an actionable message for email_not_confirmed", () => {
+        expect(
+          friendlyLoginMessage({
+            code: "email_not_confirmed",
+            message: "x",
+          } as AuthErrorLike),
+        ).toMatch(/confirm your email/i);
+      });
+
+      it("maps rate-limit codes to a wait-and-retry message", () => {
+        expect(
+          friendlyLoginMessage({
+            code: "over_request_rate_limit",
+            message: "x",
+          } as AuthErrorLike),
+        ).toMatch(/too many/i);
+      });
+
+      it("does NOT echo Supabase's raw message for unknown codes", () => {
+        const msg = friendlyLoginMessage({
+          code: "some_future_code",
+          message: "a very specific internal reason",
+        } as AuthErrorLike);
+        expect(msg).not.toBe("a very specific internal reason");
+        expect(msg).toMatch(/couldn't sign you in/i);
+      });
+
+      it("treats a transport failure (AuthRetryableFetchError / status 0) as a connectivity error", () => {
+        // supabase-js wraps a failed fetch as AuthRetryableFetchError, name set
+        // and status 0, with no auth `code` — this must not fall through to the
+        // generic default.
+        const msg = friendlyLoginMessage({
+          name: "AuthRetryableFetchError",
+          status: 0,
+          message: "Failed to fetch",
+        } as AuthErrorLike);
+        expect(msg).toMatch(/couldn't reach the server/i);
+        expect(msg).not.toContain("Failed to fetch");
       });
     });
   });
