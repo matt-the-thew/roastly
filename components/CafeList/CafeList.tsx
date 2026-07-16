@@ -14,8 +14,13 @@ function matchesQuery(location: Location, query: string): boolean {
 }
 
 export default function CafeList() {
-  const { locations, setSelectedCity, setOverlayView, setSelectedLocation } =
-    useMapContext();
+  const {
+    locations,
+    selectedCity,
+    setSelectedCity,
+    setOverlayView,
+    setSelectedLocation,
+  } = useMapContext();
   const [searchInput, setSearchInput] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
@@ -63,7 +68,10 @@ export default function CafeList() {
     <div>
       <div className="flex p-4 w-full">
         <div className="relative grow">
-          <DropdownMenu sendStateData={setSelectedCity} />
+          <DropdownMenu
+            value={selectedCity ?? "Los Angeles"}
+            onChange={setSelectedCity}
+          />
         </div>
         <h1 className="text-sm text-foreground font-mono font-bold p-4 text-right">
           {filteredLocations.length} cafes available
